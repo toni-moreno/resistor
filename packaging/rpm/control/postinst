@@ -1,0 +1,75 @@
+#!/bin/sh
+
+set -e
+
+[ -f /etc/sysconfig/resistor ] && . /etc/sysconfig/resistor
+
+startresistor() {
+  if [ -x /bin/systemctl ] ; then
+		/bin/systemctl start resistor.service
+	elif [ -x /etc/init.d/resistor ] ; then
+		/etc/init.d/resistor start
+	elif [ -x /etc/rc.d/init.d/resistor ] ; then
+		/etc/rc.d/init.d/resistor start
+	fi
+}
+
+stopresistor() {
+	if [ -x /bin/systemctl ] ; then
+		/bin/systemctl stop resistor.service > /dev/null 2>&1 || :
+	elif [ -x /etc/init.d/resistor ] ; then
+		/etc/init.d/resistor stop
+	elif [ -x /etc/rc.d/init.d/resistor ] ; then
+		/etc/rc.d/init.d/resistor stop
+	fi
+}
+
+# Initial installation: $1 == 1
+# Upgrade: $1 == 2, and configured to restart on upgrade
+if [ $1 -eq 1 ] ; then
+	[ -z "$RESIST_USER" ] && RESIST_USER="resist"
+	[ -z "$RESIST_GROUP" ] && RESIST_GROUP="resist"
+	if ! getent group "$RESIST_GROUP" > /dev/null 2>&1 ; then
+    groupadd -r "$RESIST_GROUP"
+	fi
+	if ! getent passwd "$RESIST_USER" > /dev/null 2>&1 ; then
+    useradd -r -g $RESIST_USER -d /usr/share/resistor -s /sbin/nologin \
+    -c "resistor user" $RESIST_USER
+	fi
+
+ 	# Set user permissions on /var/log/resistor, /var/lib/resistor
+	mkdir -p /var/log/resistor /var/lib/resistor
+	chown -R $RESIST_USER:$RESIST_GROUP /var/log/resistor /var/lib/resistor
+	chmod 755 /var/log/resistor /var/lib/resistor
+
+	# configuration files should not be modifiable by resistor user, as this can be a security issue
+	chown -Rh root:$RESIST_GROUP /etc/resistor/*
+	chmod 755 /etc/resistor
+	find /etc/resistor -type f -exec chmod 640 {} ';'
+	find /etc/resistor -type d -exec chmod 755 {} ';'
+
+  if [ -x /bin/systemctl ] ; then
+    echo "### NOT starting on installation, please execute the following statements to configure resistor to start automatically using systemd"
+    echo " sudo /bin/systemctl daemon-reload"
+    echo " sudo /bin/systemctl enable resistor.service"
+    echo "### You can start resistor by executing"
+    echo " sudo /bin/systemctl start resistor.service"
+  elif [ -x /sbin/chkconfig ] ; then
+    echo "### NOT starting resistor by default on bootup, please execute"
+    echo " sudo /sbin/chkconfig --add resistor"
+    echo "### In order to start resistor, execute"
+    echo " sudo service resistor start"
+  fi
+elif [ $1 -ge 2 ] ; then
+  if [ -x /opt/resistor/ ]; then
+    echo "### Upgrading Notice ### "
+    echo "-- New resistor install home is /usr/share/resistor"
+    #echo "-- Please move sqlite3 database to /var/lib/resistor/"
+    echo "-- Notice: service name && binary changed to resistor"
+  fi
+
+  if [ "$RESTART_ON_UPGRADE" == "true" ]; then
+    stopresistor
+    startresistor
+  fi
+fi

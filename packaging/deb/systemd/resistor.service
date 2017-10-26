@@ -1,0 +1,25 @@
+[Unit]
+Description=Resistor Agent
+Documentation=http://github.com/toni-moreno/resistor
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/resistor
+User=resist
+Group=resist
+Type=simple
+Restart=on-failure
+WorkingDirectory=/usr/share/resistor
+ExecStart=/usr/sbin/resistor                    \
+                            --pidfile=${PID_FILE}     \
+                            --config=${CONF_FILE}     \
+                            --logs=${LOG_DIR}         \
+                            --home=${HOME_DIR}        \
+                            --data=${DATA_DIR}
+LimitNOFILE=10000
+TimeoutStopSec=20
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target
