@@ -5,11 +5,11 @@ import { HttpAPI} from '../common/httpAPI'
 
 @Component({
   selector: 'login',
-  templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
 
-export class Login {
+export class LoginComponent {
   constructor(public router: Router, public httpAPI: HttpAPI) {
   }
   ifErrors: any;

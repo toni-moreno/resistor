@@ -13,12 +13,12 @@ declare var _:any;
 
 @Component({
   selector: 'home',
-  templateUrl: './home.html',
-  styleUrls: [ './home.css' ],
+  templateUrl: './home.component.html',
+  styleUrls: [ './home.component.css' ],
   providers: [BlockUIService, HomeService]
 })
 
-export class Home {
+export class HomeComponent {
 
   @ViewChild('blocker', { read: ViewContainerRef }) container: ViewContainerRef;
   @ViewChild('importFileModal') public importFileModal : ImportFileModal;
@@ -53,7 +53,7 @@ export class Home {
   constructor(private winRef: WindowRef,public router: Router, public httpAPI: HttpAPI, private _blocker: BlockUIService, public homeService: HomeService) {
     this.nativeWindow = winRef.nativeWindow;
     this.getFooterInfo();
-    this.item_type= "webui";
+    this.item_type= "influxservers";
   }
 
   link(url: string) {

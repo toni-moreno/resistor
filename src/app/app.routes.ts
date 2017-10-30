@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { Home } from '../home/home';
-import { Login } from '../login/login';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
 
 
 export const AppRoutes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: 'home', component: Home },
-  { path: 'login', component: Login },
+  { path: 'home', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
   ];

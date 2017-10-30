@@ -1,0 +1,139 @@
+<h2>Sample Component</h2>
+<h4 class="info-mode">{{ editmode | uppercase}} </h4>
+<hr>
+<ng-container [ngSwitch]="editmode">
+  <ng-template ngSwitchCase="list">
+    <test-modal #viewModal titleName='InfluxDB Servers'></test-modal>
+    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this InfluxDB Server will affect the following components','Deleting this InfluxDB Server will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
+        [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
+    </test-modal>
+  <table-list #listTableComponent [typeComponent]="'sample-component'" [data]="data" [columns]="columns" (customClicked)="customActions($event)"></table-list>
+</ng-template>
+  <ng-template ngSwitchDefault>
+    <form [formGroup]="sampleComponentForm" class="form-horizontal" (ngSubmit)="editMode === create ? saveSampleItem() : updateSampleItem()">
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="ID">ID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
+          <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Host">Host</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Address of InfluxServer"></i>
+        <div class="col-sm-9">
+          <input formControlName="Host" id="Host" placeholder="127.0.0.1 or localhost" [ngModel]="sampleComponentForm.value.Host"/>
+          <control-messages [control]="sampleComponentForm.controls.Host"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Port">Port</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Connection port to InfluxDB server {{sampleComponentForm.value.Host}}"></i>
+        <div class="col-sm-9">
+          <input formControlName="Port" id="Port" [ngModel]="sampleComponentForm.value.Port"/>
+          <control-messages [control]="sampleComponentForm.controls.Port"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="DB">DB</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="InfluxDB Database name"></i>
+        <div class="col-sm-9">
+          <input formControlName="DB" id="DB" [ngModel]="sampleComponentForm.value.DB"/>
+          <control-messages [control]="sampleComponentForm.controls.DB"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="User">User</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Authentification user to the DB"></i>
+        <div class="col-sm-9">
+          <input formControlName="User" id="User" [ngModel]="sampleComponentForm.value.User"/>
+          <control-messages [control]="sampleComponentForm.controls.User"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Password">Password</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Authentification password to the DB of the user {{sampleComponentForm.value.User}}"></i>
+        <div class="col-sm-9">
+          <input #inputPassword formControlName="Password" id="Password" type="password"  [ngModel]="sampleComponentForm.value.Password"/>
+          <i style="margin-left:-25px; margin-right:6px" [ngClass]="inputPassword.type === 'password' ? ['glyphicon glyphicon-eye-open text-primary'] : ['glyphicon glyphicon-eye-close text-primary']" passwordToggle [input]="inputPassword"> </i>
+          <control-messages [control]="sampleComponentForm.controls.Password"></control-messages>
+        </div>
+      </div>
+
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Retention">Retention Policy</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Retention policy name to write on. RP must exist on the DB {{sampleComponentForm.value.DB}}"></i>
+        <div class="col-sm-9">
+          <input formControlName="Retention" id="Retention" [ngModel]="sampleComponentForm.value.Retention"/>
+          <control-messages [control]="sampleComponentForm.controls.Retention"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Precision">Timestamp Precision</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Sets the precision for the supplied Unix time values (valid values are [ns,u,ms,s,m,h] ). SNMP are a slow gather protocol so default snmpcollector precision are in seconds"></i>
+        <div class="col-sm-9">
+          <select formControlName="Precision" id="Precision" [ngModel]="sampleComponentForm.value.Precision">
+            <option value="h">h (hour)</option>
+            <option value="m">m (minute)</option>
+            <option default value="s">s (second)</option>
+            <option value="ms">ms (millisecond)</option>
+            <option value="u">u (microsecond)</option>
+            <option value="ns">ns (nanosecond)</option>
+          </select>
+          <control-messages [control]="sampleComponentForm.controls.Precision"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Timeout">Timeout</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Time in second that client will wait to a complete write transaction to be complete"></i>
+        <div class="col-sm-9">
+          <input formControlName="Timeout" id="Timeout" />
+          <control-messages [control]="sampleComponentForm.controls.Timeout"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="UserAgent">User Agent</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="UserAgent is the http User Agent, defaults to &quot;InfluxDBClient&quot; (useful for debugin data write in the server site)"></i>
+        <div class="col-sm-9">
+          <input formControlName="UserAgent" id="UserAgent" [ngModel]="sampleComponentForm.value.UserAgent"/>
+          <control-messages [control]="sampleComponentForm.controls.UserAgent"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Description">Description</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
+        <div class="col-sm-9">
+          <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
+          <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <button type="button"(click)="testSampleItemConnection()">Test Connection</button>
+      </div>
+      <div class="col-sm-offset-4 col-sm-5">
+        <button type="submit" [disabled]="!sampleComponentForm.valid">Submit</button>
+        <button type="reset" [disabled]="!sampleComponentForm.dirty">Reset</button>
+        <button type="button" class="ui button" (click)="cancelEdit()">Cancel</button>
+      </div>
+      <div *ngIf="alertHandler" class="col-md-4">
+        <div [ngClass]="['panel-body', 'bg-'+alertHandler.type,'text-'+alertHandler.type]">
+           <span>{{alertHandler.result}} - Ping elapsed: {{alertHandler.elapsed / 1000000 }} ms</span>
+           <p>{{alertHandler.msg}}</p>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+</ng-container>
