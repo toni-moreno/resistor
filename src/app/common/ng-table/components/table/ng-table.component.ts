@@ -1,8 +1,7 @@
-import { Component, EventEmitter, Input, Output, Pipe, PipeTransform } from '@angular/core';
+import { Component, EventEmitter, Input, Output, Pipe, PipeTransform,  } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TooltipModule } from 'ng2-bootstrap';
+import { TooltipModule } from 'ngx-bootstrap';
 import { ElapsedSecondsPipe } from '../../../elapsedseconds.pipe';
-
 
 @Component({
   selector: 'ng-table',
@@ -78,7 +77,7 @@ import { ElapsedSecondsPipe } from '../../../elapsedseconds.pipe';
             <i [ngClass]="row.valid === true ? ['glyphicon glyphicon-ok-sign label label-success'] : ['glyphicon glyphicon-warning-sign label label-warning']"> </i>
           </td>
           </ng-container>
-          <td [ngClass]="row.tooltipInfo ? (row.tooltipInfo[column.name] ? (row.tooltipInfo[column.name]['Valid'] === true ? ['bg-success'] : ['bg-danger']) : '') : ''" (click)="cellClick(row, column.name)" *ngFor="let column of columns; let i = index" container=body [tooltip]="row.tooltipInfo ? tooltipValues : (column.name === 'ID' ? row.Description : '')" [innerHtml]="sanitize(row[column.name],column.transform)" style="text-align:right">
+          <td [ngClass]="row.tooltipInfo ? (row.tooltipInfo[column.name] ? (row.tooltipInfo[column.name]['Valid'] === true ? ['bg-success'] : ['bg-danger']) : '') : ''" *ngFor="let column of columns; let i = index" container=body [tooltip]="row.tooltipInfo ? tooltipValues : (column.name === 'ID' ? row.Description : '')" [innerHtml]="sanitize(row[column.name],column.transform)" style="text-align:right">
 
           <template #tooltipValues>
             <h6>Index:{{row.Index }}</h6>

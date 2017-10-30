@@ -62,7 +62,7 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
       </div>
     </div>
   `,
-  styleUrls: ['../css/component-styles.css']
+  styleUrls: ['../../css/component-styles.css']
 })
 export class TableActions {
     @Input() counterErrors : any = [];

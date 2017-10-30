@@ -51,7 +51,7 @@ npm run postbuild #will build fronted and backend
 To execute without any configuration you need a minimal config.toml file on the conf directory.
 
 ```bash
-cp conf/sample.config.toml conf/config.toml
+cp conf/sample.resistor.toml conf/config.toml
 ./bin/resistor
 ```
 

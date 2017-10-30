@@ -4,33 +4,33 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DropdownModule } from 'ng2-bootstrap';
+import { BsDropdownModule } from 'ngx-bootstrap';
 
 // external libs
 
 import { Ng2TableModule } from './common/ng-table/ng2-table';
+/*import { TestNg2TableModule } from './common/ng-table-test/ng2-table';*/
 
-import { Home } from './home/home';
-import { Login } from './login/login';
-import { App } from './app/app';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
+import { App } from './app';
 import { HttpAPI } from './common/httpAPI';
 
-import { AppRoutes } from './app/app.routes';
+import { AppRoutes } from './app.routes';
 //common
 import { ControlMessagesComponent } from './common/control-messages.component';
 import { MultiselectDropdownModule } from './common/multiselect-dropdown'
 import { PasswordToggleDirective } from './common/custom-directives'
 import { TableActions } from './common/table-actions';
-
 //Resistor Components
 
 import { BlockUIService } from './common/blockui/blockui-service';
 
-import { AccordionModule , PaginationModule ,TabsModule } from 'ng2-bootstrap';
-import { TooltipModule } from 'ng2-bootstrap';
-import { ModalModule } from 'ng2-bootstrap';
-import { ModalDirective } from 'ng2-bootstrap';
-import { ProgressbarModule } from 'ng2-bootstrap';
+import { AccordionModule , PaginationModule ,TabsModule } from 'ngx-bootstrap';
+import { TooltipModule } from 'ngx-bootstrap';
+import { ModalModule } from 'ngx-bootstrap';
+import { ModalDirective } from 'ngx-bootstrap';
+import { ProgressbarModule } from 'ngx-bootstrap';
 
 import { GenericModal } from './common/generic-modal';
 import { AboutModal } from './home/about-modal';
@@ -50,6 +50,9 @@ import { CustomPipesModule } from './common/custom-pipe-module';
 import { BlockUIComponent } from './common/blockui/blockui-component';
 import { SpinnerComponent } from './common/spinner';
 
+import { SampleComponent } from './sample-component/sample-component.component'
+import { TableListComponent } from './common/table-list.component'
+
 
 @NgModule({
   bootstrap: [App],
@@ -66,8 +69,10 @@ import { SpinnerComponent } from './common/spinner';
     BlockUIComponent,
     TreeView,
     SpinnerComponent,
-    Home,
-    Login,
+    HomeComponent,
+    LoginComponent,
+    SampleComponent,
+    TableListComponent,
     App,
   ],
   imports: [
@@ -83,7 +88,7 @@ import { SpinnerComponent } from './common/spinner';
     ModalModule.forRoot(),
     PaginationModule.forRoot(),
     TabsModule.forRoot(),
-    DropdownModule.forRoot(),
+    BsDropdownModule.forRoot(),
     Ng2TableModule,
     RouterModule.forRoot(AppRoutes)
   ],

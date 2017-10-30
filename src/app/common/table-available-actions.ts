@@ -14,7 +14,7 @@ export class AvailableTableActions {
         return this.getDeviceAvailableActions(data);
       case 'metric':
         return this.getMetricAvailableActions();
-      case 'influxserver':
+      case 'sample-component':
         return this.getInfluxServersAvailableActions();
       case 'oidcondition':
         return this.getOIDConditionsAvailableActions();

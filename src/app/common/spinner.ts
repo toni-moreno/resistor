@@ -18,7 +18,7 @@ import {Component, Input, OnDestroy} from '@angular/core';
           <div class="sk-circle11 sk-child"></div>
           <div class="sk-circle12 sk-child"></div>
     </div>  `,
-    styleUrls:['../css/spinner.css']
+    styleUrls:['../../css/spinner.css']
 
 
 })

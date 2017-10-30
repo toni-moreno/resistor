@@ -40,7 +40,7 @@ export class HttpAPI {
     postFile(url:string, data:any, args?: RequestOptionsArgs) : Observable<any> {
         if (args == null) args = {};
         args.headers = this.headersUpload;
-        return this._http.post(encodeURI(url), data, this.headersUpload)
+        return this._http.post(encodeURI(url), data, args)
             .catch(this.handleError.bind(this));
     }
 
