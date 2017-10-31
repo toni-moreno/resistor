@@ -75,90 +75,66 @@ func (dbc *DatabaseCfg) InitDB() {
 		dbc.x.Logger().SetLevel(core.LOG_DEBUG)
 	}
 
-	/* Sync tables
-	if err = dbc.x.Sync(new(InfluxCfg)); err != nil {
-		log.Fatalf("Fail to sync database InfluxCfg: %v\n", err)
+	// Sync tables
+	if err = dbc.x.Sync(new(DeviceStatCfg)); err != nil {
+		log.Fatalf("Fail to sync database DeviceStatCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(SnmpDeviceCfg)); err != nil {
-		log.Fatalf("Fail to sync database SnmpDeviceCfg: %v\n", err)
+	if err = dbc.x.Sync(new(TemplateCfg)); err != nil {
+		log.Fatalf("Fail to sync database Template Alert Cfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(SnmpMetricCfg)); err != nil {
-		log.Fatalf("Fail to sync database SnmpMetricCfg: %v\n", err)
+	if err = dbc.x.Sync(new(ProductCfg)); err != nil {
+		log.Fatalf("Fail to sync database ProductCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(MeasurementCfg)); err != nil {
-		log.Fatalf("Fail to sync database MeasurementCfg: %v\n", err)
+	if err = dbc.x.Sync(new(KapacitorCfg)); err != nil {
+		log.Fatalf("Fail to sync database KapacitorCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(MeasFilterCfg)); err != nil {
-		log.Fatalf("Fail to sync database MeasurementFilterCfg : %v\n", err)
+	if err = dbc.x.Sync(new(RangeTimeCfg)); err != nil {
+		log.Fatalf("Fail to sync database RangeTimeCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(MeasurementFieldCfg)); err != nil {
-		log.Fatalf("Fail to sync database MeasurementFieldCfg: %v\n", err)
+	if err = dbc.x.Sync(new(OutHTTPCfg)); err != nil {
+		log.Fatalf("Fail to sync database OutHTTPOuts: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(MGroupsCfg)); err != nil {
-		log.Fatalf("Fail to sync database MGroupCfg: %v\n", err)
+	if err = dbc.x.Sync(new(AlertHTTPOutRel)); err != nil {
+		log.Fatalf("Fail to sync database Alert and HTTPOut Relationship: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(MGroupsMeasurements)); err != nil {
-		log.Fatalf("Fail to sync database MGroupsMeasurements: %v\n", err)
+	if err = dbc.x.Sync(new(AlertIdCfg)); err != nil {
+		log.Fatalf("Fail to sync database AlertIdCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(SnmpDevMGroups)); err != nil {
-		log.Fatalf("Fail to sync database SnmpDevMGroups: %v\n", err)
-	}
-	if err = dbc.x.Sync(new(SnmpDevFilters)); err != nil {
-		log.Fatalf("Fail to sync database SnmpDevFilters: %v\n", err)
-	}
-	if err = dbc.x.Sync(new(CustomFilterCfg)); err != nil {
-		log.Fatalf("Fail to sync database CustomFilterCfg: %v\n", err)
-	}
-	if err = dbc.x.Sync(new(CustomFilterItems)); err != nil {
-		log.Fatalf("Fail to sync database CustomFilterItems: %v\n", err)
-	}
-	if err = dbc.x.Sync(new(OidConditionCfg)); err != nil {
-		log.Fatalf("Fail to sync database OidConditionCfg: %v\n", err)
-	}*/
 }
 
 //LoadDbConfig get data from database
 func (dbc *DatabaseCfg) LoadDbConfig(cfg *SQLConfig) {
-	//var err error
-	return
+	var err error
 
-	/*Load Influxdb databases
-	cfg.Influxdb, err = dbc.GetInfluxCfgMap("")
+	//Load Kapacitor engines map
+	cfg.Kapacitor, err = dbc.GetKapacitorCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get Influx db's :%v", err)
+		log.Warningf("Some errors on get Kapacitor Engines URL :%v", err)
+	}
+	cfg.OutHTTP, err = dbc.GetOutHTTPCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get Out HTTP map  :%v", err)
+	}
+	cfg.RangeTime, err = dbc.GetRangeTimeCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get RangeTimes :%v", err)
+	}
+	cfg.Product, err = dbc.GetProductCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get Products map  :%v", err)
+	}
+	cfg.AlertID, err = dbc.GetAlertIdCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get AlertID map  :%v", err)
+	}
+	cfg.DeviceStat, err = dbc.GetDeviceStatCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get DeviceStats map  :%v", err)
+	}
+	cfg.Template, err = dbc.GetTemplateCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get DeviceStats map  :%v", err)
 	}
 
-	//Load metrics
-	cfg.Metrics, err = dbc.GetSnmpMetricCfgMap("")
-	if err != nil {
-		log.Warningf("Some errors on get Metrics  :%v", err)
-	}
-
-	//Load Measurements
-	cfg.Measurements, err = dbc.GetMeasurementCfgMap("")
-	if err != nil {
-		log.Warningf("Some errors on get Measurements  :%v", err)
-	}
-
-	//Load Measurement Filters
-	cfg.MFilters, err = dbc.GetMeasFilterCfgMap("")
-	if err != nil {
-		log.Warningf("Some errors on get Measurement Filters  :%v", err)
-	}
-
-	//Load measourement Groups
-
-	cfg.GetGroups, err = dbc.GetMGroupsCfgMap("")
-	if err != nil {
-		log.Warningf("Some errors on get Measurements Groups  :%v", err)
-	}
-
-	//Device
-
-	cfg.SnmpDevice, err = dbc.GetSnmpDeviceCfgMap("")
-	if err != nil {
-		log.Warningf("Some errors on get SnmpDeviceConf :%v", err)
-	}
 	dbc.resetChanges()
-	*/
 }

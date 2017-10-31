@@ -172,6 +172,12 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewApiCfgImportExport(m)
 
 	NewApiRtAgent(m)
+	NewAPIRtKapFilter(m) //Webservice for alert filtering
+
+	NewAPICfgAlertId(m)    //Alert Admin
+	NewAPICfgProduct(m)    //Product Admin
+	NewAPICfgKapacitor(m)  //Kapacitor URL's
+	NewAPICfgDeviceStat(m) //Device Stats
 
 	log.Printf("Server is running on localhost:%d...", port)
 	httpServer := fmt.Sprintf("0.0.0.0:%d", port)

@@ -26,6 +26,10 @@ var reqSignedIn = func(ctx *Context) {
 	}
 }
 
+var reqAlertSignedIn = func(ctx *Context) {
+	return
+}
+
 func initContextWithUserSessionCookie(ctx *Context) bool {
 	// initialize session
 	if err := ctx.Session.Start(ctx); err != nil {

@@ -68,6 +68,22 @@
  #adds extra tags to the measurement config should be set as a csv - tag=value1,tag2=value2,...,tagN=valN
  extratags = [ "instance=resistor01" ]
 
+ # InfluxDB configuration needed if selfmon enabled
+  [influxdb]
+  id = "influx_monitor"
+  host = "127.0.0.1"
+  port = 8086
+  db =   "monitordb"
+  user =  "resistoruser"
+  password = "resistorpass"
+  retention = "autogen"
+  #posible values [h,m,s,ms,u,ns] default seconds for the nature of data
+  precision = "s"
+  timeout   =  50
+  useragent = "resistor-db"
+
+
+
 ############################
 # Embedded WebServer Config
 ############################
