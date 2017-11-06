@@ -1,66 +1,53 @@
 import { Injectable } from '@angular/core';
-import { HttpAPI } from '../common/httpAPI'
 import { Observable } from 'rxjs/Observable';
-
-import { TableData } from './sample-component.data'
+import { HttpService } from '../core/http.service';
 
 declare var _:any;
 
 @Injectable()
-export class SampleComponentService {
+export class KapacitorService {
 
-    constructor(public httpAPI: HttpAPI) {
+    constructor(private http: HttpService,) {
     }
 
-    addSampleItem(dev) {
-        return this.httpAPI.post('/api/cfg/influxservers',JSON.stringify(dev,function (key,value) {
-                if ( key == 'Port'  ||
+    addKapacitorItem(dev) {
+        return this.http.post('/api/cfg/kapacitor',JSON.stringify(dev,function (key,value) {
+              /*  if ( key == 'Port'  ||
                 key == 'Timeout' ) {
                   return parseInt(value);
                 }
+              */
                 return value;
         }))
         .map( (responseData) => responseData.json());
 
     }
 
-    editSampleItem(dev, id) {
-        return this.httpAPI.put('/api/cfg/influxservers/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'Port'  ||
-            key == 'Timeout' ) {
-              return parseInt(value);
-            }
+    editKapacitorItem(dev, id) {
+        return this.http.put('/api/cfg/kapacitor/'+id,JSON.stringify(dev,function (key,value) {
             return value;
-
         }))
         .map( (responseData) => responseData.json());
     }
 
 
-    getSampleItem(filter_s: string) {
-        // return an observable
-        let data : Array<any> = TableData;
-        let test = Observable.of(data);
-
-        return test;
-
-        /*return this.httpAPI.get('/api/cfg/influxservers')
+    getKapacitorItem(filter_s: string) {
+        return this.http.get('/api/cfg/kapacitor')
         .map( (responseData) => {
             return responseData.json();
         })
-        */
     }
 
-    getSampleItemById(id : string) {
+    getKapacitorItemById(id : string) {
         // return an observable
         console.log("ID: ",id);
-        return this.httpAPI.get('/api/cfg/influxservers/'+id)
+        return this.http.get('/api/cfg/kapacitor/'+id)
         .map( (responseData) =>
             responseData.json()
     )};
 
-    checkOnDeleteSampleItem(id : string){
-      return this.httpAPI.get('/api/cfg/influxservers/checkondel/'+id)
+    checkOnDeleteKapacitorItem(id : string){
+      return this.http.get('/api/cfg/kapacitor/checkondel/'+id)
       .map( (responseData) =>
        responseData.json()
       ).map((deleteobject) => {
@@ -77,13 +64,9 @@ export class SampleComponentService {
       });
     };
 
-    testSampleItem(influxserver) {
+    testKapacitorItem(instance) {
       // return an observable
-      return this.httpAPI.post('/api/cfg/influxservers/ping/',JSON.stringify(influxserver,function (key,value) {
-          if ( key == 'Port'  ||
-          key == 'Timeout' ) {
-            return parseInt(value);
-          }
+      return this.http.post('/api/cfg/kapacitor/ping/',JSON.stringify(instance,function (key,value) {
           return value;
       }))
       .map(
@@ -91,9 +74,9 @@ export class SampleComponentService {
       );
     };
 
-    deleteSampleItem(id : string) {
+    deleteKapacitorItem(id : string) {
         // return an observable
-        return this.httpAPI.delete('/api/cfg/influxservers/'+id)
+        return this.http.delete('/api/cfg/kapacitor/'+id)
         .map( (responseData) =>
          responseData.json()
         );
