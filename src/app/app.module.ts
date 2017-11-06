@@ -14,7 +14,6 @@ import { Ng2TableModule } from './common/ng-table/ng2-table';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { App } from './app';
-import { HttpAPI } from './common/httpAPI';
 
 import { AppRoutes } from './app.routes';
 //common
@@ -31,11 +30,13 @@ import { TooltipModule } from 'ngx-bootstrap';
 import { ModalModule } from 'ngx-bootstrap';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ProgressbarModule } from 'ngx-bootstrap';
+import { TimepickerModule } from 'ngx-bootstrap';
 
 import { GenericModal } from './common/generic-modal';
 import { AboutModal } from './home/about-modal';
 import { TreeView } from './common/dataservice/treeview';
 import { ImportFileModal } from './common/dataservice/import-file-modal'
+import { CoreModule } from './core/core.module';
 
 //others
 import { WindowRef } from './common/windowref';
@@ -50,8 +51,11 @@ import { CustomPipesModule } from './common/custom-pipe-module';
 import { BlockUIComponent } from './common/blockui/blockui-component';
 import { SpinnerComponent } from './common/spinner';
 
-import { SampleComponent } from './sample-component/sample-component.component'
-import { TableListComponent } from './common/table-list.component'
+import { TableListComponent } from './common/table-list.component';
+import { KapacitorComponent } from './kapacitor/kapacitor.component';
+import { RangeTimeComponent } from './rangetime/rangetime.component';
+import { ProductComponent } from './product/product.component';
+import { TemplateComponent } from './template/template.component';
 
 
 @NgModule({
@@ -71,17 +75,22 @@ import { TableListComponent } from './common/table-list.component'
     SpinnerComponent,
     HomeComponent,
     LoginComponent,
-    SampleComponent,
+    KapacitorComponent,
+    RangeTimeComponent,
+    ProductComponent,
+    TemplateComponent,
     TableListComponent,
     App,
   ],
   imports: [
+    CoreModule,
     CustomPipesModule,
     HttpModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     MultiselectDropdownModule,
+
     ProgressbarModule.forRoot(),
     AccordionModule.forRoot(),
     TooltipModule.forRoot(),
@@ -89,16 +98,16 @@ import { TableListComponent } from './common/table-list.component'
     PaginationModule.forRoot(),
     TabsModule.forRoot(),
     BsDropdownModule.forRoot(),
+    TimepickerModule.forRoot(),
     Ng2TableModule,
     RouterModule.forRoot(AppRoutes)
   ],
   providers: [
     WindowRef,
-    HttpAPI,
     ExportServiceCfg,
     ValidationService,
     BlockUIService
   ],
-  entryComponents: [BlockUIComponent]
+  entryComponents: [BlockUIComponent,KapacitorComponent,RangeTimeComponent,ProductComponent,TemplateComponent]
 })
 export class AppModule {}

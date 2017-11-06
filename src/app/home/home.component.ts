@@ -1,7 +1,6 @@
 import { Component, ViewChild,ViewContainerRef } from '@angular/core';
 import { NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpAPI} from '../common/httpAPI';
 import { Observable } from 'rxjs/Observable';
 import { BlockUIService } from '../common/blockui/blockui-service';
 import { BlockUIComponent } from '../common/blockui/blockui-component'; // error
@@ -9,6 +8,11 @@ import { ImportFileModal } from '../common/dataservice/import-file-modal';
 import { HomeService } from './home.service';
 import { AboutModal } from './about-modal'
 import { WindowRef } from '../common/windowref';
+import { KapacitorComponent } from '../kapacitor/kapacitor.component';
+import { RangeTimeComponent } from '../rangetime/rangetime.component';
+import { ProductComponent } from '../product/product.component';
+import { TemplateComponent } from '../template/template.component';
+
 declare var _:any;
 
 @Component({
@@ -26,19 +30,29 @@ export class HomeComponent {
   @ViewChild('RuntimeComponent') public rt : any;
   nativeWindow: any
   response: string;
-  api: string;
   item_type: string;
   version: RInfo;
+  menuItems : Array<any> = [
+  {'groupName' : 'Runtime', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
+  [
+    {'title': 'Agent status', 'selector' : 'runtime', 'component': null}
+  ]},
+  {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
+    [
+    {'title': 'Kapacitor', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
+    {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
+    {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
+    {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
+
+    ]
+  }];
+
+
   configurationItems : Array<any> = [
-  {'title': 'ConfItem 1', 'selector' : 'conf1'},
-  {'title': 'ConfItem 2', 'selector' : 'conf2'},
-  {'title': 'ConfItem 3', 'selector' : 'conf3'},
-  {'title': 'ConfItem 4', 'selector' : 'conf4'},
-  {'title': 'ConfItem 5', 'selector' : 'conf5'},
-  {'title': 'ConfItem 6', 'selector' : 'conf6'},
-  {'title': 'ConfItem 7', 'selector' : 'conf7'},
-  {'title': 'ConfItem 8', 'selector' : 'conf8'},
+    {'title': 'Kapacitor', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
   ];
+
+  componentList = KapacitorComponent;
 
   runtimeItems : Array<any> = [
   {'title': 'Agent status', 'selector' : 'runtime1'},
@@ -50,16 +64,22 @@ export class HomeComponent {
   elapsedReload: string = '';
   lastReload: Date;
 
-  constructor(private winRef: WindowRef,public router: Router, public httpAPI: HttpAPI, private _blocker: BlockUIService, public homeService: HomeService) {
+  constructor(private winRef: WindowRef,public router: Router, private _blocker: BlockUIService, public homeService: HomeService) {
     this.nativeWindow = winRef.nativeWindow;
     this.getFooterInfo();
-    this.item_type= "influxservers";
+    this.item_type= "kapacitor-component";
   }
 
   link(url: string) {
     this.nativeWindow.open(url);
   }
 
+  expandMenu(i : any) : boolean{
+    console.log(i);
+    this.menuItems[i].expanded = !this.menuItems[i].expanded;
+    console.log(this.menuItems[i].expanded);
+    return this.menuItems[i].expanded;
+  }
 
   logout() {
     this.homeService.userLogout()
@@ -77,9 +97,10 @@ export class HomeComponent {
     this.mode = !this.mode
   }
 
-  clickMenu(selected : string) : void {
+  clickMenu(menuItem : any) : void {
     this.item_type = "";
-    this.item_type = selected;
+    this.item_type = menuItem.selector;
+    this.componentList = menuItem.component;
   }
 
   showImportModal() {

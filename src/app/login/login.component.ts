@@ -1,7 +1,7 @@
 
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpAPI} from '../common/httpAPI'
+import { HttpService} from '../core/http.service'
 
 @Component({
   selector: 'login',
@@ -10,14 +10,14 @@ import { HttpAPI} from '../common/httpAPI'
 })
 
 export class LoginComponent {
-  constructor(public router: Router, public httpAPI: HttpAPI) {
+  constructor(public router: Router, public http: HttpService) {
   }
   ifErrors: any;
 
   login(event, username, password) {
     event.preventDefault();
     let body = JSON.stringify({ username, password });
-    this.httpAPI.post('/login', body)
+    this.http.post('/login', body)
       .subscribe(
         response => {
           this.router.navigate(['home']);
