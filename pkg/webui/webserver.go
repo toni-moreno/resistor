@@ -176,7 +176,9 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 
 	NewAPICfgAlertId(m)    //Alert Admin
 	NewAPICfgProduct(m)    //Product Admin
+	NewAPICfgTemplate(m)   //Alert Template
 	NewAPICfgKapacitor(m)  //Kapacitor URL's
+	NewAPICfgRangeTime(m)  //RangeTime
 	NewAPICfgDeviceStat(m) //Device Stats
 
 	log.Printf("Server is running on localhost:%d...", port)

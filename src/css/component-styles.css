@@ -42,7 +42,7 @@ select,input {
     border-radius: 4px;
 }
 
-button {
+/*button {
   margin-top: 4px;
   color: #fff;
   background-color: #337ab7;
@@ -51,7 +51,7 @@ button {
   padding: 4px 8px;
   font-size: 1em;
   font-weight: 300;
-}
+}*/
 
 input:focus.ng-invalid,select:focus.ng-invalid, textarea:focus.ng-invalid {
   box-shadow: 0 0 5px #a94442;
@@ -94,12 +94,12 @@ input:focus.ng-valid, select:focus.ng-valid{
 }
 
 
-button[disabled] {
+/*button[disabled] {
   background-color: #337ab7;
   border-color: #2e6da4;
   opacity: .65;
   cursor: not-allowed;
-}
+}*/
 
 control-messages {
   color: #E82C0C;

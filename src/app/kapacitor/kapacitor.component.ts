@@ -1,72 +1,63 @@
-import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { SampleComponentService } from './sample-component.service';
+import { KapacitorService } from './kapacitor.service';
 import { ValidationService } from '../common/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
 import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
-import { TableListComponent } from '../common/table-list.component'
+import { TableListComponent } from '../common/table-list.component';
+import { KapacitorComponentConfig } from './kapacitor.data';
 
 declare var _:any;
 
 @Component({
-  selector: 'sample-component',
-  providers: [SampleComponentService, ValidationService],
-  templateUrl: './sample-component.component.html',
+  selector: 'kapacitor-component',
+  providers: [KapacitorService, ValidationService],
+  templateUrl: './kapacitor.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class SampleComponent {
+export class KapacitorComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
+  @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
 
-  editmode: string; //list , create, modify
-  componentList: Array<any>;
-  filter: string;
-  sampleComponentForm: any;
-  alertHandler : any = null;
+
+  public editmode: string; //list , create, modify
+  public componentList: Array<any>;
+  public filter: string;
+  public sampleComponentForm: any;
+  public alertHandler : any = null;
   public counterItems : number = null;
   public counterErrors: any = [];
+  public defaultConfig : any = KapacitorComponentConfig;
 
+  public selectedArray : any = [];
 
-  editEnabled : boolean = false;
-  selectedArray : any = [];
-
-  public data : Array<any> = [];
-
+  public data : Array<any>;
   public isRequesting : boolean;
-
 
   private builder;
   private oldID : string;
-  public columns: Array<any> = [
-    { title: 'ID', name: 'ID' },
-    { title: 'position', name: 'position' }
-  ];
 
-
-  constructor(public sampleComponentService: SampleComponentService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  ngOnInit() {
     this.editmode = 'list';
+    console.log(this.defaultConfig);
     this.reloadData();
+  }
+
+  constructor(public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      Host: [this.sampleComponentForm ? this.sampleComponentForm.value.Host : '', Validators.required],
-      Port: [this.sampleComponentForm ? this.sampleComponentForm.value.Port : '', Validators.compose([Validators.required, ValidationService.uintegerNotZeroValidator])],
-      DB: [this.sampleComponentForm ? this.sampleComponentForm.value.DB : '', Validators.required],
-      User: [this.sampleComponentForm ? this.sampleComponentForm.value.User : '', Validators.required],
-      Password: [this.sampleComponentForm ? this.sampleComponentForm.value.Password : '', Validators.required],
-      Retention: [this.sampleComponentForm ? this.sampleComponentForm.value.Retention : 'autogen', Validators.required],
-      Precision: [this.sampleComponentForm ? this.sampleComponentForm.value.Precision : 's', Validators.required],
-      Timeout: [this.sampleComponentForm ? this.sampleComponentForm.value.Timeout : 30, Validators.compose([Validators.required, ValidationService.uintegerNotZeroValidator])],
-      UserAgent: [this.sampleComponentForm ? this.sampleComponentForm.value.UserAgent : ''],
+      URL: [this.sampleComponentForm ? this.sampleComponentForm.value.URL : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -74,12 +65,13 @@ export class SampleComponent {
   reloadData() {
     // now it's a simple subscription to the observable
     this.alertHandler = null;
-    this.sampleComponentService.getSampleItem(null)
+    this.kapacitorService.getKapacitorItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
         this.componentList = data
         this.data = data;
+        this.editmode = "list";
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -87,9 +79,10 @@ export class SampleComponent {
   }
 
   customActions(action : any) {
+    console.log(action);
     switch (action.option) {
       case 'new' :
-        this.newSampleItem()
+        this.newItem()
       case 'view':
         this.viewItem(action.event);
       break;
@@ -99,22 +92,28 @@ export class SampleComponent {
       case 'remove':
         this.removeItem(action.event);
       break;
+      case 'tableaction':
+        this.applyAction(action.event, action.data);
+      break;
     }
   }
 
 
-  applyAction(test : any) : void {
-    switch(test.action) {
+  applyAction(action : any, data? : Array<any>) : void {
+    console.log(action);
+    this.selectedArray = data || [];
+    console.log(this.selectedArray);
+    switch(action.action) {
        case "RemoveAllSelected": {
           this.removeAllSelectedItems(this.selectedArray);
           break;
        }
        case "ChangeProperty": {
-          this.updateAllSelectedItems(this.selectedArray,test.field,test.value)
+          this.updateAllSelectedItems(this.selectedArray,action.field,action.value)
           break;
        }
        case "AppendProperty": {
-         this.updateAllSelectedItems(this.selectedArray,test.field,test.value,true);
+         this.updateAllSelectedItems(this.selectedArray,action.field,action.value,true);
        }
        default: {
           break;
@@ -136,12 +135,13 @@ export class SampleComponent {
       obsArray.push(this.deleteSampleItem(myArray[i].ID,true));
     }
     this.genericForkJoin(obsArray);
+    console.log(this.counterItems);
   }
 
   removeItem(row) {
     let id = row.ID;
     console.log('remove', id);
-    this.sampleComponentService.checkOnDeleteSampleItem(id)
+    this.kapacitorService.checkOnDeleteKapacitorItem(id)
       .subscribe(
         data => {
         this.viewModalDelete.parseObject(data)
@@ -150,7 +150,7 @@ export class SampleComponent {
       () => { }
       );
   }
-  newSampleItem() {
+  newItem() {
     //No hidden fields, so create fixed Form
     this.createStaticForm();
     this.editmode = "create";
@@ -158,7 +158,7 @@ export class SampleComponent {
 
   editSampleItem(row) {
     let id = row.ID;
-    this.sampleComponentService.getSampleItemById(id)
+    this.kapacitorService.getKapacitorItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
@@ -172,15 +172,15 @@ export class SampleComponent {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.sampleComponentService.deleteSampleItem(id)
+    this.kapacitorService.deleteKapacitorItem(id)
       .subscribe(data => { },
       err => console.error(err),
-      () => { this.viewModalDelete.hide(); this.editmode = "list"; this.reloadData() }
+      () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.sampleComponentService.deleteSampleItem(id)
+      return this.kapacitorService.deleteKapacitorItem(id)
       .do(
-        (test) =>  { this.counterItems++},
+        (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
       );
     }
@@ -192,8 +192,9 @@ export class SampleComponent {
   }
 
   saveSampleItem() {
+    console.log("SAVE");
     if (this.sampleComponentForm.valid) {
-      this.sampleComponentService.addSampleItem(this.sampleComponentForm.value)
+      this.kapacitorService.addKapacitorItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
         err => {
           console.log(err);
@@ -235,10 +236,10 @@ export class SampleComponent {
       if (this.sampleComponentForm.valid) {
         var r = true;
         if (this.sampleComponentForm.value.ID != this.oldID) {
-          r = confirm("Changing Influx Server ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
+          r = confirm("Changing Kapacitor Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
         }
         if (r == true) {
-          this.sampleComponentService.editSampleItem(this.sampleComponentForm.value, this.oldID)
+          this.kapacitorService.editKapacitorItem(this.sampleComponentForm.value, this.oldID)
             .subscribe(data => { console.log(data) },
             err => console.error(err),
             () => { this.editmode = "list"; this.reloadData() }
@@ -246,7 +247,7 @@ export class SampleComponent {
         }
       }
     } else {
-      return this.sampleComponentService.editSampleItem(component, component.ID)
+      return this.kapacitorService.editKapacitorItem(component, component.ID)
       .do(
         (test) =>  { this.counterItems++ },
         (err) => { this.counterErrors.push({'ID': component['ID'], 'error' : err['_body']})}
@@ -259,9 +260,9 @@ export class SampleComponent {
 
 
   testSampleItemConnection() {
-    this.sampleComponentService.testSampleItem(this.sampleComponentForm.value)
+    this.kapacitorService.testKapacitorItem(this.sampleComponentForm.value)
     .subscribe(
-    data =>  this.alertHandler = {msg: 'Influx Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
+    data =>  this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
     err => {
         let error = err.json();
         this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}

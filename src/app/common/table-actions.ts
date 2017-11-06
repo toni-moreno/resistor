@@ -28,7 +28,7 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
       <div *ngIf="selectedOption" style="float:left; width: auto; border-left: 1px solid #1B809E; padding: 0px 10px 0px 10px;">
           <span *ngIf="selectedOption.type === 'button'">Action:</span>
           <!--simple button-->
-          <button *ngIf="selectedOption.type === 'button'" style="padding-top: 0px; margin-top: 0px;" (click)="applyAction(selectedOption.action,null,null)" [disabled]="itemsSelected === 0">{{selectedOption.action}}</button>
+          <button class="btn btn-primary" *ngIf="selectedOption.type === 'button'" style="padding-top: 0px; margin-top: 0px;" (click)="applyAction(selectedOption.action,null,null)" [disabled]="itemsSelected === 0">{{selectedOption.action}}</button>
           <!--selector-->
           <ng-container *ngIf="selectedOption.type === 'selector'">
             <span *ngIf="selectedOption.type === 'selector'">Field:</span>
@@ -50,15 +50,15 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
         </div>
       </div>
       <div class="col-md-1" *ngIf="propertySelected">
-          <button style="padding-top: 0px; margin-top: 0px;" (click)="applyAction(selectedOption.action,selectorSelected.title,propertySelected)" [disabled]="itemsSelected === 0 || (selectorSelected.type === 'input' ? !selectorSelected.options.valid : false)">Apply</button>
+          <button class="btn btn-primary" style="padding-top: 0px; margin-top: 0px;" (click)="applyAction(selectedOption.action,selectorSelected.title,propertySelected)" [disabled]="itemsSelected === 0 || (selectorSelected.type === 'input' ? !selectorSelected.options.valid : false)">Apply</button>
       </div>
       <div class="col-md-3 text-right" *ngIf="actionApplied">
       <progressbar *ngIf="actionApplied" class="progress-striped active" [value]="itemsApplied === counterErrors.length ? itemsApplied : counterItems" [max]="itemsApplied" [type]="counterItems === itemsApplied ? 'success' : 'danger'" style="width : auto">
         {{counterItems}} <i *ngIf="counterItems !== itemsApplied && counterErrors.length > 0" class="glyphicon glyphicon-exclamation-sign" [tooltip]="errorTooltip"></i> / {{itemsApplied}}
       </progressbar>
-      <template #errorTooltip>
+      <ng-template #errorTooltip>
         <p *ngFor="let error of counterErrors">{{error.ID}} - {{error.error}}</p>
-      </template>
+      </ng-template>
       </div>
     </div>
   `,

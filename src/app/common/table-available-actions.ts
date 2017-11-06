@@ -14,8 +14,8 @@ export class AvailableTableActions {
         return this.getDeviceAvailableActions(data);
       case 'metric':
         return this.getMetricAvailableActions();
-      case 'sample-component':
-        return this.getInfluxServersAvailableActions();
+      case 'kapacitor-component':
+        return this.getKapacitorAvailableActions();
       case 'oidcondition':
         return this.getOIDConditionsAvailableActions();
       case 'measgroup':
@@ -158,29 +158,11 @@ export class AvailableTableActions {
     return tableAvailableActions;
   }
 
-  getInfluxServersAvailableActions (data ? : any) : any {
+  getKapacitorAvailableActions (data ? : any) : any {
     let tableAvailableActions = [
     //Remove Action
       {'title': 'Remove', 'content' :
         {'type' : 'button','action' : 'RemoveAllSelected'}
-      },
-    //Change Property Action
-      {'title': 'Change property', 'content' :
-        {'type' : 'selector', 'action' : 'ChangeProperty', 'options' : [
-          {'title' : 'Precision', 'type':'boolean', 'options' : [
-            'h','m','s','ms','u','ns']
-          },
-          {'title': 'Retention','type':'input', 'options':
-            new FormGroup({
-              formControl : new FormControl('', Validators.required)
-            })
-          },
-          {'title': 'Timeout','type':'input', 'options':
-            new FormGroup({
-              formControl : new FormControl('', Validators.compose([Validators.required, ValidationService.uintegerNotZeroValidator]))
-            })
-          }
-        ]},
       }
     ];
     return tableAvailableActions;

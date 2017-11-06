@@ -1,11 +1,11 @@
-import { Component, Input, Output, EventEmitter, forwardRef, IterableDiffers } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, IterableDiffers,SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs/Rx';
 
 import { ItemsPerPageOptions } from './global-constants';
 import { TableActions } from './table-actions';
 import { AvailableTableActions } from './table-available-actions';
-import { AfterContentInit } from '@angular/core';
+import { OnInit,OnChanges } from '@angular/core';
 
 
 import { ChangeDetectionStrategy } from '@angular/core';
@@ -36,9 +36,9 @@ declare var _:any;
       </div>
     </div>
     <br>
-    <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="applyAction($event)"></table-actions>
+    <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="customClick('tableaction',$event,selectedArray)"></table-actions>
     <my-spinner [isRunning]="isRequesting"></my-spinner>
-    <ng-table *ngIf="isRequesting === false" [config]="config" [(checkedItems)]="selectedArray" [editMode]="editEnabled" (tableChanged)="onChangeTable(config)" (viewedItem)="customClick('view',$event)" (editedItem)="customClick('edit',$event)" (removedItem)="customClick('remove',$event)" [showCustom]="true" [rows]="rows" [columns]="columns">
+    <ng-table *ngIf="isRequesting === false && data" [config]="config" [(checkedItems)]="selectedArray" [editMode]="editEnabled" (tableChanged)="onChangeTable(config)" (viewedItem)="customClick('view',$event)" (editedItem)="customClick('edit',$event)" (removedItem)="customClick('remove',$event)" [showCustom]="true" [rows]="rows" [columns]="columns">
     </ng-table>
     <pagination *ngIf="config.paging" class="pagination-sm" [(ngModel)]="page" [totalItems]="length" [itemsPerPage]="itemsPerPage" [maxSize]="maxSize" [boundaryLinks]="true" [rotate]="false" (pageChanged)="onChangeTable(config, $event)" (numPages)="numPages = $event">
     </pagination>
@@ -47,12 +47,16 @@ declare var _:any;
     styleUrls: ['../../css/component-styles.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TableListComponent implements AfterContentInit {
+export class TableListComponent implements OnInit, OnChanges {
 
     //Inputs
     @Input() typeComponent : string;
-    @Input() columns : Array<any> = [];
-    @Input() data : Array<any> = [];
+    @Input() columns : Array<any>;
+    @Input() data : Array<any>;
+    @Input() counterItems : any = 0;
+    @Input() counterErrors : any = [];
+    @Input() selectedArray : any = [];
+    @Input() isRequesting : boolean = false;
     @Output() public customClicked:EventEmitter<any> = new EventEmitter();
 
 
@@ -67,11 +71,8 @@ export class TableListComponent implements AfterContentInit {
     public length: number = 0;
     public tableAvailableActions : any;
     public myFilterValue: any;
-    public isRequesting : boolean = false;
-    public counterItems : number = null;
-    public counterErrors: any = [];
 
-    selectedArray : any = [];
+
 
     //Set config
     public config: any = {
@@ -81,13 +82,23 @@ export class TableListComponent implements AfterContentInit {
       className: ['table-striped', 'table-bordered']
     };
 
+    ngOnChanges(changes : SimpleChanges) {
+        if (!this.data) this.data = [];
+        console.log(changes);
+        this.onChangeTable(this.config);
+        this.cd.markForCheck();
 
-    ngAfterContentInit() {
-        this.config.sorting = { columns : this.columns };
-        this.onChangeTable(this.config)
     }
 
-    constructor(private cd: ChangeDetectorRef) {}
+    ngOnInit() {
+        console.log(this.columns);
+        console.log(this.data);
+        this.config.sorting = { columns : this.columns };
+        this.onChangeTable(this.config)
+
+    }
+
+    constructor(public cd: ChangeDetectorRef) {}
 
     //Enable edit tables
     enableEdit() {
@@ -184,11 +195,13 @@ export class TableListComponent implements AfterContentInit {
     }
 
     public onChangeTable(config: any, page: any = { page: this.page, itemsPerPage: this.itemsPerPage }): any {
+    if (config) {
     if (config.filtering) {
       Object.assign(this.config.filtering, config.filtering);
     }
     if (config.sorting) {
       Object.assign(this.config.sorting, config.sorting);
+    }
     }
     let filteredData = this.changeFilter(this.data, this.config);
     let sortedData = this.changeSort(filteredData, this.config);
@@ -203,8 +216,8 @@ export class TableListComponent implements AfterContentInit {
       this.onChangeTable(this.config);
     }
 
-    customClick (clicked : string, event : any = "") : void {
-        this.customClicked.emit({'option' : clicked, 'event': event});
+    customClick (clicked : string, event : any = "", data : any = "") : void {
+        this.customClicked.emit({'option' : clicked, 'event': event, 'data' : data});
     }
 
 }
