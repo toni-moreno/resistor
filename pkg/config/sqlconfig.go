@@ -52,17 +52,19 @@ type RangeTimeCfg struct {
 type TemplateCfg struct {
 	ID            string `xorm:"'id' unique" binding:"Required"`
 	TrigerType    string `xorm:"trigertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman
-	StatFunc      string `xorm:"statfunc" binding:"Required"`
-	CritDirection string `xorm:"critdirection" binding:"Required"`
+	StatFunc      string `xorm:"statfunc"`
+	CritDirection string `xorm:"critdirection"`
 	ThresholdType string `xorm:"thresholdtype"` //Absolute/Relative
 	TplData       string `xorm:"tpldata"`
+	Description   string `xorm:"description"`
 }
 
 type OutHTTPCfg struct {
-	ID       string   `xorm:"'id' unique" binding:"Required"`
-	Url      string   `xorm:"url" binding:"Required"`
-	Headers  []string `xorm:"headers"`
-	AlertTpl string   `xorm:"alert_tpl"`
+	ID          string   `xorm:"'id' unique" binding:"Required"`
+	Url         string   `xorm:"url" binding:"Required"`
+	Headers     []string `xorm:"headers"`
+	AlertTpl    string   `xorm:"alert_tpl"`
+	Description string   `xorm:"description"`
 }
 
 // SnmpDevMGroups Mgroups defined on each SnmpDevice
@@ -87,7 +89,7 @@ type AlertIdCfg struct {
 	InfluxFilter      string `xorm:"influxfilter"`
 	TrigerType        string `xorm:"trigertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman|
 	IntervalCheck     string `xorm:"intervalcheck" binding:"Required"`
-	OperationiID      string `xorm:"operationid"`
+	OperationID       string `xorm:"operationid"`
 	Field             string `xorm:"field" binding:"Required"`
 	StatFunc          string `xorm:"statfunc" binding:"Required"`
 	CritDirection     string `xorm:"critdirection" binding:"Required"`
@@ -115,7 +117,7 @@ type AlertIdCfg struct {
 	//Grafana dashboard
 	GrafanaServer      string `xorm:"grafana_server"`
 	GrafanaDashLabel   string `xorm:"grafana_dash_label"`
-	GrafanaDashPanedID string `xorm:"grafana_panel_id"`
+	GrafanaDashPanelID string `xorm:"grafana_panel_id"`
 	DeviceIDTag        string `xorm:"deviceid_tag"`
 	DeviceIDLabel      string `xorm:"deviceid_label"`
 	ExtraTag           string `xorm:"extra_tag"`

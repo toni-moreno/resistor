@@ -172,8 +172,8 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewApiCfgImportExport(m)
 
 	NewApiRtAgent(m)
-	NewAPIRtKapFilter(m) //Webservice for alert filtering
-
+	NewAPIRtKapFilter(m)   //Webservice for alert filtering
+	NewAPICfgOutHTTP(m)    //HttpOut list
 	NewAPICfgAlertId(m)    //Alert Admin
 	NewAPICfgProduct(m)    //Product Admin
 	NewAPICfgTemplate(m)   //Alert Template

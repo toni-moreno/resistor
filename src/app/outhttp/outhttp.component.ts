@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { TemplateService } from './template.service';
+import { OutHTTPService } from './outhttp.service';
 import { ValidationService } from '../common/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
@@ -10,18 +10,18 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { TemplateComponentConfig } from './template.data';
+import { OutHTTPComponentConfig } from './outhttp.data';
 
 declare var _:any;
 
 @Component({
-  selector: 'template-component',
-  providers: [TemplateService, ValidationService],
-  templateUrl: './template.component.html',
+  selector: 'outhttp-component',
+  providers: [OutHTTPService, ValidationService],
+  templateUrl: './outhttp.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class TemplateComponent implements OnInit {
+export class OutHTTPComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
@@ -33,7 +33,7 @@ export class TemplateComponent implements OnInit {
   public sampleComponentForm: any;
   public counterItems : number = null;
   public counterErrors: any = [];
-  public defaultConfig : any = TemplateComponentConfig;
+  public defaultConfig : any = OutHTTPComponentConfig;
   public  selectedDays : any  =  [1,2,3];
   public selectedArray : any = [];
 
@@ -49,67 +49,23 @@ export class TemplateComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public templateService: TemplateService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public outhttpService: OutHTTPService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      TrigerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TrigerType : 'THRESHOLD', Validators.required],
-      StatFunc: [this.sampleComponentForm ? this.sampleComponentForm.value.StatFunc : '', Validators.required],
-      TplData: [this.sampleComponentForm ? this.sampleComponentForm.value.TplData : '', Validators.required],
+      Url: [this.sampleComponentForm ? this.sampleComponentForm.value.Url : '', Validators.required],
+      Headers: [this.sampleComponentForm ? this.sampleComponentForm.value.Headers : '', Validators.required],
+      AlertTpl: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertTpl : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
 
-  createDynamicForm(fieldsArray: any) : void {
-
-    //Generates the static form:
-    //Saves the actual to check later if there are shared values
-    let tmpform : any;
-    if (this.sampleComponentForm)  tmpform = this.sampleComponentForm.value;
-    this.createStaticForm();
-    //Set new values and check if we have to mantain the value!
-    for (let entry of fieldsArray) {
-      let value = entry.defVal;
-      //Check if there are common values from the previous selected item
-      if (tmpform) {
-        if (tmpform[entry.ID] && entry.override !== true) {
-          value = tmpform[entry.ID];
-        }
-      }
-      //Set different controls:
-      this.sampleComponentForm.addControl(entry.ID, new FormControl(value, entry.Validators));
-    }
-}
-
-  setDynamicFields (field : any, override? : boolean) : void  {
-    //Saves on the array all values to push into formGroup
-    let controlArray : Array<any> = [];
-
-    switch (field) {
-      case 'THRESHOLD':
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
-      case 'TREND':
-      controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-
-      default: //Default mode is THRESHOLD
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      break;
-    }
-    //Reload the formGroup with new values saved on controlArray
-    this.createDynamicForm(controlArray);
-  }
-
-
   reloadData() {
     // now it's a simple subscription to the observable
-  this.templateService.getTemplateItem(null)
+  this.outhttpService.getOutHTTPItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -185,7 +141,7 @@ export class TemplateComponent implements OnInit {
   removeItem(row) {
     let id = row.ID;
     console.log('remove', id);
-    this.templateService.checkOnDeleteTemplateItem(id)
+    this.outhttpService.checkOnDeleteOutHTTPItem(id)
       .subscribe(
         data => {
         this.viewModalDelete.parseObject(data)
@@ -195,23 +151,19 @@ export class TemplateComponent implements OnInit {
       );
   }
   newItem() {
-    //Check for subhidden fields
-    if (this.sampleComponentForm) {
-      this.setDynamicFields(this.sampleComponentForm.value.TigerType);
-    } else {
-      this.setDynamicFields(null);
-    }
+    //No hidden fields, so create fixed Form
+    this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
     let id = row.ID;
-    this.templateService.getTemplateItemById(id)
+    this.outhttpService.getOutHTTPItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
-        this.setDynamicFields(row.T);
+        this.createStaticForm();
         this.editmode = "modify";
       },
       err => console.error(err)
@@ -220,13 +172,13 @@ export class TemplateComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.templateService.deleteTemplateItem(id)
+    this.outhttpService.deleteOutHTTPItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.templateService.deleteTemplateItem(id)
+      return this.outhttpService.deleteOutHTTPItem(id)
       .do(
         (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
@@ -242,7 +194,7 @@ export class TemplateComponent implements OnInit {
   saveSampleItem() {
     console.log("SAVE");
     if (this.sampleComponentForm.valid) {
-      this.templateService.addTemplateItem(this.sampleComponentForm.value)
+      this.outhttpService.addOutHTTPItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
         err => {
           console.log(err);
@@ -284,10 +236,10 @@ export class TemplateComponent implements OnInit {
       if (this.sampleComponentForm.valid) {
         var r = true;
         if (this.sampleComponentForm.value.ID != this.oldID) {
-          r = confirm("Changing Template Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
+          r = confirm("Changing OutHTTP Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
         }
         if (r == true) {
-          this.templateService.editTemplateItem(this.sampleComponentForm.value, this.oldID)
+          this.outhttpService.editOutHTTPItem(this.sampleComponentForm.value, this.oldID)
             .subscribe(data => { console.log(data) },
             err => console.error(err),
             () => { this.editmode = "list"; this.reloadData() }
@@ -295,7 +247,7 @@ export class TemplateComponent implements OnInit {
         }
       }
     } else {
-      return this.templateService.editTemplateItem(component, component.ID)
+      return this.outhttpService.editOutHTTPItem(component, component.ID)
       .do(
         (test) =>  { this.counterItems++ },
         (err) => { this.counterErrors.push({'ID': component['ID'], 'error' : err['_body']})}

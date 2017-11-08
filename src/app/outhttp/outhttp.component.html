@@ -7,7 +7,7 @@
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
   <table-list #listTableComponent
-    [typeComponent]="'template-component'"
+    [typeComponent]="'outhttp-component'"
     [data]="data"
     [columns]="defaultConfig['table-columns']"
     [counterItems]="counterItems"
@@ -32,9 +32,9 @@
   </ng-container>
   <div class="well well-sm">
     <span style="font-size: 16px;background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
-  Alert Configuration
+  OutHTTP Wrapper
   </span>
-      <div class="form-group" *ngIf="sampleComponentForm.controls.ID">
+      <div class="form-group">
         <label class="control-label col-sm-2" for="ID">ID</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
         <div class="col-sm-9">
@@ -42,54 +42,29 @@
           <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
         </div>
       </div>
-      <div class="form-group" *ngIf="sampleComponentForm.controls.TrigerType">
-        <label class="control-label col-sm-2" for="TrigerType">TrigerType</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Url">Url</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
         <div class="col-sm-9">
-          <select formControlName="TrigerType" id="TrigerType" (click)="setDynamicFields(sampleComponentForm.value.TrigerType)" [ngModel]="sampleComponentForm.value.TrigerType">
-            <option value="THRESHOLD" selected="selected">Threshold</option>
-            <option value="TREND">Trend</option>
-            <option value="DEADMAN">Deadman</option>
-          </select>
-          <control-messages [control]="sampleComponentForm.controls.TrigerType"></control-messages>
+          <input formControlName="Url" id="Url" [ngModel]="sampleComponentForm.value.Url"/>
+          <control-messages [control]="sampleComponentForm.controls.Url"></control-messages>
         </div>
       </div>
-      <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
-        <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Headers">Headers</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
         <div class="col-sm-9">
-          <input formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc" />
-          <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
+          <input formControlName="Headers" id="Headers" [ngModel]="sampleComponentForm.value.Headers"/>
+          <control-messages [control]="sampleComponentForm.controls.Headers"></control-messages>
         </div>
       </div>
-      <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
-        <label class="control-label col-sm-2" for="CritDirection">CritDirection</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Headers">AlertTpl</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
         <div class="col-sm-9">
-          <select formControlName="CritDirection" id="CritDirection"  [ngModel]="sampleComponentForm.value.CritDirection">
-            <option value="CC" selected="selected">ASC Level</option>
-            <option value="DC">DESC Level</option>
-          </select>
-          <control-messages [control]="sampleComponentForm.controls.CritDirection"></control-messages>
-        </div>
-      </div>
-      <div class="form-group" *ngIf="sampleComponentForm.controls.ThresholdType">
-        <label class="control-label col-sm-2" for="ThresholdType" >ThresholdType</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-        <div class="col-sm-9">
-          <select formControlName="ThresholdType" id="ThresholdType"  [ngModel]="sampleComponentForm.value.ThresholdType">
-            <option value="absolute" selected="selected">Absolute</option>
-            <option value="relative">Relative</option>
-          </select>
-          <control-messages [control]="sampleComponentForm.controls.ThresholdType"></control-messages>
-        </div>
-      </div>
-      <div class="form-group" *ngIf="sampleComponentForm.controls.TplData">
-        <label class="control-label col-sm-2" for="TplData" >TplData</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-        <div class="col-sm-9">
-          <input formControlName="TplData" id="TplData" [ngModel]="sampleComponentForm.value.TplData" />
-          <control-messages [control]="sampleComponentForm.controls.TplData"></control-messages>
+          <input formControlName="AlertTpl" id="AlertTpl" [ngModel]="sampleComponentForm.value.AlertTpl"/>
+          <control-messages [control]="sampleComponentForm.controls.AlertTpl"></control-messages>
         </div>
       </div>
   </div>
