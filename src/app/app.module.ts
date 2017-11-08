@@ -42,9 +42,6 @@ import { CoreModule } from './core/core.module';
 import { WindowRef } from './common/windowref';
 import { ValidationService } from './common/validation.service';
 import { ExportServiceCfg } from './common/dataservice/export.service'
-//pipes
-import { ObjectParserPipe,SplitCommaPipe } from './common/custom_pipe';
-import { ElapsedSecondsPipe } from './common/elapsedseconds.pipe';
 
 import { CustomPipesModule } from './common/custom-pipe-module';
 
@@ -56,15 +53,14 @@ import { KapacitorComponent } from './kapacitor/kapacitor.component';
 import { RangeTimeComponent } from './rangetime/rangetime.component';
 import { ProductComponent } from './product/product.component';
 import { TemplateComponent } from './template/template.component';
+import { OutHTTPComponent } from './outhttp/outhttp.component';
+import { AlertComponent } from './alert/alert.component';
 
 
 @NgModule({
   bootstrap: [App],
   declarations: [
     PasswordToggleDirective,
-    ObjectParserPipe,
-    //ElapsedSecondsPipe,
-    SplitCommaPipe,
     TableActions,
     ControlMessagesComponent,
     GenericModal,
@@ -79,6 +75,8 @@ import { TemplateComponent } from './template/template.component';
     RangeTimeComponent,
     ProductComponent,
     TemplateComponent,
+    OutHTTPComponent,
+    AlertComponent,
     TableListComponent,
     App,
   ],
@@ -90,7 +88,6 @@ import { TemplateComponent } from './template/template.component';
     FormsModule,
     ReactiveFormsModule,
     MultiselectDropdownModule,
-
     ProgressbarModule.forRoot(),
     AccordionModule.forRoot(),
     TooltipModule.forRoot(),
@@ -108,6 +105,6 @@ import { TemplateComponent } from './template/template.component';
     ValidationService,
     BlockUIService
   ],
-  entryComponents: [BlockUIComponent,KapacitorComponent,RangeTimeComponent,ProductComponent,TemplateComponent]
+  entryComponents: [BlockUIComponent,KapacitorComponent,RangeTimeComponent,ProductComponent,TemplateComponent,OutHTTPComponent,AlertComponent]
 })
 export class AppModule {}

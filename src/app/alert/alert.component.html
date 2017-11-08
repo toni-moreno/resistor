@@ -1,0 +1,414 @@
+<h2>{{defaultConfig.name}}</h2>
+<hr>
+<ng-container [ngSwitch]="editmode">
+  <ng-template ngSwitchCase="list">
+    <test-modal #viewModal [titleName]="defaultConfig.name"></test-modal>
+    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Kapacitor instance will affect the following components','Deleting this InfluxDB Server will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
+        [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
+    </test-modal>
+  <table-list #listTableComponent
+    [typeComponent]="'alert-component'"
+    [data]="data"
+    [columns]="defaultConfig['table-columns']"
+    [counterItems]="counterItems"
+    [counterErrors]="counterErrors"
+    [selectedArray]="selectedArray"
+    [isRequesting]="isRequesting"
+    (customClicked)="customActions($event)"></table-list>
+</ng-template>
+  <ng-template ngSwitchDefault>
+    <form [formGroup]="sampleComponentForm" class="form-horizontal" (ngSubmit)="editmode == 'create' ? saveSampleItem() : updateSampleItem()">
+  <ng-container>
+    <div class="row well well-sm" style="">
+      <span style="font-size: 20px; background-color: rgb(255, 255, 255); margin-left: 19px;  border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
+        <i class="glyphicon glyphicon-cog text-info"></i> {{ editmode | uppercase}}
+      </span>
+      <div class="pull-right" style="margin-right: 20px">
+        <button class="btn btn-success" type="submit" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-ok-circle"></i></button>
+        <button class="btn btn-warning" type="reset" [disabled]="!sampleComponentForm.dirty"><i class="glyphicon glyphicon-ban-circle"></i> </button>
+        <button class="btn btn-danger" type="button" (click)="cancelEdit()"><i class="glyphicon glyphicon-remove-circle"></i></button>
+      </div>
+    </div>
+  </ng-container>
+  <div class="well well-sm">
+    <span style="font-size: 16px;background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
+  Alert Base
+  </span>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ID">
+        <label class="control-label col-sm-2" for="ID">ID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="ID" id="ID" disabled [(ngModel)]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.GroupID+'-'+sampleComponentForm.value.NumAlertID" />
+          <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.BaselineID">
+        <label class="control-label col-sm-2" for="BaselineID">BaselineID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="BaselineID" id="BaselineID" [ngModel]="sampleComponentForm.value.BaselineID" />
+          <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ProductID">
+        <label class="control-label col-sm-2" for="ProductID">ProductID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID"></ss-multiselect-dropdown>
+          <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.GroupID">
+        <label class="control-label col-sm-2" for="GroupID">GroupID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="GroupID" id="GroupID" [ngModel]="sampleComponentForm.value.GroupID" />
+          <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.NumAlertID">
+        <label class="control-label col-sm-2" for="NumAlertID">NumAlertID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="NumAlertID" id="NumAlertID" [ngModel]="sampleComponentForm.value.NumAlertID" />
+          <control-messages [control]="sampleComponentForm.controls.NumAlertID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.OperationID">
+        <label class="control-label col-sm-2" for="OperationID">OperationID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="OperationID" id="OperationID" [ngModel]="sampleComponentForm.value.OperationID" />
+          <control-messages [control]="sampleComponentForm.controls.OperationID"></control-messages>
+        </div>
+      </div>
+    </div>
+
+    <div class="well well-sm">
+      <span style="font-size: 16px;background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
+    Alert Core
+    </span>
+    <div class="form-group" *ngIf="sampleComponentForm.controls.OutHTTP">
+      <label class="control-label col-sm-2" for="OutHTTP" >OutHTTP</label>
+      <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+      <div class="col-sm-9">
+        <ss-multiselect-dropdown [options]="select_outhttp" formControlName="OutHTTP" [texts]="myTexts" [ngModel]="sampleComponentForm.value.OutHTTP"></ss-multiselect-dropdown>
+        <control-messages [control]="sampleComponentForm.controls.OutHTTP"></control-messages>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="sampleComponentForm.controls.KapacitorID">
+      <label class="control-label col-sm-2" for="KapacitorID" >KapacitorID</label>
+      <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+      <div class="col-sm-9">
+        <ss-multiselect-dropdown [options]="select_kapacitor" formControlName="KapacitorID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.KapacitorID"></ss-multiselect-dropdown>
+        <control-messages [control]="sampleComponentForm.controls.KapacitorID"></control-messages>
+      </div>
+    </div>
+  </div>
+
+
+
+    <div class="well well-sm">
+      <span style="font-size: 16px;background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
+    Alert Data Origin
+    </span>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxDB">
+          <label class="control-label col-sm-2" for="InfluxDB">InfluxDB</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="InfluxDB" id="InfluxDB" [(ngModel)]="sampleComponentForm.value.InfluxDB" />
+            <control-messages [control]="sampleComponentForm.controls.InfluxDB"></control-messages>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxRP">
+          <label class="control-label col-sm-2" for="InfluxRP">InfluxRP</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="InfluxRP" id="InfluxRP" [ngModel]="sampleComponentForm.value.InfluxRP" />
+            <control-messages [control]="sampleComponentForm.controls.InfluxRP"></control-messages>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxMeasurement">
+          <label class="control-label col-sm-2" for="InfluxMeasurement">InfluxMeasurement</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="InfluxMeasurement" id="InfluxMeasurement" [ngModel]="sampleComponentForm.value.InfluxMeasurement" />
+            <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.TagDescription">
+          <label class="control-label col-sm-2" for="TagDescription">TagDescription</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="TagDescription" id="TagDescription" [ngModel]="sampleComponentForm.value.TagDescription" />
+            <control-messages [control]="sampleComponentForm.controls.TagDescription"></control-messages>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxFilter">
+          <label class="control-label col-sm-2" for="InfluxFilter">InfluxFilter</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="InfluxFilter" id="InfluxFilter" [ngModel]="sampleComponentForm.value.InfluxFilter" />
+            <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.IntervalCheck">
+          <label class="control-label col-sm-2" for="IntervalCheck">IntervalCheck</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="IntervalCheck" id="IntervalCheck" [ngModel]="sampleComponentForm.value.IntervalCheck" />
+            <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="sampleComponentForm.controls.Field">
+          <label class="control-label col-sm-2" for="Field">Field</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="Field" id="Field" [ngModel]="sampleComponentForm.value.Field" />
+            <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
+          </div>
+        </div>
+      </div>
+
+      <div class="well well-sm">
+        <span style="font-size: 16px; background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
+      Alert Config
+      </span>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.TrigerType">
+        <label class="control-label col-sm-2" for="TrigerType">TrigerType</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <select formControlName="TrigerType" id="TrigerType" (click)="setDynamicFields(sampleComponentForm.value.TrigerType)" [ngModel]="sampleComponentForm.value.TrigerType">
+            <option value="THRESHOLD" selected="selected">Threshold</option>
+            <option value="TREND">Trend</option>
+            <option value="DEADMAN">Deadman</option>
+          </select>
+          <control-messages [control]="sampleComponentForm.controls.TrigerType"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.Shift">
+        <label class="control-label col-sm-2" for="Shift">Shift</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="Shift" id="Shift" [ngModel]="sampleComponentForm.value.Shift" />
+          <control-messages [control]="sampleComponentForm.controls.Shift"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
+        <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc" />
+          <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
+        <label class="control-label col-sm-2" for="CritDirection">CritDirection</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <select formControlName="CritDirection" id="CritDirection"  [ngModel]="sampleComponentForm.value.CritDirection">
+            <option value="CC" selected="selected">ASC Level</option>
+            <option value="DC">DESC Level</option>
+          </select>
+          <control-messages [control]="sampleComponentForm.controls.CritDirection"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThresholdType">
+        <label class="control-label col-sm-2" for="ThresholdType" >ThresholdType</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <select formControlName="ThresholdType" id="ThresholdType"  [ngModel]="sampleComponentForm.value.ThresholdType">
+            <option value="absolute" selected="selected">Absolute</option>
+            <option value="relative">Relative</option>
+          </select>
+          <control-messages [control]="sampleComponentForm.controls.ThresholdType"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritDef">
+        <label class="control-label col-sm-2" for="ThCritDef" >ThCritDef</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThCritDef" id="ThCritDef" [ngModel]="sampleComponentForm.value.ThCritDef" />
+          <control-messages [control]="sampleComponentForm.controls.ThCritDef"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritEx1">
+        <label class="control-label col-sm-2" for="ThCritEx1" >ThCritEx1</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThCritEx1" id="ThCritEx1" [ngModel]="sampleComponentForm.value.ThCritEx1" />
+          <control-messages [control]="sampleComponentForm.controls.ThCritEx1"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritEx2">
+        <label class="control-label col-sm-2" for="ThCritEx2" >ThCritEx2</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThCritEx2" id="ThCritEx2" [ngModel]="sampleComponentForm.value.ThCritEx2" />
+          <control-messages [control]="sampleComponentForm.controls.ThCritEx2"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritRangeTimeID">
+        <label class="control-label col-sm-2" for="ThCritRangeTimeID" >ThCritRangeTimeID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <ss-multiselect-dropdown [options]="select_rangetime" formControlName="ThCritRangeTimeID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ThCritRangeTimeID"></ss-multiselect-dropdown>
+          <control-messages [control]="sampleComponentForm.controls.ThCritRangeTimeID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnDef">
+        <label class="control-label col-sm-2" for="ThWarnDef" >ThWarnDef</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThWarnDef" id="ThWarnDef" [ngModel]="sampleComponentForm.value.ThWarnDef" />
+          <control-messages [control]="sampleComponentForm.controls.ThWarnDef"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnEx1">
+        <label class="control-label col-sm-2" for="ThWarnEx1" >ThWarnEx1</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThWarnEx1" id="ThWarnEx1" [ngModel]="sampleComponentForm.value.ThWarnEx1" />
+          <control-messages [control]="sampleComponentForm.controls.ThWarnEx1"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnEx2">
+        <label class="control-label col-sm-2" for="ThWarnEx2" >ThWarnEx2</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThWarnEx2" id="ThWarnEx2" [ngModel]="sampleComponentForm.value.ThWarnEx2" />
+          <control-messages [control]="sampleComponentForm.controls.ThWarnEx2"></control-messages>
+        </div>
+      </div>
+
+
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnRangeTimeID">
+        <label class="control-label col-sm-2" for="ThWarnRangeTimeID" >ThWarnRangeTimeID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <ss-multiselect-dropdown [options]="select_rangetime" formControlName="ThWarnRangeTimeID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ThWarnRangeTimeID"></ss-multiselect-dropdown>
+          <control-messages [control]="sampleComponentForm.controls.ThWarnRangeTimeID"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoDef">
+        <label class="control-label col-sm-2" for="ThInfoDef" >ThInfoDef</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThInfoDef" id="ThInfoDef" [ngModel]="sampleComponentForm.value.ThInfoDef" />
+          <control-messages [control]="sampleComponentForm.controls.ThInfoDef"></control-messages>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoEx1">
+        <label class="control-label col-sm-2" for="ThInfoEx1" >ThInfoEx1</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="ThInfoEx1" id="ThInfoEx1" [ngModel]="sampleComponentForm.value.ThInfoEx1" />
+          <control-messages [control]="sampleComponentForm.controls.ThInfoEx1"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoEx2">
+        <label class="control-label col-sm-2" for="ThInfoEx2" >ThInfoEx2</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" type="number" formControlName="ThInfoEx2" id="ThInfoEx2" [ngModel]="sampleComponentForm.value.ThInfoEx2" />
+          <control-messages [control]="sampleComponentForm.controls.ThInfoEx2"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoRangeTimeID">
+        <label class="control-label col-sm-2" for="ThInfoRangeTimeID" >ThInfoRangeTimeID</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <ss-multiselect-dropdown [options]="select_rangetime" formControlName="ThInfoRangeTimeID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ThInfoRangeTimeID"></ss-multiselect-dropdown>
+          <control-messages [control]="sampleComponentForm.controls.ThInfoRangeTimeID"></control-messages>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="sampleComponentForm.controls.TplData">
+        <label class="control-label col-sm-2" for="TplData" >TplData</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+        <div class="col-sm-9">
+          <input type="number" formControlName="TplData" id="TplData" [ngModel]="sampleComponentForm.value.TplData" />
+          <control-messages [control]="sampleComponentForm.controls.TplData"></control-messages>
+        </div>
+      </div>
+  </div>
+
+  <div class="well well-sm">
+    <span style="font-size: 16px; background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
+  Extra Information
+  </span>
+  <div class="form-group" *ngIf="sampleComponentForm.controls.GrafanaServer">
+    <label class="control-label col-sm-2" for="GrafanaServer" >GrafanaServer</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="GrafanaServer" id="GrafanaServer" [ngModel]="sampleComponentForm.value.GrafanaServer" />
+      <control-messages [control]="sampleComponentForm.controls.GrafanaServer"></control-messages>
+    </div>
+  </div>
+  <div class="form-group" *ngIf="sampleComponentForm.controls.GrafanaDashLabel">
+    <label class="control-label col-sm-2" for="GrafanaDashLabel" >GrafanaDashLabel</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="GrafanaDashLabel" id="GrafanaDashLabel" [ngModel]="sampleComponentForm.value.GrafanaDashLabel" />
+      <control-messages [control]="sampleComponentForm.controls.GrafanaDashLabel"></control-messages>
+    </div>
+  </div>
+  <div class="form-group" *ngIf="sampleComponentForm.controls.GrafanaDashPanelID">
+    <label class="control-label col-sm-2" for="GrafanaDashPanelID" >GrafanaDashPanelID</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="GrafanaDashPanelID" id="GrafanaDashPanelID" [ngModel]="sampleComponentForm.value.GrafanaDashPanelID" />
+      <control-messages [control]="sampleComponentForm.controls.GrafanaDashPanelID"></control-messages>
+    </div>
+  </div>
+  <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDTag">
+    <label class="control-label col-sm-2" for="DeviceIDTag" >DeviceIDTag</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="DeviceIDTag" id="DeviceIDTag" [ngModel]="sampleComponentForm.value.DeviceIDTag" />
+      <control-messages [control]="sampleComponentForm.controls.DeviceIDTag"></control-messages>
+    </div>
+  </div>
+  <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDLabel">
+    <label class="control-label col-sm-2" for="DeviceIDLabel" >DeviceIDLabel</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="DeviceIDLabel" id="DeviceIDLabel" [ngModel]="sampleComponentForm.value.DeviceIDLabel" />
+      <control-messages [control]="sampleComponentForm.controls.DeviceIDLabel"></control-messages>
+    </div>
+  </div>
+
+
+  <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraTag">
+    <label class="control-label col-sm-2" for="ExtraTag" >ExtraTag</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="ExtraTag" id="ExtraTag" [ngModel]="sampleComponentForm.value.ExtraTag" />
+      <control-messages [control]="sampleComponentForm.controls.ExtraTag"></control-messages>
+    </div>
+  </div>
+  <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraLabel">
+    <label class="control-label col-sm-2" for="ExtraLabel" >ExtraLabel</label>
+    <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+    <div class="col-sm-9">
+      <input formControlName="ExtraLabel" id="ExtraLabel" [ngModel]="sampleComponentForm.value.ExtraLabel" />
+      <control-messages [control]="sampleComponentForm.controls.ExtraLabel"></control-messages>
+    </div>
+  </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="Description">Description</label>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
+        <div class="col-sm-9">
+          <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
+          <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+        </div>
+      </div>
+  </div>
+    </form>
+  </ng-template>
+
+</ng-container>

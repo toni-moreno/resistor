@@ -3,15 +3,19 @@ import { NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { BlockUIService } from '../common/blockui/blockui-service';
-import { BlockUIComponent } from '../common/blockui/blockui-component'; // error
+import { BlockUIComponent } from '../common/blockui/blockui-component';
 import { ImportFileModal } from '../common/dataservice/import-file-modal';
 import { HomeService } from './home.service';
 import { AboutModal } from './about-modal'
 import { WindowRef } from '../common/windowref';
+
+//Menu Components  to load them dynamically
 import { KapacitorComponent } from '../kapacitor/kapacitor.component';
 import { RangeTimeComponent } from '../rangetime/rangetime.component';
 import { ProductComponent } from '../product/product.component';
 import { TemplateComponent } from '../template/template.component';
+import { OutHTTPComponent } from '../outhttp/outhttp.component';
+import { AlertComponent } from '../alert/alert.component';
 
 declare var _:any;
 
@@ -43,20 +47,13 @@ export class HomeComponent {
     {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
     {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
     {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
-
+    {'title': 'OutHTTP', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
+    {'title': 'AlertID', 'selector' : 'alert-component', 'component': AlertComponent},
     ]
   }];
 
 
-  configurationItems : Array<any> = [
-    {'title': 'Kapacitor', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
-  ];
-
   componentList = KapacitorComponent;
-
-  runtimeItems : Array<any> = [
-  {'title': 'Agent status', 'selector' : 'runtime1'},
-  ];
 
   mode : boolean = false;
   userIn : boolean = false;
@@ -85,7 +82,7 @@ export class HomeComponent {
     this.homeService.userLogout()
     .subscribe(
     response => {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/sign-in']);
     },
     error => {
       alert(error.text());
