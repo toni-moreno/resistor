@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ElapsedSecondsPipe }  from './elapsedseconds.pipe';
-import {ObjectParserPipe,SplitCommaPipe } from './custom_pipe';
+import { ElapsedSecondsPipe } from './elapsedseconds.pipe';
+import { ObjectParserPipe } from './objectparser.pipe';
+import { SplitCommaPipe } from './commasplit.pipe';
 
 @NgModule({
   imports: [CommonModule],

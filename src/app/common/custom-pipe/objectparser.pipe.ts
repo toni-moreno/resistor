@@ -9,14 +9,5 @@ export class ObjectParserPipe implements PipeTransform {
     }
     return keys;
 }
-}
 
-@Pipe({name: 'splitComma'})
-export class SplitCommaPipe implements PipeTransform {
-  transform(value) : any {
-    let valArray = [];
-    valArray = value.split(',');
-    console.log(valArray);
-    return valArray;
-}
 }

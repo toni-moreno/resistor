@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output, Pipe, PipeTransform,  } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TooltipModule } from 'ngx-bootstrap';
-import { ElapsedSecondsPipe } from '../../../elapsedseconds.pipe';
+import { ElapsedSecondsPipe } from '../../../custom-pipe/elapsedseconds.pipe';
 
 @Component({
   selector: 'ng-table',
@@ -83,7 +82,7 @@ import { ElapsedSecondsPipe } from '../../../elapsedseconds.pipe';
             <h6>Index:{{row.Index }}</h6>
             <h6>Metric:{{column[name]}}</h6>
             <hr>
-            <div *ngFor="let test of (row.tooltipInfo[column.name] | keyParser)" style="text-align:left !important">
+            <div *ngFor="let test of (row.tooltipInfo[column.name] | objectParser)" style="text-align:left !important">
             <span class="text-left" style="paddint-left: 10px"><b>{{test.key}}</b></span>
             <span class="text-right" *ngIf="test.key === 'CurTime'"> {{test.value | date:'d/M/y H:m:s'}}</span>
             <span class="text-right" *ngIf="test.key === 'LastTime'"> {{test.value | date:'d/M/y H:m:s'}}</span>
