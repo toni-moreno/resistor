@@ -1,0 +1,24 @@
+<nav class="navbar navbar-inverse navbar-fixed-top" style="z-index:1000">
+  <div class="container-fluid" style="padding-left: 0px">
+
+    <ul class="nav navbar-nav navbar-left">
+      <li class="active">
+        <a role="text" class="glyphicon glyphicon-menu-hamburger" (click)="toggleClicked()"></a>
+      </li>
+      <li class="active">
+        <p role="text" class="navbar-text" style="color: #fff">Resistor <span *ngIf="version"> - {{version.InstanceID}} </span></p>
+      </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="active">
+        <a role="button" class="glyphicon glyphicon-info-sign" (click)="shownAboutModal()"></a>
+      </li>
+      <li class="active">
+        <a href="javascript:void(0);" role="button" (click)="linkClicked()" class="glyphicon glyphicon-question-sign"></a>
+      </li>
+      <li class="active">
+        <a role="button" class="glyphicon glyphicon-off" (click)="logOutClicked()"></a>
+      </li>
+    </ul>
+  </div>
+</nav>

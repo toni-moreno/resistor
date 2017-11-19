@@ -1,0 +1,30 @@
+<about-modal #aboutModal [showValidation]="true" titleName='About'></about-modal>
+
+<div id="sidebar-wrapper" [ngStyle]="mode === true ? {'width.px': '0'} : {'width.px': '215'}">
+  <ul class="sidebar-nav">
+    <ng-container *ngFor="let group of menuItems; index as i">
+      <li [ngClass]="last ? 'last-li' : ''">
+        <span class="title-menu" style="padding-right:8px">
+      <i [ngClass]="group.expanded ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus'" (click)=expandMenu(i) style="border-right: 1px solid;padding-right: 10;"></i>
+      <i [class]="group.icon"></i> {{group.groupName}}
+    </span>
+      </li>
+      <ng-container *ngIf="group.expanded === true">
+        <ng-container *ngFor="let items of group.items; index as o; last as last">
+          <li [ngClass]="last ? 'last-li' : ''">
+            <a (click)="clickedMenu(items)" role="button" [ngClass]="item_type === items.selector ? 'active-menu' : ''">{{items.title}}</a>
+          </li>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <li>
+      <span class="title-menu"><i class="glyphicon glyphicon-question-sign" style="padding-right: 8px"></i>Others</span>
+    </li>
+    <li>
+      <a (click)="linkClicked()" role="button">Wiki</a>
+    </li>
+    <li>
+      <a role="button" (click)="shownAboutModal()"> About</a>
+    </li>
+  </ul>
+</div>
