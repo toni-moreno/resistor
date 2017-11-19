@@ -45,7 +45,6 @@ export class ProductComponent implements OnInit {
 
   ngOnInit() {
     this.editmode = 'list';
-    console.log(this.defaultConfig);
     this.reloadData();
   }
 
@@ -77,7 +76,6 @@ export class ProductComponent implements OnInit {
   }
 
   customActions(action : any) {
-    console.log(action);
     switch (action.option) {
       case 'new' :
         this.newItem()
@@ -98,9 +96,7 @@ export class ProductComponent implements OnInit {
 
 
   applyAction(action : any, data? : Array<any>) : void {
-    console.log(action);
     this.selectedArray = data || [];
-    console.log(this.selectedArray);
     switch(action.action) {
        case "RemoveAllSelected": {
           this.removeAllSelectedItems(this.selectedArray);
@@ -133,7 +129,6 @@ export class ProductComponent implements OnInit {
       obsArray.push(this.deleteSampleItem(myArray[i].ID,true));
     }
     this.genericForkJoin(obsArray);
-    console.log(this.counterItems);
   }
 
   removeItem(row) {
@@ -190,7 +185,6 @@ export class ProductComponent implements OnInit {
   }
 
   saveSampleItem() {
-    console.log("SAVE");
     if (this.sampleComponentForm.valid) {
       this.productService.addProductItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
@@ -213,13 +207,10 @@ export class ProductComponent implements OnInit {
     } else {
       let tmpArray = [];
       if(!Array.isArray(value)) value = value.split(',');
-      console.log(value);
       for (let component of mySelectedArray) {
-        console.log(value);
         //check if there is some new object to append
         let newEntries = _.differenceWith(value,component[field],_.isEqual);
         tmpArray = newEntries.concat(component[field])
-        console.log(tmpArray);
         component[field] = tmpArray;
         obsArray.push(this.updateSampleItem(true,component));
       }

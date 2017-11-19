@@ -52,11 +52,8 @@ export class DeviceStatComponent implements OnInit {
   private builder;
   private oldID : string;
 
-  public temp_data : Array<any>;
-
   ngOnInit() {
     this.editmode = 'list';
-    console.log(this.defaultConfig);
     this.reloadData();
   }
 
@@ -88,12 +85,6 @@ export class DeviceStatComponent implements OnInit {
         this.isRequesting = false;
         this.componentList = data
         this.data = data;
-        let tmp_data : Array<any> = [];
-        for (let a of data) {
-          tmp_data = tmp_data.concat(a);
-        }
-        this.temp_data = tmp_data;
-        console.log(this.temp_data);
         this.editmode = "list";
       },
       err => console.error(err),
@@ -324,7 +315,7 @@ export class DeviceStatComponent implements OnInit {
   createMultiselectArray(tempArray) : any {
     let myarray = [];
     for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID });
+      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
     }
     return myarray;
   }

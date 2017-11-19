@@ -63,7 +63,7 @@
         <label class="control-label col-sm-2" for="Headers">AlertTpl</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
         <div class="col-sm-9">
-          <input formControlName="AlertTpl" id="AlertTpl" [ngModel]="sampleComponentForm.value.AlertTpl"/>
+          <textarea class="form-control" style="width: 50%" rows="2" formControlName="AlertTpl" id="AlertTpl" [ngModel]="sampleComponentForm.value.AlertTpl"> </textarea>
           <control-messages [control]="sampleComponentForm.controls.AlertTpl"></control-messages>
         </div>
       </div>

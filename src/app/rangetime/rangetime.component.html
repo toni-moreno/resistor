@@ -7,7 +7,7 @@
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
   <table-list #listTableComponent
-    [typeComponent]="'kapacitor-component'"
+    [typeComponent]="'rangetime-component'"
     [data]="data"
     [columns]="defaultConfig['table-columns']"
     [counterItems]="counterItems"
@@ -52,7 +52,7 @@
         <label class="control-label col-sm-2" for="MaxHour">MaxHour</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
         <div class="col-sm-9">
-          <input formControlName="MaxHour" id="MaxHour" [ngModel]="sampleComponentForm.value.MaxHour"/>
+          <input type="number" formControlName="MaxHour" id="MaxHour" [ngModel]="sampleComponentForm.value.MaxHour"/>
           <control-messages [control]="sampleComponentForm.controls.MaxHour"></control-messages>
         </div>
       </div>
@@ -60,7 +60,7 @@
         <label class="control-label col-sm-2" for="MinHour">MinHour</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Min hour selection (0-24)"></i>
         <div class="col-sm-9">
-          <input formControlName="MinHour" id="MinHour" [ngModel]="sampleComponentForm.value.MinHour"/>
+          <input type="number" formControlName="MinHour" id="MinHour" [ngModel]="sampleComponentForm.value.MinHour"/>
           <control-messages [control]="sampleComponentForm.controls.MinHour"></control-messages>
         </div>
       </div>

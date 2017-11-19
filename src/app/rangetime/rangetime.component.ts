@@ -34,7 +34,6 @@ export class RangeTimeComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = RangeTimeComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
   public selectedArray : any = [];
 
   public data : Array<any>;
@@ -45,7 +44,6 @@ export class RangeTimeComponent implements OnInit {
 
   ngOnInit() {
     this.editmode = 'list';
-    console.log(this.defaultConfig);
     this.reloadData();
   }
 
@@ -79,7 +77,6 @@ export class RangeTimeComponent implements OnInit {
   }
 
   customActions(action : any) {
-    console.log(action);
     switch (action.option) {
       case 'new' :
         this.newItem()
@@ -100,9 +97,7 @@ export class RangeTimeComponent implements OnInit {
 
 
   applyAction(action : any, data? : Array<any>) : void {
-    console.log(action);
     this.selectedArray = data || [];
-    console.log(this.selectedArray);
     switch(action.action) {
        case "RemoveAllSelected": {
           this.removeAllSelectedItems(this.selectedArray);
@@ -135,7 +130,6 @@ export class RangeTimeComponent implements OnInit {
       obsArray.push(this.deleteSampleItem(myArray[i].ID,true));
     }
     this.genericForkJoin(obsArray);
-    console.log(this.counterItems);
   }
 
   removeItem(row) {
@@ -192,7 +186,6 @@ export class RangeTimeComponent implements OnInit {
   }
 
   saveSampleItem() {
-    console.log("SAVE");
     if (this.sampleComponentForm.valid) {
       this.rangeTimeService.addRangeTimeItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
@@ -215,13 +208,10 @@ export class RangeTimeComponent implements OnInit {
     } else {
       let tmpArray = [];
       if(!Array.isArray(value)) value = value.split(',');
-      console.log(value);
       for (let component of mySelectedArray) {
-        console.log(value);
         //check if there is some new object to append
         let newEntries = _.differenceWith(value,component[field],_.isEqual);
         tmpArray = newEntries.concat(component[field])
-        console.log(tmpArray);
         component[field] = tmpArray;
         obsArray.push(this.updateSampleItem(true,component));
       }
@@ -267,6 +257,14 @@ export class RangeTimeComponent implements OnInit {
                 },
                 err => console.error(err),
               );
+  }
+
+  createMultiselectArray(tempArray) : any {
+    let myarray = [];
+    for (let entry of tempArray) {
+      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
+    }
+    return myarray;
   }
 
 }

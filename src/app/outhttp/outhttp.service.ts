@@ -13,9 +13,8 @@ export class OutHTTPService {
     addOutHTTPItem(dev) {
         return this.http.post('/api/cfg/outhttp',JSON.stringify(dev,function (key,value) {
              if ( key == 'Headers') {
-                  return value.split(',');
-                }
-
+                if(typeof value === 'string') return value.split(',');
+            }
                 return value;
         }))
         .map( (responseData) => responseData.json());
@@ -25,7 +24,7 @@ export class OutHTTPService {
     editOutHTTPItem(dev, id) {
         return this.http.put('/api/cfg/outhttp/'+id,JSON.stringify(dev,function (key,value) {
             if ( key == 'Headers') {
-                 return value.split(',');
+                if(typeof value === 'string') return value.split(',');
                }
             return value;
         }))

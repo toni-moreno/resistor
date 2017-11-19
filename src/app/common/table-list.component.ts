@@ -84,15 +84,12 @@ export class TableListComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes : SimpleChanges) {
         if (!this.data) this.data = [];
-        console.log(changes);
         this.onChangeTable(this.config);
         this.cd.markForCheck();
 
     }
 
     ngOnInit() {
-        console.log(this.columns);
-        console.log(this.data);
         this.config.sorting = { columns : this.columns };
         this.onChangeTable(this.config)
 
