@@ -22,6 +22,7 @@ const MULTISELECT_VALUE_ACCESSOR: any = {
 export interface IMultiSelectOption {
     id: any;
     name: string;
+    description? : string;
 }
 
 export interface IMultiSelectSettings {
@@ -65,7 +66,7 @@ export class MultiSelectSearchFilter {
     template: `
         <div class="btn-group">
             <button type="button" class="dropdown-toggle" [ngClass]="settings.buttonClasses" (click)="toggleDropdown()">{{ title }}&nbsp;<span class="caret"></span></button>
-            <ul *ngIf="isVisible" class="dropdown-menu" [class.pull-right]="settings.pullRight" [style.max-height]="settings.maxHeight" style="display: block; height: auto; overflow-y: auto; z-index:1001; min-width:300px">
+            <ul *ngIf="isVisible" class="dropdown-menu" [class.pull-right]="settings.pullRight" [style.max-height]="settings.maxHeight" style="display: block; height: auto; overflow-y: auto; z-index:1001; min-width:300px; width:500px;">
                 <li style="margin: 0px 5px 5px 5px;" *ngIf="settings.enableSearch">
                     <div class="input-group input-group-sm">
                         <span class="input-group-addon" id="sizing-addon3" (click)="clearSearch()" role="button"><i class="glyphicon glyphicon-trash"></i></span>
@@ -90,11 +91,17 @@ export class MultiSelectSearchFilter {
                 </li>
                 <li *ngIf="(settings.showCheckAll || settings.showUncheckAll) && settings.singleSelect === false" class="divider"></li>
                 <li *ngFor="let option of options | searchFilter:searchFilterText">
-                    <a href="javascript:;" role="menuitem" tabindex="-1" (click)="setSelected($event, option)">
+                    <span style="block; width: 300px" role="button" tabindex="-1" (click)="setSelected($event, option)">
                         <input *ngIf="settings.checkedStyle == 'checkboxes'" type="checkbox" [checked]="isSelected(option)" />
-                        <span *ngIf="settings.checkedStyle == 'glyphicon'" style="width: 16px;" [ngClass]="isSelected(option) ? ['glyphicon glyphicon-ok' , 'text-success'] : 'glyphicon'"></span>
-                        {{ option.name }}
-                    </a>
+                        <dl class="dl-horizontal">
+                          <dt style="width:auto">
+                            <span *ngIf="settings.checkedStyle == 'glyphicon'"  style="width: 16px; margin-left: 10px; margin-right: 10px;  border-right: 1px solid; padding-right: 25px;" [ngClass]="isSelected(option) ? ['glyphicon glyphicon-ok' , 'text-success'] : 'glyphicon'">
+                            </span>
+                            <span>{{ option.name }}</span>
+                        </dt>
+                          <dd style="margin-left:210px"><span>{{option.description}}</span></dd>
+                        </dl>
+                    </span>
                 </li>
             </ul>
         </div>

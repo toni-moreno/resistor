@@ -12,6 +12,9 @@ import { Ng2TableModule } from './common/ng-table/ng2-table';
 /*import { TestNg2TableModule } from './common/ng-table-test/ng2-table';*/
 
 import { HomeComponent } from './home/home.component';
+import { NavbarComponent } from './home/navbar/navbar.component';
+import { SideMenuComponent } from './home/sidemenu/sidemenu.component';
+
 import { LoginComponent } from './login/login.component';
 import { App } from './app';
 
@@ -43,7 +46,7 @@ import { WindowRef } from './common/windowref';
 import { ValidationService } from './common/validation.service';
 import { ExportServiceCfg } from './common/dataservice/export.service'
 
-import { CustomPipesModule } from './common/custom-pipe-module';
+import { CustomPipesModule } from './common/custom-pipe/custom-pipe.module';
 
 import { BlockUIComponent } from './common/blockui/blockui-component';
 import { SpinnerComponent } from './common/spinner';
@@ -55,7 +58,7 @@ import { ProductComponent } from './product/product.component';
 import { TemplateComponent } from './template/template.component';
 import { OutHTTPComponent } from './outhttp/outhttp.component';
 import { AlertComponent } from './alert/alert.component';
-
+import { DeviceStatComponent } from './devicestat/devicestat.component';
 
 @NgModule({
   bootstrap: [App],
@@ -77,10 +80,14 @@ import { AlertComponent } from './alert/alert.component';
     TemplateComponent,
     OutHTTPComponent,
     AlertComponent,
+    DeviceStatComponent,
+    NavbarComponent,
+    SideMenuComponent,
     TableListComponent,
     App,
   ],
   imports: [
+
     CoreModule,
     CustomPipesModule,
     HttpModule,
@@ -105,6 +112,6 @@ import { AlertComponent } from './alert/alert.component';
     ValidationService,
     BlockUIService
   ],
-  entryComponents: [BlockUIComponent,KapacitorComponent,RangeTimeComponent,ProductComponent,TemplateComponent,OutHTTPComponent,AlertComponent]
+  entryComponents: [BlockUIComponent,KapacitorComponent,RangeTimeComponent,ProductComponent,TemplateComponent,OutHTTPComponent,AlertComponent,DeviceStatComponent]
 })
 export class AppModule {}

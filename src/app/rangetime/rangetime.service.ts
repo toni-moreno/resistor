@@ -12,11 +12,6 @@ export class RangeTimeService {
 
     addRangeTimeItem(dev) {
         return this.http.post('/api/cfg/rangetimes',JSON.stringify(dev,function (key,value) {
-              /*  if ( key == 'Port'  ||
-                key == 'Timeout' ) {
-                  return parseInt(value);
-                }
-              */
                 return value;
         }))
         .map( (responseData) => responseData.json());
@@ -25,12 +20,7 @@ export class RangeTimeService {
 
     editRangeTimeItem(dev, id) {
         return this.http.put('/api/cfg/rangetimes/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'Port'  ||
-            key == 'Timeout' ) {
-              return parseInt(value);
-            }
             return value;
-
         }))
         .map( (responseData) => responseData.json());
     }

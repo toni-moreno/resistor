@@ -46,11 +46,11 @@ export class HttpService extends Http {
             });
     }
 
-    post(url: string, data:any, options?: RequestOptionsArgs ): Observable<any> {
+    post(url: string, data:any, options?: RequestOptionsArgs, hideAlert? : boolean ): Observable<any> {
         return super.post(this.getFullUrl(url), data, this.requestOptions(options))
             .catch(this.onCatch.bind(this))
             .do((res: Response) => {
-                this.onSuccess(res);
+                if (!hideAlert) this.onSuccess(res);
             }, (error: any) => {
                 this.onError(error);
             })

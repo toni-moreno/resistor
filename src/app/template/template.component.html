@@ -88,7 +88,7 @@
         <label class="control-label col-sm-2" for="TplData" >TplData</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
         <div class="col-sm-9">
-          <input formControlName="TplData" id="TplData" [ngModel]="sampleComponentForm.value.TplData" />
+          <textarea class="form-control" style="width: 50%" rows="2" formControlName="TplData" id="TplData" [ngModel]="sampleComponentForm.value.TplData"> </textarea>
           <control-messages [control]="sampleComponentForm.controls.TplData"></control-messages>
         </div>
       </div>

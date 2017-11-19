@@ -2,7 +2,9 @@ import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { OutHTTPService } from './outhttp.service';
+import { DeviceStatService } from './devicestat.service';
+import { AlertService } from '../alert/alert.service';
+
 import { ValidationService } from '../common/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
@@ -10,18 +12,19 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { OutHTTPComponentConfig } from './outhttp.data';
+import { DeviceStatComponentConfig } from './devicestat.data';
+import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from '../common/multiselect-dropdown';
 
 declare var _:any;
 
 @Component({
-  selector: 'outhttp-component',
-  providers: [OutHTTPService, ValidationService],
-  templateUrl: './outhttp.component.html',
+  selector: 'devicestat-component',
+  providers: [DeviceStatService,AlertService , ValidationService],
+  templateUrl: './devicestat.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class OutHTTPComponent implements OnInit {
+export class DeviceStatComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
@@ -31,11 +34,17 @@ export class OutHTTPComponent implements OnInit {
   public componentList: Array<any>;
   public filter: string;
   public sampleComponentForm: any;
+  public alertHandler : any = null;
   public counterItems : number = null;
   public counterErrors: any = [];
-  public defaultConfig : any = OutHTTPComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public defaultConfig : any = DeviceStatComponentConfig;
+
+  public select_alert : IMultiSelectOption[] = [];
+  private single_select: IMultiSelectSettings = {singleSelect: true};
+
   public selectedArray : any = [];
+  public  : any = [];
+
 
   public data : Array<any>;
   public isRequesting : boolean;
@@ -48,23 +57,29 @@ export class OutHTTPComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public outhttpService: OutHTTPService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public devicestatService: DeviceStatService, public alertService: AlertService, public exportServiceCfg: ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
-      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      Url: [this.sampleComponentForm ? this.sampleComponentForm.value.Url : '', Validators.required],
-      Headers: [this.sampleComponentForm ? this.sampleComponentForm.value.Headers : '', Validators.required],
-      AlertTpl: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertTpl : '', Validators.required],
+      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : null],
+      Order: [this.sampleComponentForm ? this.sampleComponentForm.value.Order : '', Validators.required],
+      DeviceID: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceID : '', Validators.required],
+      AlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertID : '', Validators.required],
+      Exception: [this.sampleComponentForm ? this.sampleComponentForm.value.Exception : '', Validators.required],
+      Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
+      BaseLine: [this.sampleComponentForm ? this.sampleComponentForm.value.BaseLine : '', Validators.required],
+      FilterTagKey: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagKey : '', Validators.required],
+      FilterTagValue: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagValue : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
 
   reloadData() {
     // now it's a simple subscription to the observable
-  this.outhttpService.getOutHTTPItem(null)
+    this.alertHandler = null;
+    this.devicestatService.getDeviceStatItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -78,6 +93,7 @@ export class OutHTTPComponent implements OnInit {
   }
 
   customActions(action : any) {
+    console.log(action);
     switch (action.option) {
       case 'new' :
         this.newItem()
@@ -98,7 +114,9 @@ export class OutHTTPComponent implements OnInit {
 
 
   applyAction(action : any, data? : Array<any>) : void {
+    console.log(action);
     this.selectedArray = data || [];
+    console.log(this.selectedArray);
     switch(action.action) {
        case "RemoveAllSelected": {
           this.removeAllSelectedItems(this.selectedArray);
@@ -131,14 +149,16 @@ export class OutHTTPComponent implements OnInit {
       obsArray.push(this.deleteSampleItem(myArray[i].ID,true));
     }
     this.genericForkJoin(obsArray);
+    console.log(this.counterItems);
   }
 
   removeItem(row) {
     let id = row.ID;
     console.log('remove', id);
-    this.outhttpService.checkOnDeleteOutHTTPItem(id)
+    this.devicestatService.checkOnDeleteDeviceStatItem(id)
       .subscribe(
         data => {
+          console.log(data);
         this.viewModalDelete.parseObject(data)
       },
       err => console.error(err),
@@ -147,13 +167,15 @@ export class OutHTTPComponent implements OnInit {
   }
   newItem() {
     //No hidden fields, so create fixed Form
+    this.getAlertItem();
     this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
     let id = row.ID;
-    this.outhttpService.getOutHTTPItemById(id)
+    this.getAlertItem();
+    this.devicestatService.getDeviceStatItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
@@ -167,13 +189,13 @@ export class OutHTTPComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.outhttpService.deleteOutHTTPItem(id)
+    this.devicestatService.deleteDeviceStatItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.outhttpService.deleteOutHTTPItem(id)
+      return this.devicestatService.deleteDeviceStatItem(id)
       .do(
         (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
@@ -187,8 +209,9 @@ export class OutHTTPComponent implements OnInit {
   }
 
   saveSampleItem() {
+    console.log("SAVE");
     if (this.sampleComponentForm.valid) {
-      this.outhttpService.addOutHTTPItem(this.sampleComponentForm.value)
+      this.devicestatService.addDeviceStatItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
         err => {
           console.log(err);
@@ -209,10 +232,13 @@ export class OutHTTPComponent implements OnInit {
     } else {
       let tmpArray = [];
       if(!Array.isArray(value)) value = value.split(',');
+      console.log(value);
       for (let component of mySelectedArray) {
+        console.log(value);
         //check if there is some new object to append
         let newEntries = _.differenceWith(value,component[field],_.isEqual);
         tmpArray = newEntries.concat(component[field])
+        console.log(tmpArray);
         component[field] = tmpArray;
         obsArray.push(this.updateSampleItem(true,component));
       }
@@ -227,10 +253,10 @@ export class OutHTTPComponent implements OnInit {
       if (this.sampleComponentForm.valid) {
         var r = true;
         if (this.sampleComponentForm.value.ID != this.oldID) {
-          r = confirm("Changing OutHTTP Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
+          r = confirm("Changing DeviceStat Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
         }
         if (r == true) {
-          this.outhttpService.editOutHTTPItem(this.sampleComponentForm.value, this.oldID)
+          this.devicestatService.editDeviceStatItem(this.sampleComponentForm.value, this.oldID)
             .subscribe(data => { console.log(data) },
             err => console.error(err),
             () => { this.editmode = "list"; this.reloadData() }
@@ -238,7 +264,7 @@ export class OutHTTPComponent implements OnInit {
         }
       }
     } else {
-      return this.outhttpService.editOutHTTPItem(component, component.ID)
+      return this.devicestatService.editDeviceStatItem(component, component.ID)
       .do(
         (test) =>  { this.counterItems++ },
         (err) => { this.counterErrors.push({'ID': component['ID'], 'error' : err['_body']})}
@@ -247,6 +273,20 @@ export class OutHTTPComponent implements OnInit {
         return Observable.of({'ID': component.ID , 'error': err['_body']})
       })
     }
+  }
+
+
+  testSampleItemConnection() {
+    this.devicestatService.testDeviceStatItem(this.sampleComponentForm.value)
+    .subscribe(
+    data =>  this.alertHandler = {msg: 'DeviceStat Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
+    err => {
+        let error = err.json();
+        this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
+      },
+    () =>  { console.log("DONE")}
+  );
+
   }
 
   genericForkJoin(obsArray: any) {
@@ -258,6 +298,18 @@ export class OutHTTPComponent implements OnInit {
                 },
                 err => console.error(err),
               );
+  }
+
+  getAlertItem() {
+    this.alertService.getAlertItem(null)
+      .subscribe(
+      data => {
+        this.select_alert = [];
+        this.select_alert = this.createMultiselectArray(data);
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
   }
 
   createMultiselectArray(tempArray) : any {

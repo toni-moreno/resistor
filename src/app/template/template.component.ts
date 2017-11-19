@@ -45,7 +45,6 @@ export class TemplateComponent implements OnInit {
 
   ngOnInit() {
     this.editmode = 'list';
-    console.log(this.defaultConfig);
     this.reloadData();
   }
 
@@ -57,7 +56,6 @@ export class TemplateComponent implements OnInit {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       TrigerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TrigerType : 'THRESHOLD', Validators.required],
-      StatFunc: [this.sampleComponentForm ? this.sampleComponentForm.value.StatFunc : '', Validators.required],
       TplData: [this.sampleComponentForm ? this.sampleComponentForm.value.TplData : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
@@ -87,7 +85,6 @@ export class TemplateComponent implements OnInit {
   setDynamicFields (field : any, override? : boolean) : void  {
     //Saves on the array all values to push into formGroup
     let controlArray : Array<any> = [];
-
     switch (field) {
       case 'THRESHOLD':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
@@ -95,7 +92,9 @@ export class TemplateComponent implements OnInit {
       controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-
+      break;
+      case 'DEADMAN':
+      break
       default: //Default mode is THRESHOLD
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
@@ -105,7 +104,6 @@ export class TemplateComponent implements OnInit {
     //Reload the formGroup with new values saved on controlArray
     this.createDynamicForm(controlArray);
   }
-
 
   reloadData() {
     // now it's a simple subscription to the observable
@@ -123,7 +121,6 @@ export class TemplateComponent implements OnInit {
   }
 
   customActions(action : any) {
-    console.log(action);
     switch (action.option) {
       case 'new' :
         this.newItem()
@@ -144,9 +141,7 @@ export class TemplateComponent implements OnInit {
 
 
   applyAction(action : any, data? : Array<any>) : void {
-    console.log(action);
     this.selectedArray = data || [];
-    console.log(this.selectedArray);
     switch(action.action) {
        case "RemoveAllSelected": {
           this.removeAllSelectedItems(this.selectedArray);
@@ -179,7 +174,6 @@ export class TemplateComponent implements OnInit {
       obsArray.push(this.deleteSampleItem(myArray[i].ID,true));
     }
     this.genericForkJoin(obsArray);
-    console.log(this.counterItems);
   }
 
   removeItem(row) {
@@ -240,7 +234,6 @@ export class TemplateComponent implements OnInit {
   }
 
   saveSampleItem() {
-    console.log("SAVE");
     if (this.sampleComponentForm.valid) {
       this.templateService.addTemplateItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
@@ -263,13 +256,10 @@ export class TemplateComponent implements OnInit {
     } else {
       let tmpArray = [];
       if(!Array.isArray(value)) value = value.split(',');
-      console.log(value);
       for (let component of mySelectedArray) {
-        console.log(value);
         //check if there is some new object to append
         let newEntries = _.differenceWith(value,component[field],_.isEqual);
         tmpArray = newEntries.concat(component[field])
-        console.log(tmpArray);
         component[field] = tmpArray;
         obsArray.push(this.updateSampleItem(true,component));
       }
@@ -315,6 +305,13 @@ export class TemplateComponent implements OnInit {
                 },
                 err => console.error(err),
               );
+  }
+  createMultiselectArray(tempArray) : any {
+    let myarray = [];
+    for (let entry of tempArray) {
+      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
+    }
+    return myarray;
   }
 
 }

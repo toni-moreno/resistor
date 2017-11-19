@@ -5,50 +5,47 @@ import { HttpService } from '../core/http.service';
 declare var _:any;
 
 @Injectable()
-export class OutHTTPService {
+export class DeviceStatService {
 
     constructor(private http: HttpService,) {
     }
 
-    addOutHTTPItem(dev) {
-        return this.http.post('/api/cfg/outhttp',JSON.stringify(dev,function (key,value) {
-             if ( key == 'Headers') {
-                if(typeof value === 'string') return value.split(',');
-            }
-                return value;
-        }))
-        .map( (responseData) => responseData.json());
-
-    }
-
-    editOutHTTPItem(dev, id) {
-        return this.http.put('/api/cfg/outhttp/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'Headers') {
-                if(typeof value === 'string') return value.split(',');
-               }
+    addDeviceStatItem(dev) {
+        return this.http.post('/api/cfg/devicestat',JSON.stringify(dev,function (key,value) {
+            if ( key == 'Active')
+                return ( value === "true" || value === true);
             return value;
         }))
         .map( (responseData) => responseData.json());
+
+    }
+
+    editDeviceStatItem(dev, id) {
+        return this.http.put('/api/cfg/devicestat/'+id,JSON.stringify(dev,function (key,value) {
+            if ( key == 'Active')
+                return ( value === "true" || value === true);
+            return value;        }))
+        .map( (responseData) => responseData.json());
     }
 
 
-    getOutHTTPItem(filter_s: string) {
-        return this.http.get('/api/cfg/outhttp')
+    getDeviceStatItem(filter_s: string) {
+        return this.http.get('/api/cfg/devicestat')
         .map( (responseData) => {
             return responseData.json();
         })
     }
 
-    getOutHTTPItemById(id : string) {
+    getDeviceStatItemById(id : string) {
         // return an observable
         console.log("ID: ",id);
-        return this.http.get('/api/cfg/outhttp/'+id)
+        return this.http.get('/api/cfg/devicestat/'+id)
         .map( (responseData) =>
             responseData.json()
     )};
 
-    checkOnDeleteOutHTTPItem(id : string){
-      return this.http.get('/api/cfg/outhttp/checkondel/'+id)
+    checkOnDeleteDeviceStatItem(id : string){
+      return this.http.get('/api/cfg/devicestat/checkondel/'+id)
       .map( (responseData) =>
        responseData.json()
       ).map((deleteobject) => {
@@ -65,9 +62,19 @@ export class OutHTTPService {
       });
     };
 
-    deleteOutHTTPItem(id : string) {
+    testDeviceStatItem(instance) {
+      // return an observable
+      return this.http.post('/api/cfg/devicestat/ping/',JSON.stringify(instance,function (key,value) {
+          return value;
+      }))
+      .map(
+        (responseData) => responseData.json()
+      );
+    };
+
+    deleteDeviceStatItem(id : string) {
         // return an observable
-        return this.http.delete('/api/cfg/outhttp/'+id)
+        return this.http.delete('/api/cfg/devicestat/'+id)
         .map( (responseData) =>
          responseData.json()
         );
