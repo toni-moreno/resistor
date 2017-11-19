@@ -16,6 +16,10 @@ import { ProductComponent } from '../product/product.component';
 import { TemplateComponent } from '../template/template.component';
 import { OutHTTPComponent } from '../outhttp/outhttp.component';
 import { AlertComponent } from '../alert/alert.component';
+import { DeviceStatComponent } from '../devicestat/devicestat.component'
+import { NavbarComponent } from './navbar/navbar.component'
+import { SideMenuComponent } from './sidemenu/sidemenu.component'
+
 
 declare var _:any;
 
@@ -32,6 +36,7 @@ export class HomeComponent {
   @ViewChild('importFileModal') public importFileModal : ImportFileModal;
   @ViewChild('aboutModal') public aboutModal : AboutModal;
   @ViewChild('RuntimeComponent') public rt : any;
+
   nativeWindow: any
   response: string;
   item_type: string;
@@ -43,12 +48,13 @@ export class HomeComponent {
   ]},
   {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
     [
-    {'title': 'Kapacitor', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
+    {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
     {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
     {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
     {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
     {'title': 'OutHTTP', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
-    {'title': 'AlertID', 'selector' : 'alert-component', 'component': AlertComponent},
+    {'title': 'Alert Definition', 'selector' : 'alert-component', 'component': AlertComponent},
+    {'title': 'Device Stats', 'selector' : 'devicestat-component', 'component': DeviceStatComponent},
     ]
   }];
 
@@ -72,9 +78,7 @@ export class HomeComponent {
   }
 
   expandMenu(i : any) : boolean{
-    console.log(i);
     this.menuItems[i].expanded = !this.menuItems[i].expanded;
-    console.log(this.menuItems[i].expanded);
     return this.menuItems[i].expanded;
   }
 
@@ -95,8 +99,6 @@ export class HomeComponent {
   }
 
   clickMenu(menuItem : any) : void {
-    this.item_type = "";
-    this.item_type = menuItem.selector;
     this.componentList = menuItem.component;
   }
 

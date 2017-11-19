@@ -17,7 +17,7 @@ export class LoginComponent {
   login(event, username, password) {
     event.preventDefault();
     let body = JSON.stringify({ username, password });
-    this.http.post('/login', body)
+    this.http.post('/login', body, null, true)
       .subscribe(
         response => {
           this.router.navigate(['home']);

@@ -13,7 +13,7 @@ export class HomeService {
     }
 
     userLogout() {
-        return this.http.post('/logout','')
+        return this.http.post('/logout','',null,true)
         .map( (responseData) => true);
     }
 
