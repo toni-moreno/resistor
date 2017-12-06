@@ -2,16 +2,18 @@ package webui
 
 import (
 	"fmt"
+
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/session"
 	"github.com/go-macaron/toolbox"
 
 	"crypto/md5"
+	"net/http"
+	"os"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/toni-moreno/resistor/pkg/config"
 	"gopkg.in/macaron.v1"
-	"net/http"
-	"os"
 )
 
 var (
@@ -169,12 +171,12 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	m.Post("/login", bind(UserLogin{}), myLoginHandler)
 	m.Post("/logout", myLogoutHandler)
 
-	NewApiCfgImportExport(m)
+	NewAPICfgImportExport(m)
 
-	NewApiRtAgent(m)
+	NewAPIRtAgent(m)
 	NewAPIRtKapFilter(m)   //Webservice for alert filtering
 	NewAPICfgOutHTTP(m)    //HttpOut list
-	NewAPICfgAlertId(m)    //Alert Admin
+	NewAPICfgAlertID(m)    //Alert Admin
 	NewAPICfgProduct(m)    //Product Admin
 	NewAPICfgTemplate(m)   //Alert Template
 	NewAPICfgKapacitor(m)  //Kapacitor URL's
@@ -198,7 +200,7 @@ func myLoginHandler(ctx *Context, user UserLogin) {
 	if user.UserName == confHTTP.AdminUser && user.Password == confHTTP.AdminPassword {
 		ctx.SignedInUser = user.UserName
 		ctx.IsSignedIn = true
-		ctx.Session.Set(SESS_KEY_USERID, user.UserName)
+		ctx.Session.Set(SessKeyUserID, user.UserName)
 		log.Println("Admin login OK")
 		ctx.JSON(200, cookie)
 	} else {

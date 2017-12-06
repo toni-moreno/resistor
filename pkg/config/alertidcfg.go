@@ -5,35 +5,35 @@ import (
 )
 
 /***************************
-	AlertIdCfg DB backends
-	-GetAlertIdCfgCfgByID(struct)
-	-GetAlertIdCfgMap (map - for interna config use
-	-GetAlertIdCfgArray(Array - for web ui use )
-	-AddAlertIdCfg
-	-DelAlertIdCfg
-	-UpdateAlertIdCfg
-  -GetAlertIdCfgAffectOnDel
+	AlertIDCfg DB backends
+	-GetAlertIDCfgCfgByID(struct)
+	-GetAlertIDCfgMap (map - for interna config use
+	-GetAlertIDCfgArray(Array - for web ui use )
+	-AddAlertIDCfg
+	-DelAlertIDCfg
+	-UpdateAlertIDCfg
+  -GetAlertIDCfgAffectOnDel
 ***********************************/
 
-/*GetAlertIdCfgByID get device data by id*/
-func (dbc *DatabaseCfg) GetAlertIdCfgByID(id string) (AlertIdCfg, error) {
-	cfgarray, err := dbc.GetAlertIdCfgArray("id='" + id + "'")
+/*GetAlertIDCfgByID get device data by id*/
+func (dbc *DatabaseCfg) GetAlertIDCfgByID(id string) (AlertIDCfg, error) {
+	cfgarray, err := dbc.GetAlertIDCfgArray("id='" + id + "'")
 	if err != nil {
-		return AlertIdCfg{}, err
+		return AlertIDCfg{}, err
 	}
 	if len(cfgarray) > 1 {
-		return AlertIdCfg{}, fmt.Errorf("Error %d results on get AlertIdCfgArray by id %s", len(cfgarray), id)
+		return AlertIDCfg{}, fmt.Errorf("Error %d results on get AlertIDCfgArray by id %s", len(cfgarray), id)
 	}
 	if len(cfgarray) == 0 {
-		return AlertIdCfg{}, fmt.Errorf("Error no values have been returned with this id %s in the influx config table", id)
+		return AlertIDCfg{}, fmt.Errorf("Error no values have been returned with this id %s in the influx config table", id)
 	}
 	return *cfgarray[0], nil
 }
 
-/*GetAlertIdCfgMap  return data in map format*/
-func (dbc *DatabaseCfg) GetAlertIdCfgMap(filter string) (map[string]*AlertIdCfg, error) {
-	cfgarray, err := dbc.GetAlertIdCfgArray(filter)
-	cfgmap := make(map[string]*AlertIdCfg)
+/*GetAlertIDCfgMap  return data in map format*/
+func (dbc *DatabaseCfg) GetAlertIDCfgMap(filter string) (map[string]*AlertIDCfg, error) {
+	cfgarray, err := dbc.GetAlertIDCfgArray(filter)
+	cfgmap := make(map[string]*AlertIDCfg)
 	for _, val := range cfgarray {
 		cfgmap[val.ID] = val
 		log.Debugf("%+v", *val)
@@ -41,14 +41,14 @@ func (dbc *DatabaseCfg) GetAlertIdCfgMap(filter string) (map[string]*AlertIdCfg,
 	return cfgmap, err
 }
 
-/*GetAlertIdCfgArray generate an array of devices with all its information */
-func (dbc *DatabaseCfg) GetAlertIdCfgArray(filter string) ([]*AlertIdCfg, error) {
+/*GetAlertIDCfgArray generate an array of devices with all its information */
+func (dbc *DatabaseCfg) GetAlertIDCfgArray(filter string) ([]*AlertIDCfg, error) {
 	var err error
-	var devices []*AlertIdCfg
+	var devices []*AlertIDCfg
 	//Get Only data for selected devices
 	if len(filter) > 0 {
 		if err = dbc.x.Where(filter).Find(&devices); err != nil {
-			log.Warnf("Fail to get AlertIdCfg  data filteter with %s : %v\n", filter, err)
+			log.Warnf("Fail to get AlertIDCfg  data filteter with %s : %v\n", filter, err)
 			return nil, err
 		}
 	} else {
@@ -78,8 +78,8 @@ func (dbc *DatabaseCfg) GetAlertIdCfgArray(filter string) ([]*AlertIdCfg, error)
 	return devices, nil
 }
 
-/*AddAlertIdCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddAlertIdCfg(dev AlertIdCfg) (int64, error) {
+/*AddAlertIDCfg for adding new devices*/
+func (dbc *DatabaseCfg) AddAlertIDCfg(dev AlertIDCfg) (int64, error) {
 	var err error
 	var affected, newo int64
 	session := dbc.x.NewSession()
@@ -114,18 +114,18 @@ func (dbc *DatabaseCfg) AddAlertIdCfg(dev AlertIdCfg) (int64, error) {
 	return affected, nil
 }
 
-/*DelAlertIdCfg for deleting influx databases from ID*/
-func (dbc *DatabaseCfg) DelAlertIdCfg(id string) (int64, error) {
+/*DelAlertIDCfg for deleting influx databases from ID*/
+func (dbc *DatabaseCfg) DelAlertIDCfg(id string) (int64, error) {
 	var affecteddev, affectedouts, affected int64
 	var err error
 
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIdCfg{})
+	affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
-		return 0, fmt.Errorf("Error on Delete Alert with id on delete AlertIdCfg with id: %s, error: %s", id, err)
+		return 0, fmt.Errorf("Error on Delete Alert with id on delete AlertIDCfg with id: %s, error: %s", id, err)
 	}
 
 	//first deleting references in AlertHTTPOutRel
@@ -135,7 +135,7 @@ func (dbc *DatabaseCfg) DelAlertIdCfg(id string) (int64, error) {
 		return 0, fmt.Errorf("Error on Delete Device with id on delete AlertHTTPOutRel with id: %s, error: %s", id, err)
 	}
 
-	affected, err = session.Where("id='" + id + "'").Delete(&AlertIdCfg{})
+	affected, err = session.Where("id='" + id + "'").Delete(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, err
@@ -150,8 +150,8 @@ func (dbc *DatabaseCfg) DelAlertIdCfg(id string) (int64, error) {
 	return affected, nil
 }
 
-/*UpdateAlertIdCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateAlertIdCfg(id string, dev AlertIdCfg) (int64, error) {
+/*UpdateAlertIDCfg for adding new influxdb*/
+func (dbc *DatabaseCfg) UpdateAlertIDCfg(id string, dev AlertIDCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
@@ -191,9 +191,9 @@ func (dbc *DatabaseCfg) UpdateAlertIdCfg(id string, dev AlertIdCfg) (int64, erro
 	return affected, nil
 }
 
-/*GetAlertIdCfgAffectOnDel for deleting devices from ID*/
-func (dbc *DatabaseCfg) GetAlertIdCfgAffectOnDel(id string) ([]*DbObjAction, error) {
-	//var devices []*AlertIdCfg
+/*GetAlertIDCfgAffectOnDel for deleting devices from ID*/
+func (dbc *DatabaseCfg) GetAlertIDCfgAffectOnDel(id string) ([]*DbObjAction, error) {
+	//var devices []*AlertIDCfg
 	var obj []*DbObjAction
 
 	return obj, nil

@@ -7,10 +7,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
-	// _ needed to sqlite3
-	_ "github.com/mattn/go-sqlite3"
+
 	"os"
 	"sync/atomic"
+	// _ needed to sqlite3
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func (dbc *DatabaseCfg) resetChanges() {
@@ -97,13 +98,13 @@ func (dbc *DatabaseCfg) InitDB() {
 	if err = dbc.x.Sync(new(AlertHTTPOutRel)); err != nil {
 		log.Fatalf("Fail to sync database Alert and HTTPOut Relationship: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(AlertIdCfg)); err != nil {
-		log.Fatalf("Fail to sync database AlertIdCfg: %v\n", err)
+	if err = dbc.x.Sync(new(AlertIDCfg)); err != nil {
+		log.Fatalf("Fail to sync database AlertIDCfg: %v\n", err)
 	}
 }
 
 //LoadDbConfig get data from database
-func (dbc *DatabaseCfg) LoadDbConfig(cfg *SQLConfig) {
+func (dbc *DatabaseCfg) LoadDbConfig(cfg *DBConfig) {
 	var err error
 
 	//Load Kapacitor engines map
@@ -123,7 +124,7 @@ func (dbc *DatabaseCfg) LoadDbConfig(cfg *SQLConfig) {
 	if err != nil {
 		log.Warningf("Some errors on get Products map  :%v", err)
 	}
-	cfg.AlertID, err = dbc.GetAlertIdCfgMap("")
+	cfg.AlertID, err = dbc.GetAlertIDCfgMap("")
 	if err != nil {
 		log.Warningf("Some errors on get AlertID map  :%v", err)
 	}

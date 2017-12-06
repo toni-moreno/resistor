@@ -7,7 +7,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// NewAPICfgRangeTime
+// NewAPICfgRangeTime create a Range Time  management API
 func NewAPICfgRangeTime(m *macaron.Macaron) error {
 
 	bind := binding.Bind
@@ -53,7 +53,7 @@ func AddRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 // UpdateRangeTime --pending--
 func UpdateRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to update: %+v", dev)
+	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateRangeTimeCfg(id, dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
@@ -64,10 +64,10 @@ func UpdateRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 	}
 }
 
-//DeleteRangeTime
+//DeleteRangeTime delete range time
 func DeleteRangeTime(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to delete: %+v", id)
+	log.Debugf("Trying to delete: %+v", id)
 	affected, err := agent.MainConfig.Database.DelRangeTimeCfg(id)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
@@ -77,7 +77,7 @@ func DeleteRangeTime(ctx *Context) {
 	}
 }
 
-//etRangeTimeCfgByID --pending--
+//GetRangeTimeCfgByID --pending--
 func GetRangeTimeCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetRangeTimeCfgByID(id)

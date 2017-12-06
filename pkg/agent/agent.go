@@ -12,9 +12,13 @@ import (
 )
 
 var (
-	Version    string
-	Commit     string
-	Branch     string
+	// Version Binari version
+	Version string
+	// Commit Git short commit id on build time
+	Commit string
+	// Branch Git branch on build time
+	Branch string
+	// BuildStamp time stamp on build time
 	BuildStamp string
 )
 
@@ -27,6 +31,7 @@ type RInfo struct {
 	BuildStamp string
 }
 
+// GetRInfo get release info
 func GetRInfo() *RInfo {
 	info := &RInfo{
 		InstanceID: MainConfig.General.InstanceID,
@@ -44,7 +49,7 @@ var (
 	MainConfig config.Config
 
 	// DBConfig db config
-	DBConfig config.SQLConfig
+	DBConfig config.DBConfig
 
 	log *logrus.Logger
 	//mutex for devices map

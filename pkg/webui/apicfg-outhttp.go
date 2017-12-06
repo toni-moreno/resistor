@@ -7,7 +7,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// NewAPICfgOutHTTPCfg
+// NewAPICfgOutHTTP create new API
 func NewAPICfgOutHTTP(m *macaron.Macaron) error {
 
 	bind := binding.Bind
@@ -53,7 +53,7 @@ func AddOutHTTP(ctx *Context, dev config.OutHTTPCfg) {
 // UpdateOutHTTP --pending--
 func UpdateOutHTTP(ctx *Context, dev config.OutHTTPCfg) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to update: %+v", dev)
+	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateOutHTTPCfg(id, dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
@@ -64,10 +64,10 @@ func UpdateOutHTTP(ctx *Context, dev config.OutHTTPCfg) {
 	}
 }
 
-//DeleteOutHTTP
+//DeleteOutHTTP removes and output backend
 func DeleteOutHTTP(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to delete: %+v", id)
+	log.Debugf("Trying to delete: %+v", id)
 	affected, err := agent.MainConfig.Database.DelOutHTTPCfg(id)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
@@ -77,7 +77,7 @@ func DeleteOutHTTP(ctx *Context) {
 	}
 }
 
-//etOutHTTPCfgByID --pending--
+//GetOutHTTPCfgByID --pending--
 func GetOutHTTPCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetOutHTTPCfgByID(id)

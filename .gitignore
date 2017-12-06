@@ -22,3 +22,6 @@ fig.yml
 profile.cov
 .notouch
 
+log/*
+.vscode/*
+conf/*.db*

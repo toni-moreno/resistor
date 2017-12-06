@@ -1,14 +1,15 @@
 package webui
 
 import (
+	"strconv"
+
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
 	"gopkg.in/macaron.v1"
-	"strconv"
 )
 
-// NewAPICfgDeviceStatCfg
+// NewAPICfgDeviceStat get DeviceStat API
 func NewAPICfgDeviceStat(m *macaron.Macaron) error {
 
 	bind := binding.Bind
@@ -54,7 +55,7 @@ func AddDeviceStat(ctx *Context, dev config.DeviceStatCfg) {
 // UpdateDeviceStat --pending--
 func UpdateDeviceStat(ctx *Context, dev config.DeviceStatCfg) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to update: %+v", dev)
+	log.Debugf("Trying to update: %+v", dev)
 	nid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		log.Warningf("Error on get ID for UpdateDeviceStats device %d , error: %s", dev.ID, err)
@@ -70,10 +71,10 @@ func UpdateDeviceStat(ctx *Context, dev config.DeviceStatCfg) {
 	}
 }
 
-//DeleteDeviceStat
+// DeleteDeviceStat delete device stats
 func DeleteDeviceStat(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to delete: %+v", id)
+	log.Debugf("Trying to delete: %+v", id)
 	nid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		log.Warningf("Error on get ID for UpdateDeviceStats device %d  , error: %s", id, err)

@@ -8,7 +8,8 @@ import (
 	//	"time"
 )
 
-func NewApiRtAgent(m *macaron.Macaron) error {
+// NewAPIRtAgent set API for the runtime management
+func NewAPIRtAgent(m *macaron.Macaron) error {
 
 	//	bind := binding.Bind
 

@@ -90,17 +90,17 @@ func (dbc *DatabaseCfg) DelRangeTimeCfg(id string) (int64, error) {
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affecteddev, err = session.Where("th_crit_rangetime_id='" + id + "'").Cols("th_crit_rangetime_id").Update(&AlertIdCfg{})
+	affecteddev, err = session.Where("th_crit_rangetime_id='" + id + "'").Cols("th_crit_rangetime_id").Update(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete Alert with id on delete RangeTimeCfg with id: %s, error: %s", id, err)
 	}
-	affecteddev, err = session.Where("th_warn_rangetime_id='" + id + "'").Cols("th_warn_rangetime_id").Update(&AlertIdCfg{})
+	affecteddev, err = session.Where("th_warn_rangetime_id='" + id + "'").Cols("th_warn_rangetime_id").Update(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete Alert with id on delete RangeTimeCfg with id: %s, error: %s", id, err)
 	}
-	affecteddev, err = session.Where("th_info_rangetime_id='" + id + "'").Cols("th_info_rangetime_id").Update(&AlertIdCfg{})
+	affecteddev, err = session.Where("th_info_rangetime_id='" + id + "'").Cols("th_info_rangetime_id").Update(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete Alert with id on delete RangeTimeCfg with id: %s, error: %s", id, err)
@@ -128,17 +128,17 @@ func (dbc *DatabaseCfg) UpdateRangeTimeCfg(id string, dev RangeTimeCfg) (int64, 
 	session := dbc.x.NewSession()
 	defer session.Close()
 	if id != dev.ID { //ID has been changed
-		affecteddev, err = session.Where("th_crit_rangetime_id='" + id + "'").Cols("th_crit_rangetime_id").Update(&AlertIdCfg{ThCritRangeTimeID: dev.ID})
+		affecteddev, err = session.Where("th_crit_rangetime_id='" + id + "'").Cols("th_crit_rangetime_id").Update(&AlertIDCfg{ThCritRangeTimeID: dev.ID})
 		if err != nil {
 			session.Rollback()
 			return 0, fmt.Errorf("Error on Update InfluxConfig on update id(old)  %s with (new): %s, error: %s", id, dev.ID, err)
 		}
-		affecteddev, err = session.Where("th_warn_rangetime_id='" + id + "'").Cols("th_warn_rangetime_id").Update(&AlertIdCfg{ThWarnRangeTimeID: dev.ID})
+		affecteddev, err = session.Where("th_warn_rangetime_id='" + id + "'").Cols("th_warn_rangetime_id").Update(&AlertIDCfg{ThWarnRangeTimeID: dev.ID})
 		if err != nil {
 			session.Rollback()
 			return 0, fmt.Errorf("Error on Update InfluxConfig on update id(old)  %s with (new): %s, error: %s", id, dev.ID, err)
 		}
-		affecteddev, err = session.Where("th_info_rangetime_id='" + id + "'").Cols("th_info_rangetime_id").Update(&AlertIdCfg{ThInfoRangeTimeID: dev.ID})
+		affecteddev, err = session.Where("th_info_rangetime_id='" + id + "'").Cols("th_info_rangetime_id").Update(&AlertIDCfg{ThInfoRangeTimeID: dev.ID})
 		if err != nil {
 			session.Rollback()
 			return 0, fmt.Errorf("Error on Update InfluxConfig on update id(old)  %s with (new): %s, error: %s", id, dev.ID, err)

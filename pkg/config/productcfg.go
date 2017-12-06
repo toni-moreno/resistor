@@ -90,7 +90,7 @@ func (dbc *DatabaseCfg) DelProductCfg(id string) (int64, error) {
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIdCfg{})
+	affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete ProductCfg with id: %s, error: %s", id, err)
@@ -118,7 +118,7 @@ func (dbc *DatabaseCfg) UpdateProductCfg(id string, dev ProductCfg) (int64, erro
 	session := dbc.x.NewSession()
 	defer session.Close()
 	if id != dev.ID { //ID has been changed
-		affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIdCfg{KapacitorID: dev.ID})
+		affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIDCfg{KapacitorID: dev.ID})
 		if err != nil {
 			session.Rollback()
 			return 0, fmt.Errorf("Error on Update InfluxConfig on update id(old)  %s with (new): %s, error: %s", id, dev.ID, err)
@@ -143,7 +143,7 @@ func (dbc *DatabaseCfg) UpdateProductCfg(id string, dev ProductCfg) (int64, erro
 
 /*GetProductCfgAffectOnDel for deleting devices from ID*/
 func (dbc *DatabaseCfg) GetProductCfgAffectOnDel(id string) ([]*DbObjAction, error) {
-	var devices []*AlertIdCfg
+	var devices []*AlertIDCfg
 	var obj []*DbObjAction
 	if err := dbc.x.Where("kapacitorid='" + id + "'").Find(&devices); err != nil {
 		log.Warnf("Error on Get Outout db id %d for devices , error: %s", id, err)

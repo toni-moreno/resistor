@@ -57,6 +57,15 @@
 			"Rev": "d52a762fba17a2ed265463c1c7b608c14836eaaf"
 		},
 		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "8ee79997227bf9b34611aee7946ae64735e6fd93"
+		},
+		{
+			"ImportPath": "github.com/google/uuid",
+			"Comment": "0.2-13-ge367a34",
+			"Rev": "e367a344cbe8e08149f9951115dc299ebd42b919"
+		},
+		{
 			"ImportPath": "github.com/hashicorp/hcl",
 			"Rev": "630949a3c5fa3c613328e1b8256052cbc2327c9b"
 		},
@@ -106,6 +115,36 @@
 			"ImportPath": "github.com/influxdata/influxdb/pkg/escape",
 			"Comment": "v1.2.2-391-gd653b76",
 			"Rev": "d653b76b5b13cbba6cc07d6f1a56ae2a67caa772"
+		},
+		{
+			"ImportPath": "github.com/influxdata/kapacitor/alert",
+			"Comment": "v1.3.3-74-geacb373",
+			"Rev": "eacb3730de19d7c70b6481f53100c20850d30b8b"
+		},
+		{
+			"ImportPath": "github.com/influxdata/kapacitor/expvar",
+			"Comment": "v1.3.3-74-geacb373",
+			"Rev": "eacb3730de19d7c70b6481f53100c20850d30b8b"
+		},
+		{
+			"ImportPath": "github.com/influxdata/kapacitor/models",
+			"Comment": "v1.3.3-74-geacb373",
+			"Rev": "eacb3730de19d7c70b6481f53100c20850d30b8b"
+		},
+		{
+			"ImportPath": "github.com/influxdata/kapacitor/server/vars",
+			"Comment": "v1.3.3-74-geacb373",
+			"Rev": "eacb3730de19d7c70b6481f53100c20850d30b8b"
+		},
+		{
+			"ImportPath": "github.com/influxdata/kapacitor/udf/agent",
+			"Comment": "v1.3.3-74-geacb373",
+			"Rev": "eacb3730de19d7c70b6481f53100c20850d30b8b"
+		},
+		{
+			"ImportPath": "github.com/influxdata/kapacitor/uuid",
+			"Comment": "v1.3.3-74-geacb373",
+			"Rev": "eacb3730de19d7c70b6481f53100c20850d30b8b"
 		},
 		{
 			"ImportPath": "github.com/magiconair/properties",

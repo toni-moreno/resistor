@@ -2,9 +2,11 @@ package webui
 
 import (
 	"fmt"
+
 	"gopkg.in/macaron.v1"
 )
 
+// Context for macaron sessions on resitor
 type Context struct {
 	*macaron.Context
 	SignedInUser string
@@ -36,10 +38,10 @@ func initContextWithUserSessionCookie(ctx *Context) bool {
 		log.Error("Failed to start session", "error", err)
 		return false
 	}
-	userId := ctx.Session.Get(SESS_KEY_USERID)
+	userID := ctx.Session.Get(SessKeyUserID)
 
-	if userId != nil {
-		ctx.SignedInUser = ctx.Session.Get(SESS_KEY_USERID).(string)
+	if userID != nil {
+		ctx.SignedInUser = ctx.Session.Get(SessKeyUserID).(string)
 		ctx.IsSignedIn = true
 		return true
 	}
@@ -48,6 +50,7 @@ func initContextWithUserSessionCookie(ctx *Context) bool {
 
 }
 
+// GetContextHandler get handler
 func GetContextHandler() macaron.Handler {
 	return func(c *macaron.Context) {
 		ctx := &Context{
@@ -59,7 +62,7 @@ func GetContextHandler() macaron.Handler {
 
 		// the order in which these are tested are important
 		// look for api key in Authorization header first
-		// then init session and look for userId in session
+		// then init session and look for userID in session
 		// then look for api key in session (special case for render calls via api)
 		// then test if anonymous access is enabled
 		if initContextWithUserSessionCookie(ctx) {
@@ -71,6 +74,7 @@ func GetContextHandler() macaron.Handler {
 	}
 }
 
+// RawAsJSON Get Context in JSON format
 func (ctx *Context) RawAsJSON(status int, json []byte) {
 
 	// json rendered fine, write out the result

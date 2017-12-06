@@ -130,7 +130,7 @@ func (dbc *DatabaseCfg) UpdateTemplateCfg(id string, dev TemplateCfg) (int64, er
 
 /*GetTemplateCfgAffectOnDel for deleting devices from ID*/
 func (dbc *DatabaseCfg) GetTemplateCfgAffectOnDel(id string) ([]*DbObjAction, error) {
-	var devices []*AlertIdCfg
+	var devices []*AlertIDCfg
 	var obj []*DbObjAction
 	if err := dbc.x.Where("kapacitorid='" + id + "'").Find(&devices); err != nil {
 		log.Warnf("Error on Get Outout db id %d for devices , error: %s", id, err)

@@ -7,7 +7,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// NewAPICfgProduct
+// NewAPICfgProduct API for Product Catalog Management
 func NewAPICfgProduct(m *macaron.Macaron) error {
 
 	bind := binding.Bind
@@ -53,7 +53,7 @@ func AddProduct(ctx *Context, dev config.ProductCfg) {
 // UpdateProduct --pending--
 func UpdateProduct(ctx *Context, dev config.ProductCfg) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to update: %+v", dev)
+	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateProductCfg(id, dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
@@ -64,10 +64,10 @@ func UpdateProduct(ctx *Context, dev config.ProductCfg) {
 	}
 }
 
-//DeleteProduct
+//DeleteProduct delete from the catalog database
 func DeleteProduct(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to delete: %+v", id)
+	log.Debugf("Trying to delete: %+v", id)
 	affected, err := agent.MainConfig.Database.DelProductCfg(id)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
@@ -77,7 +77,7 @@ func DeleteProduct(ctx *Context) {
 	}
 }
 
-//etProductCfgByID --pending--
+//GetProductCfgByID --pending--
 func GetProductCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetProductCfgByID(id)

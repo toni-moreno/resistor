@@ -43,6 +43,7 @@ type HTTPConfig struct {
 	CookieID      string `toml:"cookieid"`
 }
 
+// InfluxCfg the output influx database where to store self performace metrics
 type InfluxCfg struct {
 	ID        string `toml:"id"`
 	Host      string `toml:"host"`
@@ -56,6 +57,7 @@ type InfluxCfg struct {
 	UserAgent string `toml:"useragent"`
 }
 
+// Config All resitor configuration
 type Config struct {
 	General  GeneralConfig
 	Database DatabaseCfg

@@ -7,7 +7,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// NewAPICfgKapacitorCfg
+// NewAPICfgKapacitor Kapacitor ouput
 func NewAPICfgKapacitor(m *macaron.Macaron) error {
 
 	bind := binding.Bind
@@ -53,7 +53,7 @@ func AddKapacitor(ctx *Context, dev config.KapacitorCfg) {
 // UpdateKapacitor --pending--
 func UpdateKapacitor(ctx *Context, dev config.KapacitorCfg) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to update: %+v", dev)
+	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateKapacitorCfg(id, dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
@@ -64,10 +64,10 @@ func UpdateKapacitor(ctx *Context, dev config.KapacitorCfg) {
 	}
 }
 
-//DeleteKapacitor
+//DeleteKapacitor delete a backend config
 func DeleteKapacitor(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to delete: %+v", id)
+	log.Debugf("Trying to delete: %+v", id)
 	affected, err := agent.MainConfig.Database.DelKapacitorCfg(id)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
@@ -77,7 +77,7 @@ func DeleteKapacitor(ctx *Context) {
 	}
 }
 
-//etKapacitorCfgByID --pending--
+//GetKapacitorCfgByID --pending--
 func GetKapacitorCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetKapacitorCfgByID(id)

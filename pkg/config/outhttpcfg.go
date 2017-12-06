@@ -90,7 +90,7 @@ func (dbc *DatabaseCfg) DelOutHTTPCfg(id string) (int64, error) {
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIdCfg{})
+	affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIDCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete OutHTTPCfg with id: %s, error: %s", id, err)
@@ -118,7 +118,7 @@ func (dbc *DatabaseCfg) UpdateOutHTTPCfg(id string, dev OutHTTPCfg) (int64, erro
 	session := dbc.x.NewSession()
 	defer session.Close()
 	if id != dev.ID { //ID has been changed
-		affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIdCfg{KapacitorID: dev.ID})
+		affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIDCfg{KapacitorID: dev.ID})
 		if err != nil {
 			session.Rollback()
 			return 0, fmt.Errorf("Error on Update InfluxConfig on update id(old)  %s with (new): %s, error: %s", id, dev.ID, err)

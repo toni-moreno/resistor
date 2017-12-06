@@ -7,18 +7,18 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// NewAPICfgAlertId
-func NewAPICfgAlertId(m *macaron.Macaron) error {
+// NewAPICfgAlertID config API for alerts
+func NewAPICfgAlertID(m *macaron.Macaron) error {
 
 	bind := binding.Bind
 
 	// Data sources
 	m.Group("/api/cfg/alertid", func() {
 		m.Get("/", reqSignedIn, GetAlertID)
-		m.Post("/", reqSignedIn, bind(config.AlertIdCfg{}), AddAlertId)
-		m.Put("/:id", reqSignedIn, bind(config.AlertIdCfg{}), UpdateAlertId)
-		m.Delete("/:id", reqSignedIn, DeleteAlertId)
-		m.Get("/:id", reqSignedIn, GetAlertIdCfgByID)
+		m.Post("/", reqSignedIn, bind(config.AlertIDCfg{}), AddAlertID)
+		m.Put("/:id", reqSignedIn, bind(config.AlertIDCfg{}), UpdateAlertID)
+		m.Delete("/:id", reqSignedIn, DeleteAlertID)
+		m.Get("/:id", reqSignedIn, GetAlertIDCfgByID)
 		m.Get("/checkondel/:id", reqSignedIn, GetAlertIDAffectOnDel)
 	})
 
@@ -27,7 +27,7 @@ func NewAPICfgAlertId(m *macaron.Macaron) error {
 
 // GetAlertID Return snmpdevice list to frontend
 func GetAlertID(ctx *Context) {
-	devcfgarray, err := agent.MainConfig.Database.GetAlertIdCfgArray("")
+	devcfgarray, err := agent.MainConfig.Database.GetAlertIDCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
 		log.Errorf("Error on get Devices :%+s", err)
@@ -37,10 +37,10 @@ func GetAlertID(ctx *Context) {
 	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
 }
 
-// AddAlertId Insert new snmpdevice to de internal BBDD --pending--
-func AddAlertId(ctx *Context, dev config.AlertIdCfg) {
+// AddAlertID Insert new snmpdevice to de internal BBDD --pending--
+func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddAlertIdCfg(dev)
+	affected, err := agent.MainConfig.Database.AddAlertIDCfg(dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -50,11 +50,11 @@ func AddAlertId(ctx *Context, dev config.AlertIdCfg) {
 	}
 }
 
-// UpdateAlertId --pending--
-func UpdateAlertId(ctx *Context, dev config.AlertIdCfg) {
+// UpdateAlertID --pending--
+func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateAlertIdCfg(id, dev)
+	log.Debugf("Trying to update: %+v", dev)
+	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -64,11 +64,11 @@ func UpdateAlertId(ctx *Context, dev config.AlertIdCfg) {
 	}
 }
 
-//DeleteAlertId
-func DeleteAlertId(ctx *Context) {
+//DeleteAlertID removes alert from
+func DeleteAlertID(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Tying to delete: %+v", id)
-	affected, err := agent.MainConfig.Database.DelAlertIdCfg(id)
+	log.Debugf("Trying to delete: %+v", id)
+	affected, err := agent.MainConfig.Database.DelAlertIDCfg(id)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
 		ctx.JSON(404, err.Error())
@@ -77,10 +77,10 @@ func DeleteAlertId(ctx *Context) {
 	}
 }
 
-//etAlertIdCfgByID --pending--
-func GetAlertIdCfgByID(ctx *Context) {
+//GetAlertIDCfgByID --pending--
+func GetAlertIDCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
-	dev, err := agent.MainConfig.Database.GetAlertIdCfgByID(id)
+	dev, err := agent.MainConfig.Database.GetAlertIDCfgByID(id)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
@@ -92,7 +92,7 @@ func GetAlertIdCfgByID(ctx *Context) {
 //GetAlertIDAffectOnDel --pending--
 func GetAlertIDAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
-	obarray, err := agent.MainConfig.Database.GetAlertIdCfgAffectOnDel(id)
+	obarray, err := agent.MainConfig.Database.GetAlertIDCfgAffectOnDel(id)
 	if err != nil {
 		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())

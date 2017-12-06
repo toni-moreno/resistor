@@ -10,6 +10,7 @@ import (
 	//	"time"
 )
 
+// NewAPIRtKapFilter set the runtime Kapacitor filter  API
 func NewAPIRtKapFilter(m *macaron.Macaron) error {
 
 	bind := binding.Bind
