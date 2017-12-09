@@ -77,6 +77,18 @@ func (dbc *DatabaseCfg) InitDB() {
 	}
 
 	// Sync tables
+	if err = dbc.x.Sync(new(IfxServerCfg)); err != nil {
+		log.Fatalf("Fail to sync database InfluxServerCfg: %v\n", err)
+	}
+	if err = dbc.x.Sync(new(IfxDBCfg)); err != nil {
+		log.Fatalf("Fail to sync database InfluxDatabase Cfg: %v\n", err)
+	}
+	if err = dbc.x.Sync(new(IfxMeasurementCfg)); err != nil {
+		log.Fatalf("Fail to sync database InfluxServerCfg: %v\n", err)
+	}
+	if err = dbc.x.Sync(new(IfxDBMeasRel)); err != nil {
+		log.Fatalf("Fail to sync database InfluxServerCfg: %v\n", err)
+	}
 	if err = dbc.x.Sync(new(DeviceStatCfg)); err != nil {
 		log.Fatalf("Fail to sync database DeviceStatCfg: %v\n", err)
 	}

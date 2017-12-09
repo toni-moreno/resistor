@@ -8,6 +8,7 @@ type DeviceStatCfg struct {
 	Order          int64  `xorm:"order"`
 	DeviceID       string `xorm:"deviceid" binding:"Required"`
 	AlertID        string `xorm:"alertid" binding:"Required"`
+	ProductID      string `xorm:"productid" binding:"Required"`
 	Exception      int64  `xorm:"exception"`
 	Active         bool   `xorm:"active"`
 	BaseLine       string `xorm:"baseline"`
@@ -16,9 +17,41 @@ type DeviceStatCfg struct {
 	Description    string `xorm:"description"`
 }
 
+// IfxServerCfg Influx server  config
+type IfxServerCfg struct {
+	ID          string `xorm:"'id' unique" binding:"Required"`
+	URL         string `xorm:"URL" binding:"Required"`
+	AdminUser   string `xorm:"adminuser"`
+	AdminPasswd string `xorm:"adminpasswod"`
+	Description string `xorm:"description"`
+}
+
+// IfxDBCfg Influx Database definition
+type IfxDBCfg struct {
+	ID          string `xorm:"'id' unique" binding:"Required"`
+	Retention   string `xorm:"retention" binding:"Required"`
+	IfxServer   string `xorm:"ifxserver"`
+	Description string `xorm:"description"`
+}
+
+// IfxMeasurementCfg Measurement Definition
+type IfxMeasurementCfg struct {
+	ID          string   `xorm:"'id' unique" binding:"Required"`
+	Tags        []string `xorm:"tags" binding:"Required"`
+	Fields      []string `xorm:"fields" binding:"Required"`
+	Description string   `xorm:"description"`
+}
+
+// IfxDBMEasRel Relationship between Ifx DB's and Its measurements
+type IfxDBMeasRel struct {
+	IfxDBID   string `xorm:"ifxdbid" `
+	IfxMeasID string `xorm:"ifxMeasID"`
+}
+
 // ProductCfg Product Catalog Config type
 type ProductCfg struct {
 	ID          string   `xorm:"'id' unique" binding:"Required"`
+	IDTagName   string   `xorm:"idtagname" binding:"Required"` //Set the
 	CommonTags  []string `xorm:"commontags"`
 	Description string   `xorm:"description"`
 }

@@ -1,8 +1,9 @@
+import { URL } from 'url';
 import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { KapacitorService } from './kapacitor.service';
+import { IfxServerService } from './ifxserver.service';
 import { ValidationService } from '../common/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
@@ -10,18 +11,18 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { KapacitorComponentConfig } from './kapacitor.data';
+import { IfxServerComponentConfig } from './ifxserver.data';
 
 declare var _:any;
 
 @Component({
-  selector: 'kapacitor-component',
-  providers: [KapacitorService, ValidationService],
-  templateUrl: './kapacitor.component.html',
+  selector: 'ifxserver-component',
+  providers: [IfxServerService, ValidationService],
+  templateUrl: './ifxserver.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class KapacitorComponent implements OnInit {
+export class IfxServerComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
@@ -31,11 +32,10 @@ export class KapacitorComponent implements OnInit {
   public componentList: Array<any>;
   public filter: string;
   public sampleComponentForm: any;
-  public alertHandler : any = null;
   public counterItems : number = null;
   public counterErrors: any = [];
-  public defaultConfig : any = KapacitorComponentConfig;
-
+  public defaultConfig : any = IfxServerComponentConfig;
+  public  selectedDays : any  =  [1,2,3];
   public selectedArray : any = [];
 
   public data : Array<any>;
@@ -49,7 +49,7 @@ export class KapacitorComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public ifxserverService: IfxServerService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -57,14 +57,15 @@ export class KapacitorComponent implements OnInit {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       URL: [this.sampleComponentForm ? this.sampleComponentForm.value.URL : '', Validators.required],
+      AdminUser: [this.sampleComponentForm ? this.sampleComponentForm.value.AdminUser : '', Validators.required],
+      AdminPasswd: [this.sampleComponentForm ? this.sampleComponentForm.value.AdminPasswd : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
 
   reloadData() {
     // now it's a simple subscription to the observable
-    this.alertHandler = null;
-    this.kapacitorService.getKapacitorItem(null)
+  this.ifxserverService.getIfxServerItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -136,7 +137,7 @@ export class KapacitorComponent implements OnInit {
   removeItem(row) {
     let id = row.ID;
     console.log('remove', id);
-    this.kapacitorService.checkOnDeleteKapacitorItem(id)
+    this.ifxserverService.checkOnDeleteIfxServerItem(id)
       .subscribe(
         data => {
         this.viewModalDelete.parseObject(data)
@@ -153,7 +154,7 @@ export class KapacitorComponent implements OnInit {
 
   editSampleItem(row) {
     let id = row.ID;
-    this.kapacitorService.getKapacitorItemById(id)
+    this.ifxserverService.getIfxServerItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
@@ -167,13 +168,13 @@ export class KapacitorComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.kapacitorService.deleteKapacitorItem(id)
+    this.ifxserverService.deleteIfxServerItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.kapacitorService.deleteKapacitorItem(id)
+      return this.ifxserverService.deleteIfxServerItem(id)
       .do(
         (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
@@ -188,7 +189,7 @@ export class KapacitorComponent implements OnInit {
 
   saveSampleItem() {
     if (this.sampleComponentForm.valid) {
-      this.kapacitorService.addKapacitorItem(this.sampleComponentForm.value)
+      this.ifxserverService.addIfxServerItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
         err => {
           console.log(err);
@@ -227,10 +228,10 @@ export class KapacitorComponent implements OnInit {
       if (this.sampleComponentForm.valid) {
         var r = true;
         if (this.sampleComponentForm.value.ID != this.oldID) {
-          r = confirm("Changing Kapacitor Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
+          r = confirm("Changing IfxServer Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
         }
         if (r == true) {
-          this.kapacitorService.editKapacitorItem(this.sampleComponentForm.value, this.oldID)
+          this.ifxserverService.editIfxServerItem(this.sampleComponentForm.value, this.oldID)
             .subscribe(data => { console.log(data) },
             err => console.error(err),
             () => { this.editmode = "list"; this.reloadData() }
@@ -238,7 +239,7 @@ export class KapacitorComponent implements OnInit {
         }
       }
     } else {
-      return this.kapacitorService.editKapacitorItem(component, component.ID)
+      return this.ifxserverService.editIfxServerItem(component, component.ID)
       .do(
         (test) =>  { this.counterItems++ },
         (err) => { this.counterErrors.push({'ID': component['ID'], 'error' : err['_body']})}
@@ -247,21 +248,6 @@ export class KapacitorComponent implements OnInit {
         return Observable.of({'ID': component.ID , 'error': err['_body']})
       })
     }
-  }
-
-
-  testSampleItemConnection() {
-    console.log(this.sampleComponentForm.value)
-    this.kapacitorService.testKapacitorItem(this.sampleComponentForm.value)
-    .subscribe(
-    data =>  this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
-    err => {
-        let error = err.json();
-        this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
-      },
-    () =>  { console.log("DONE")}
-  );
-
   }
 
   genericForkJoin(obsArray: any) {
@@ -273,14 +259,6 @@ export class KapacitorComponent implements OnInit {
                 },
                 err => console.error(err),
               );
-  }
-
-  createMultiselectArray(tempArray) : any {
-    let myarray = [];
-    for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
-    }
-    return myarray;
   }
 
 }

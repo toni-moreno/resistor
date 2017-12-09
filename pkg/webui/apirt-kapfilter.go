@@ -3,11 +3,8 @@ package webui
 import (
 	"github.com/go-macaron/binding"
 	"github.com/influxdata/kapacitor/alert"
-	//	"github.com/influxdata/kapacitor/models"
-	//"github.com/toni-moreno/resistor/pkg/agent"
-	//	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/data/alertfilter"
 	"gopkg.in/macaron.v1"
-	//	"time"
 )
 
 // NewAPIRtKapFilter set the runtime Kapacitor filter  API
@@ -29,8 +26,7 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	log.Debugf("ALERT Data: %#+v", al.Data)
 	log.Debugf("ALERT Series: %#+v", al.Data.Series)
 
-	for _, v := range al.Data.Series {
-		log.Debugf("ALERT ROW: %#+v", v)
-	}
+	alertfilter.ProcessAlert(al)
+
 	ctx.JSON(200, "hola")
 }

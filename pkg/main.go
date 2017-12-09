@@ -3,20 +3,23 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/toni-moreno/resistor/pkg/agent"
-	"github.com/toni-moreno/resistor/pkg/agent/output"
-	"github.com/toni-moreno/resistor/pkg/agent/selfmon"
-	"github.com/toni-moreno/resistor/pkg/config"
-	"github.com/toni-moreno/resistor/pkg/data/impexp"
-	"github.com/toni-moreno/resistor/pkg/webui"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/toni-moreno/resistor/pkg/agent"
+	"github.com/toni-moreno/resistor/pkg/agent/output"
+	"github.com/toni-moreno/resistor/pkg/agent/selfmon"
+	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/data/alertfilter"
+	"github.com/toni-moreno/resistor/pkg/data/impexp"
+	"github.com/toni-moreno/resistor/pkg/webui"
 )
 
 var (
@@ -149,6 +152,7 @@ func init() {
 	webui.SetLogDir(logDir)
 	webui.SetConfDir(confDir)
 	agent.SetLogger(log)
+	alertfilter.SetLogger(log)
 
 	impexp.SetLogger(log)
 	//

@@ -52,13 +52,18 @@ import { BlockUIComponent } from './common/blockui/blockui-component';
 import { SpinnerComponent } from './common/spinner';
 
 import { TableListComponent } from './common/table-list.component';
+
 import { KapacitorComponent } from './kapacitor/kapacitor.component';
 import { RangeTimeComponent } from './rangetime/rangetime.component';
+import { IfxServerComponent } from './ifxserver/ifxserver.component';
+import { IfxDBComponent } from './ifxdb/ifxdb.component';
+import { IfxMeasurementComponent } from './ifxmeasurement/ifxmeasurement.component';
 import { ProductComponent } from './product/product.component';
 import { TemplateComponent } from './template/template.component';
 import { OutHTTPComponent } from './outhttp/outhttp.component';
 import { AlertComponent } from './alert/alert.component';
 import { DeviceStatComponent } from './devicestat/devicestat.component';
+
 
 @NgModule({
   bootstrap: [App],
@@ -76,6 +81,9 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     LoginComponent,
     KapacitorComponent,
     RangeTimeComponent,
+    IfxServerComponent,
+    IfxDBComponent,
+    IfxMeasurementComponent,
     ProductComponent,
     TemplateComponent,
     OutHTTPComponent,
@@ -112,6 +120,18 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     ValidationService,
     BlockUIService
   ],
-  entryComponents: [BlockUIComponent,KapacitorComponent,RangeTimeComponent,ProductComponent,TemplateComponent,OutHTTPComponent,AlertComponent,DeviceStatComponent]
+  entryComponents: [
+      BlockUIComponent,
+      KapacitorComponent,
+      RangeTimeComponent,
+      IfxServerComponent,
+      IfxDBComponent,
+      IfxMeasurementComponent,
+      ProductComponent,
+      TemplateComponent,
+      OutHTTPComponent,
+      AlertComponent,
+      DeviceStatComponent
+    ]
 })
 export class AppModule {}

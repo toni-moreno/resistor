@@ -1,6 +1,8 @@
 package webui
 
 import (
+	"net/http"
+
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
@@ -20,9 +22,27 @@ func NewAPICfgKapacitor(m *macaron.Macaron) error {
 		m.Delete("/:id", reqSignedIn, DeleteKapacitor)
 		m.Get("/:id", reqSignedIn, GetKapacitorCfgByID)
 		m.Get("/checkondel/:id", reqSignedIn, GetKapacitorAffectOnDel)
+		m.Post("/ping", reqSignedIn, bind(config.KapacitorCfg{}), GetKapacitorPing)
 	})
 
 	return nil
+}
+
+// GetKapacitor Return snmpdevice list to frontend
+func GetKapacitorPing(ctx *Context, dev config.KapacitorCfg) {
+	resp, err := http.Get(dev.URL + "/kapacitor/v1/ping")
+	if err != nil {
+		ctx.JSON(404, err.Error())
+		log.Errorf("Error on ping Kapacitor :%s", err)
+		return
+	}
+	if resp.StatusCode != 204 {
+		ctx.JSON(404, err.Error())
+		log.Errorf("Error on ping Kapacitor Status Code :%d", resp.StatusCode)
+		return
+	}
+	log.Infof("Ping Test On %s  StatusCode:%d", dev.ID, resp.StatusCode)
+	ctx.JSON(200, "kapacitor OK")
 }
 
 // GetKapacitor Return snmpdevice list to frontend

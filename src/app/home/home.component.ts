@@ -10,6 +10,9 @@ import { AboutModal } from './about-modal'
 import { WindowRef } from '../common/windowref';
 
 //Menu Components  to load them dynamically
+import { IfxServerComponent } from '../ifxserver/ifxserver.component';
+import { IfxDBComponent } from '../ifxdb/ifxdb.component';
+import { IfxMeasurementComponent } from '../ifxmeasurement/ifxmeasurement.component';
 import { KapacitorComponent } from '../kapacitor/kapacitor.component';
 import { RangeTimeComponent } from '../rangetime/rangetime.component';
 import { ProductComponent } from '../product/product.component';
@@ -43,18 +46,26 @@ export class HomeComponent {
   version: RInfo;
   menuItems : Array<any> = [
   {'groupName' : 'Runtime', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
+    [
+      {'title': 'Agent status', 'selector' : 'runtime', 'component': null}
+    ]
+  },
+  {'groupName' : 'Influx Catalog', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
   [
-    {'title': 'Agent status', 'selector' : 'runtime', 'component': null}
-  ]},
+    {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'component': IfxServerComponent},
+    {'title': 'Influx Databases', 'selector' : 'ifdb-component', 'component': IfxDBComponent},
+    {'title': 'Influx Measurements', 'selector' : 'ifmeasurement-component', 'component': IfxMeasurementComponent}
+  ]
+},
   {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
     [
-    {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
-    {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
-    {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
-    {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
-    {'title': 'OutHTTP', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
-    {'title': 'Alert Definition', 'selector' : 'alert-component', 'component': AlertComponent},
-    {'title': 'Device Stats', 'selector' : 'devicestat-component', 'component': DeviceStatComponent},
+      {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
+      {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
+      {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
+      {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
+      {'title': 'OutHTTP', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
+      {'title': 'Alert Definition', 'selector' : 'alert-component', 'component': AlertComponent},
+      {'title': 'Device Stats', 'selector' : 'devicestat-component', 'component': DeviceStatComponent},
     ]
   }];
 
