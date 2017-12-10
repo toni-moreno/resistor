@@ -98,6 +98,9 @@ func (dbc *DatabaseCfg) InitDB() {
 	if err = dbc.x.Sync(new(ProductCfg)); err != nil {
 		log.Fatalf("Fail to sync database ProductCfg: %v\n", err)
 	}
+	if err = dbc.x.Sync(new(ProductGroupCfg)); err != nil {
+		log.Fatalf("Fail to sync database ProductGroupCfg: %v\n", err)
+	}
 	if err = dbc.x.Sync(new(KapacitorCfg)); err != nil {
 		log.Fatalf("Fail to sync database KapacitorCfg: %v\n", err)
 	}
