@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { ProductService } from './product.service';
+import { ProductGroupService } from './productgroup.service';
 import { ValidationService } from '../common/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
@@ -10,18 +10,18 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { ProductComponentConfig } from './product.data';
+import { ProductGroupComponentConfig } from './productgroup.data';
 
 declare var _:any;
 
 @Component({
-  selector: 'product-component',
-  providers: [ProductService, ValidationService],
-  templateUrl: './product.component.html',
+  selector: 'productgroup-component',
+  providers: [ProductGroupService, ValidationService],
+  templateUrl: './productgroup.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class ProductComponent implements OnInit {
+export class ProductGroupComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
@@ -33,7 +33,7 @@ export class ProductComponent implements OnInit {
   public sampleComponentForm: any;
   public counterItems : number = null;
   public counterErrors: any = [];
-  public defaultConfig : any = ProductComponentConfig;
+  public defaultConfig : any = ProductGroupComponentConfig;
   public  selectedDays : any  =  [1,2,3];
   public selectedArray : any = [];
 
@@ -48,7 +48,7 @@ export class ProductComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public productService: ProductService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public productgroupService: ProductGroupService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -64,7 +64,7 @@ export class ProductComponent implements OnInit {
 
   reloadData() {
     // now it's a simple subscription to the observable
-  this.productService.getProductItem(null)
+  this.productgroupService.getProductGroupItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -136,7 +136,7 @@ export class ProductComponent implements OnInit {
   removeItem(row) {
     let id = row.ID;
     console.log('remove', id);
-    this.productService.checkOnDeleteProductItem(id)
+    this.productgroupService.checkOnDeleteProductGroupItem(id)
       .subscribe(
         data => {
         this.viewModalDelete.parseObject(data)
@@ -153,7 +153,7 @@ export class ProductComponent implements OnInit {
 
   editSampleItem(row) {
     let id = row.ID;
-    this.productService.getProductItemById(id)
+    this.productgroupService.getProductGroupItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
@@ -167,13 +167,13 @@ export class ProductComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.productService.deleteProductItem(id)
+    this.productgroupService.deleteProductGroupItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.productService.deleteProductItem(id)
+      return this.productgroupService.deleteProductGroupItem(id)
       .do(
         (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
@@ -188,7 +188,7 @@ export class ProductComponent implements OnInit {
 
   saveSampleItem() {
     if (this.sampleComponentForm.valid) {
-      this.productService.addProductItem(this.sampleComponentForm.value)
+      this.productgroupService.addProductGroupItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
         err => {
           console.log(err);
@@ -227,10 +227,10 @@ export class ProductComponent implements OnInit {
       if (this.sampleComponentForm.valid) {
         var r = true;
         if (this.sampleComponentForm.value.ID != this.oldID) {
-          r = confirm("Changing Product Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
+          r = confirm("Changing ProductGroup Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
         }
         if (r == true) {
-          this.productService.editProductItem(this.sampleComponentForm.value, this.oldID)
+          this.productgroupService.editProductGroupItem(this.sampleComponentForm.value, this.oldID)
             .subscribe(data => { console.log(data) },
             err => console.error(err),
             () => { this.editmode = "list"; this.reloadData() }
@@ -238,7 +238,7 @@ export class ProductComponent implements OnInit {
         }
       }
     } else {
-      return this.productService.editProductItem(component, component.ID)
+      return this.productgroupService.editProductGroupItem(component, component.ID)
       .do(
         (test) =>  { this.counterItems++ },
         (err) => { this.counterErrors.push({'ID': component['ID'], 'error' : err['_body']})}

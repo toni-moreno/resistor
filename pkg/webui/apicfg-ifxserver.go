@@ -51,6 +51,7 @@ func ping(cfg *config.IfxServerCfg) (client.Client, time.Duration, string, error
 	return cli, elapsed, message, err
 }
 
+// InfluxQuery does IQL queries
 func InfluxQuery(cli client.Client, query string, db string) ([]string, error) {
 	defer cli.Close()
 	q := client.NewQuery(query, db, "s")
@@ -115,7 +116,7 @@ func getMeasurementsTags(cli client.Client, db string, m string) []string {
 	return ret
 }
 
-// AddIfxServer Insert new snmpdevice to de internal BBDD --pending--
+// ImportIfxCatalog new snmpdevice to de internal BBDD --pending--
 func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 	log.Warningf("Importing catalog for Server: %s", dev.ID)
 	cli, _, _, err := ping(&dev)
@@ -137,7 +138,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 			mcfg := config.IfxMeasurementCfg{ID: m, Tags: tags, Fields: fields}
 			_, err := agent.MainConfig.Database.AddOrUpdateIfxMeasurementCfg(mcfg)
 			if err != nil {
-				log.Errorf("Error on Importing Influx DBs: Err: %s", dev.ID, err)
+				log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
 				ctx.JSON(404, err.Error())
 				return
 			}
@@ -147,7 +148,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 		dbcfg := config.IfxDBCfg{Name: db, IfxServer: dev.ID, Retention: rps, Measurements: meas}
 		_, err := agent.MainConfig.Database.AddOrUpdateIfxDBCfg(dbcfg)
 		if err != nil {
-			log.Errorf("Error on Importing Influx DBs: Err: %s", dev.ID, err)
+			log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
 			ctx.JSON(404, err.Error())
 			return
 		}
@@ -156,7 +157,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 	ctx.JSON(200, &dbs)
 }
 
-// AddIfxServer Insert new snmpdevice to de internal BBDD --pending--
+// PingIfxServer Insert new snmpdevice to de internal BBDD --pending--
 func PingIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	_, elapsed, message, err := ping(&dev)
 	if err != nil {

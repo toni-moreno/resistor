@@ -65,6 +65,14 @@ type ProductCfg struct {
 	ID          string   `xorm:"'id' unique" binding:"Required"`
 	IDTagName   string   `xorm:"idtagname" binding:"Required"` //Set the
 	CommonTags  []string `xorm:"commontags"`
+	BaseLines   []string `xorm:"baselines"`
+	Description string   `xorm:"description"`
+}
+
+// ProductGroupCfg Product Group Catalog Config type
+type ProductGroupCfg struct {
+	ID          string   `xorm:"'id' unique" binding:"Required"`
+	Products    []string `xorm:"commontags"`
 	Description string   `xorm:"description"`
 }
 
@@ -144,8 +152,8 @@ type AlertIDCfg struct {
 	NumAlertID  int    `xorm:"numalertid" binding:"Required"`
 	Description string `xorm:"description"`
 	//Alert Origin data
-	InfluxDB          string `xorm:"influxDB" binding:"Required"`
-	InfluxRP          string `xorm:"influxRP" binding:"Required"`
+	InfluxDB          int64  `xorm:"influxdb" binding:"Required"`
+	InfluxRP          string `xorm:"influxrp" binding:"Required"`
 	InfluxMeasurement string `xorm:"influxmeasurement" binding:"Required"`
 	TagDescription    string `xorm:"tagdescription"`
 	InfluxFilter      string `xorm:"influxfilter"`

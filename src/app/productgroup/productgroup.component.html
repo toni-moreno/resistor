@@ -7,7 +7,7 @@
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
   <table-list #listTableComponent
-    [typeComponent]="'product-component'"
+    [typeComponent]="'productgroup-component'"
     [data]="data"
     [columns]="defaultConfig['table-columns']"
     [counterItems]="counterItems"
@@ -36,37 +36,19 @@
   </span>
       <div class="form-group">
         <label class="control-label col-sm-2" for="ID">ID</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier for the product "></i>
+        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier for the productgroup "></i>
         <div class="col-sm-9">
           <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
           <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
         </div>
       </div>
       <div class="form-group">
-          <label class="control-label col-sm-2" for="BaseLines">Base Lines</label>
-          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Each baseline will be a set of Alerts "></i>
+          <label class="control-label col-sm-2" for="Products">Products</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Set of products in this product group "></i>
           <div class="col-sm-9">
-            <input formControlName="BaseLines" id="BaseLines" [ngModel]="sampleComponentForm.value.BaseLines" />
-            <control-messages [control]="sampleComponentForm.controls.BaseLines"></control-messages>
+            <input formControlName="Products" id="Products" [ngModel]="sampleComponentForm.value.Products" />
+            <control-messages [control]="sampleComponentForm.controls.Products"></control-messages>
           </div>
-      </div>
-  
-      <div class="form-group">
-          <label class="control-label col-sm-2" for="IDTagName">ID Tag Name</label>
-          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag which measurements for this product uses to identify the device (neede to define online device filters) "></i>
-          <div class="col-sm-9">
-            <input formControlName="IDTagName" id="IDTagName" [ngModel]="sampleComponentForm.value.IDTagName" />
-            <control-messages [control]="sampleComponentForm.controls.IDTagName"></control-messages>
-          </div>
-      </div>
-  
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="CommonTags">CommonTags</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
-        <div class="col-sm-9">
-          <input formControlName="CommonTags" id="CommonTags" [ngModel]="sampleComponentForm.value.CommonTags"/>
-          <control-messages [control]="sampleComponentForm.controls.CommonTags"></control-messages>
-        </div>
       </div>
   </div>
 

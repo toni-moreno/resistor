@@ -177,17 +177,20 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewAPIRtKapFilter(m) //Webservice for alert filtering
 	NewAPIRtKapProxy(m)  //Kapacitor proxy
 	//Catalog
-	NewAPICfgIfxServer(m)      //Influx Servers
-	NewAPICfgIfxDB(m)          //Influx Databases
+	NewAPICfgIfxServer(m) //Influx Servers
+	NewAPICfgIfxDB(m)     //Influx Databases
+	//Servers
+	NewAPICfgKapacitor(m)      //Kapacitor URL's
 	NewAPICfgIfxMeasurement(m) //Influx Measurments
+	NewAPICfgOutHTTP(m)        //HttpOut list
 	//Config
-	NewAPICfgOutHTTP(m)    //HttpOut list
-	NewAPICfgAlertID(m)    //Alert Admin
-	NewAPICfgProduct(m)    //Product Admin
-	NewAPICfgTemplate(m)   //Alert Template
-	NewAPICfgKapacitor(m)  //Kapacitor URL's
-	NewAPICfgRangeTime(m)  //RangeTime
-	NewAPICfgDeviceStat(m) //Device Stats
+
+	NewAPICfgAlertID(m)      //Alert Admin
+	NewAPICfgProduct(m)      //Product Admin
+	NewAPICfgProductGroup(m) //Product Group Admin
+	NewAPICfgTemplate(m)     //Alert Template
+	NewAPICfgRangeTime(m)    //RangeTime
+	NewAPICfgDeviceStat(m)   //Device Stats
 
 	log.Printf("Server is running on localhost:%d...", port)
 	httpServer := fmt.Sprintf("0.0.0.0:%d", port)

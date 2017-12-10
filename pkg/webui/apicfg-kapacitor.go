@@ -22,14 +22,14 @@ func NewAPICfgKapacitor(m *macaron.Macaron) error {
 		m.Delete("/:id", reqSignedIn, DeleteKapacitor)
 		m.Get("/:id", reqSignedIn, GetKapacitorCfgByID)
 		m.Get("/checkondel/:id", reqSignedIn, GetKapacitorAffectOnDel)
-		m.Post("/ping", reqSignedIn, bind(config.KapacitorCfg{}), GetKapacitorPing)
+		m.Post("/ping", reqSignedIn, bind(config.KapacitorCfg{}), PingKapacitor)
 	})
 
 	return nil
 }
 
-// GetKapacitor Return snmpdevice list to frontend
-func GetKapacitorPing(ctx *Context, dev config.KapacitorCfg) {
+// PingKapacitor Return snmpdevice list to frontend
+func PingKapacitor(ctx *Context, dev config.KapacitorCfg) {
 	resp, err := http.Get(dev.URL + "/kapacitor/v1/ping")
 	if err != nil {
 		ctx.JSON(404, err.Error())

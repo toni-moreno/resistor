@@ -5,5 +5,6 @@ export const ProductComponentConfig: any =
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'ID Tag Name', 'name': 'IDTagName' },
       { 'title': 'CommonTags', 'name': 'CommonTags' },
+      { 'title': 'Base Lines', 'name': 'BaseLines' },
     ]
   };

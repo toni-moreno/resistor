@@ -59,6 +59,7 @@ import { IfxServerComponent } from './ifxserver/ifxserver.component';
 import { IfxDBComponent } from './ifxdb/ifxdb.component';
 import { IfxMeasurementComponent } from './ifxmeasurement/ifxmeasurement.component';
 import { ProductComponent } from './product/product.component';
+import { ProductGroupComponent } from './productgroup/productgroup.component';
 import { TemplateComponent } from './template/template.component';
 import { OutHTTPComponent } from './outhttp/outhttp.component';
 import { AlertComponent } from './alert/alert.component';
@@ -85,6 +86,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     IfxDBComponent,
     IfxMeasurementComponent,
     ProductComponent,
+    ProductGroupComponent,
     TemplateComponent,
     OutHTTPComponent,
     AlertComponent,
@@ -128,6 +130,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
       IfxDBComponent,
       IfxMeasurementComponent,
       ProductComponent,
+      ProductGroupComponent,
       TemplateComponent,
       OutHTTPComponent,
       AlertComponent,

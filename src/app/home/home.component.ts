@@ -16,12 +16,14 @@ import { IfxMeasurementComponent } from '../ifxmeasurement/ifxmeasurement.compon
 import { KapacitorComponent } from '../kapacitor/kapacitor.component';
 import { RangeTimeComponent } from '../rangetime/rangetime.component';
 import { ProductComponent } from '../product/product.component';
+import { ProductGroupComponent } from '../productgroup/productgroup.component';
 import { TemplateComponent } from '../template/template.component';
 import { OutHTTPComponent } from '../outhttp/outhttp.component';
 import { AlertComponent } from '../alert/alert.component';
 import { DeviceStatComponent } from '../devicestat/devicestat.component'
 import { NavbarComponent } from './navbar/navbar.component'
 import { SideMenuComponent } from './sidemenu/sidemenu.component'
+
 
 
 declare var _:any;
@@ -52,18 +54,23 @@ export class HomeComponent {
   },
   {'groupName' : 'Influx Catalog', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
   [
-    {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'component': IfxServerComponent},
     {'title': 'Influx Databases', 'selector' : 'ifdb-component', 'component': IfxDBComponent},
     {'title': 'Influx Measurements', 'selector' : 'ifmeasurement-component', 'component': IfxMeasurementComponent}
   ]
-},
+  },
+  {'groupName' : 'External Server Config', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
+  [
+    {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'component': IfxServerComponent},
+    {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
+    {'title': 'HTTP Alerting Backends', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
+  ]
+  }, 
   {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
     [
-      {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
       {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
       {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
+      {'title': 'Product Groups', 'selector' : 'productgroup-component', 'component': ProductGroupComponent},
       {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
-      {'title': 'OutHTTP', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
       {'title': 'Alert Definition', 'selector' : 'alert-component', 'component': AlertComponent},
       {'title': 'Device Stats', 'selector' : 'devicestat-component', 'component': DeviceStatComponent},
     ]

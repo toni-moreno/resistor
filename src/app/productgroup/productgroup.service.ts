@@ -5,48 +5,47 @@ import { HttpService } from '../core/http.service';
 declare var _:any;
 
 @Injectable()
-export class ProductService {
+export class ProductGroupService {
 
     constructor(private http: HttpService,) {
     }
 
     jsonParser(key,value) {
-        if ( key == 'CommonTags'|| 
-             key == 'BaseLines') {
+        if ( key == 'ProductGroups') {
             return String(value).split(',');
           }
         return value
     }
 
-    addProductItem(dev) {
-        return this.http.post('/api/cfg/product',JSON.stringify(dev,this.jsonParser))
+    addProductGroupItem(dev) {
+        return this.http.post('/api/cfg/productgroup',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
-    editProductItem(dev, id) {
-         return this.http.put('/api/cfg/product/'+id,JSON.stringify(dev,this.jsonParser))
+    editProductGroupItem(dev, id) {
+         return this.http.put('/api/cfg/productgroup/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 
 
-    getProductItem(filter_s: string) {
-        return this.http.get('/api/cfg/product')
+    getProductGroupItem(filter_s: string) {
+        return this.http.get('/api/cfg/productgroup')
         .map( (responseData) => {
             return responseData.json();
         })
     }
 
-    getProductItemById(id : string) {
+    getProductGroupItemById(id : string) {
         // return an observable
         console.log("ID: ",id);
-        return this.http.get('/api/cfg/product/'+id)
+        return this.http.get('/api/cfg/productgroup/'+id)
         .map( (responseData) =>
             responseData.json()
     )};
 
-    checkOnDeleteProductItem(id : string){
-      return this.http.get('/api/cfg/product/checkondel/'+id)
+    checkOnDeleteProductGroupItem(id : string){
+      return this.http.get('/api/cfg/productgroup/checkondel/'+id)
       .map( (responseData) =>
        responseData.json()
       ).map((deleteobject) => {
@@ -63,9 +62,9 @@ export class ProductService {
       });
     };
 
-    deleteProductItem(id : string) {
+    deleteProductGroupItem(id : string) {
         // return an observable
-        return this.http.delete('/api/cfg/product/'+id)
+        return this.http.delete('/api/cfg/productgroup/'+id)
         .map( (responseData) =>
          responseData.json()
         );
