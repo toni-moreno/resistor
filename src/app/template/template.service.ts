@@ -10,18 +10,18 @@ export class TemplateService {
     constructor(private http: HttpService,) {
     }
 
+    jsonParser(key,value) {
+        return value
+    }
+
     addTemplateItem(dev) {
-        return this.http.post('/api/cfg/template',JSON.stringify(dev,function (key,value) {
-                return value;
-        }))
+        return this.http.post('/api/cfg/template',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editTemplateItem(dev, id) {
-        return this.http.put('/api/cfg/template/'+id,JSON.stringify(dev,function (key,value) {
-            return value;
-        }))
+        return this.http.put('/api/cfg/template/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 

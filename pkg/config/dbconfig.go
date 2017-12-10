@@ -28,10 +28,17 @@ type IfxServerCfg struct {
 
 // IfxDBCfg Influx Database definition
 type IfxDBCfg struct {
-	ID          string `xorm:"'id' unique" binding:"Required"`
-	Retention   string `xorm:"retention" binding:"Required"`
-	IfxServer   string `xorm:"ifxserver"`
-	Description string `xorm:"description"`
+	ID           int64    `xorm:"'id' pk autoincr"`
+	Name         string   `xorm:"'name'  not null unique(ifxdb)" binding:"Required"`
+	IfxServer    string   `xorm:"'ifxserver'  not null unique(ifxdb)" binding:"Required"`
+	Retention    []string `xorm:"retention" binding:"Required"`
+	Description  string   `xorm:"description"`
+	Measurements []string `xorm:"-"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (IfxDBCfg) TableName() string {
+	return "ifx_db_cfg"
 }
 
 // IfxMeasurementCfg Measurement Definition
@@ -42,10 +49,15 @@ type IfxMeasurementCfg struct {
 	Description string   `xorm:"description"`
 }
 
-// IfxDBMEasRel Relationship between Ifx DB's and Its measurements
+// IfxDBMeasRel Relationship between Ifx DB's and Its measurements
 type IfxDBMeasRel struct {
-	IfxDBID   string `xorm:"ifxdbid" `
-	IfxMeasID string `xorm:"ifxMeasID"`
+	IfxDBID   int64  `xorm:"ifxdbid" `
+	IfxMeasID string `xorm:"ifxmeasid"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (IfxDBMeasRel) TableName() string {
+	return "ifx_db_meas_rel"
 }
 
 // ProductCfg Product Catalog Config type

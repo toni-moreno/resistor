@@ -259,8 +259,7 @@ export class KapacitorComponent implements OnInit {
         let error = err.json();
         this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
       },
-    () =>  { console.log("DONE")}
-  );
+    () =>  { console.log("DONE")});
 
   }
 

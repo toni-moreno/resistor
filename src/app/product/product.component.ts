@@ -55,6 +55,7 @@ export class ProductComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
+      IDTagName: [this.sampleComponentForm ? this.sampleComponentForm.value.IDTagName : '', Validators.required],
       CommonTags: [this.sampleComponentForm ? this.sampleComponentForm.value.CommonTags : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });

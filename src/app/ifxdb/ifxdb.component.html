@@ -44,6 +44,15 @@
       </div>
 
       <div class="form-group">
+          <label class="control-label col-sm-2" for="Name">DB Name</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <input formControlName="Name" id="Name" [ngModel]="sampleComponentForm.value.Name" />
+            <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+          </div>
+        </div>
+
+      <div class="form-group">
         <label class="control-label col-sm-2" for="Retention">Retention</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
         <div class="col-sm-9">

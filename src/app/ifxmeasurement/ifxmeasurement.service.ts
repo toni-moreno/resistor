@@ -9,28 +9,22 @@ export class IfxMeasurementService {
 
     constructor(private http: HttpService,) {
     }
+    jsonParser(key,value) {
+        if ( key == 'Tags'||
+             key == 'Fields' ) {
+            return String(value).split(',');
+        }
+        return value;
+    }
 
     addIfxMeasurementItem(dev) {
-        return this.http.post('/api/cfg/ifxmeasurement',JSON.stringify(dev,function (key,value) {
-             if ( key == 'Tags'||
-                  key == 'Fields' ) {
-                  return value.split(',');
-                }
-
-                return value;
-        }))
+        return this.http.post('/api/cfg/ifxmeasurement',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editIfxMeasurementItem(dev, id) {
-        return this.http.put('/api/cfg/ifxmeasurement/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'Tags'||
-                 key == 'Fields' ) {
-            return value.split(',');
-          }
-            return value;
-        }))
+        return this.http.put('/api/cfg/ifxmeasurement/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 

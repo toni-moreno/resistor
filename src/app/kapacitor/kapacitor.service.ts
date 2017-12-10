@@ -10,23 +10,18 @@ export class KapacitorService {
     constructor(private http: HttpService,) {
     }
 
+    jsonParser(key,value) {
+        return value;
+    }
+
     addKapacitorItem(dev) {
-        return this.http.post('/api/cfg/kapacitor',JSON.stringify(dev,function (key,value) {
-              /*  if ( key == 'Port'  ||
-                key == 'Timeout' ) {
-                  return parseInt(value);
-                }
-              */
-                return value;
-        }))
+        return this.http.post('/api/cfg/kapacitor',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editKapacitorItem(dev, id) {
-        return this.http.put('/api/cfg/kapacitor/'+id,JSON.stringify(dev,function (key,value) {
-            return value;
-        }))
+        return this.http.put('/api/cfg/kapacitor/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 

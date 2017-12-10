@@ -111,6 +111,19 @@ func (dbc *DatabaseCfg) DelIfxMeasurementCfg(id string) (int64, error) {
 	return affected, nil
 }
 
+// AddOrUpdateIfxMeasurementCfg adds or updates if already exist
+func (dbc *DatabaseCfg) AddOrUpdateIfxMeasurementCfg(dev IfxMeasurementCfg) (int64, error) {
+	log.Debugf("ADD OR UPDATE %+v", dev)
+	//check if exist
+	_, err := dbc.GetIfxMeasurementCfgByID(dev.ID)
+	if err != nil {
+		log.Warningf("AddOrUpdateIfxMeasurement error: %s", err)
+		return dbc.AddIfxMeasurementCfg(dev)
+	}
+	log.Debugf("Updating Measurement : %+v", dev)
+	return dbc.UpdateIfxMeasurementCfg(dev.ID, dev)
+}
+
 /*UpdateIfxMeasurementCfg for adding new influxdb*/
 func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id string, dev IfxMeasurementCfg) (int64, error) {
 	var affecteddev, affected int64

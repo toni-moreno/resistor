@@ -10,25 +10,21 @@ export class ProductService {
     constructor(private http: HttpService,) {
     }
 
-    addProductItem(dev) {
-        return this.http.post('/api/cfg/product',JSON.stringify(dev,function (key,value) {
-             if ( key == 'CommonTags') {
-                  return value.split(',');
-                }
+    jsonParser(key,value) {
+        if ( key == 'CommonTags') {
+            return String(value).split(',');
+          }
+        return value
+    }
 
-                return value;
-        }))
+    addProductItem(dev) {
+        return this.http.post('/api/cfg/product',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editProductItem(dev, id) {
-        return this.http.put('/api/cfg/product/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'CommonTags') {
-                 return value.split(',');
-               }
-            return value;
-        }))
+         return this.http.put('/api/cfg/product/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 

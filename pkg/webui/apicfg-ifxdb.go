@@ -1,6 +1,8 @@
 package webui
 
 import (
+	"strconv"
+
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
@@ -54,7 +56,8 @@ func AddIfxDB(ctx *Context, dev config.IfxDBCfg) {
 func UpdateIfxDB(ctx *Context, dev config.IfxDBCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateIfxDBCfg(id, dev)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	affected, err := agent.MainConfig.Database.UpdateIfxDBCfg(nid, dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -68,7 +71,8 @@ func UpdateIfxDB(ctx *Context, dev config.IfxDBCfg) {
 func DeleteIfxDB(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete: %+v", id)
-	affected, err := agent.MainConfig.Database.DelIfxDBCfg(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	affected, err := agent.MainConfig.Database.DelIfxDBCfg(nid)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
 		ctx.JSON(404, err.Error())
@@ -80,7 +84,8 @@ func DeleteIfxDB(ctx *Context) {
 //GetIfxDBCfgByID --pending--
 func GetIfxDBCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
-	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(nid)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
@@ -92,7 +97,8 @@ func GetIfxDBCfgByID(ctx *Context) {
 //GetIfxDBAffectOnDel --pending--
 func GetIfxDBAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
-	obarray, err := agent.MainConfig.Database.GetIfxDBCfgAffectOnDel(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	obarray, err := agent.MainConfig.Database.GetIfxDBCfgAffectOnDel(nid)
 	if err != nil {
 		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())

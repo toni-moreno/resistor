@@ -10,25 +10,21 @@ export class IfxDBService {
     constructor(private http: HttpService,) {
     }
 
-    addIfxDBItem(dev) {
-        return this.http.post('/api/cfg/ifxdb',JSON.stringify(dev,function (key,value) {
-             if ( key == 'CommonTags') {
-                  return value.split(',');
-                }
+    jsonParser(key,value) {
+        if ( key == 'Measurements') {
+            return String(value).split(',');
+        }
+        return value;
+    }
 
-                return value;
-        }))
+    addIfxDBItem(dev) {
+        return this.http.post('/api/cfg/ifxdb',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editIfxDBItem(dev, id) {
-        return this.http.put('/api/cfg/ifxdb/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'CommonTags') {
-                 return value.split(',');
-               }
-            return value;
-        }))
+        return this.http.put('/api/cfg/ifxdb/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 

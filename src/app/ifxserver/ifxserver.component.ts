@@ -32,6 +32,7 @@ export class IfxServerComponent implements OnInit {
   public componentList: Array<any>;
   public filter: string;
   public sampleComponentForm: any;
+  public alertHandler : any = null;
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = IfxServerComponentConfig;
@@ -64,8 +65,9 @@ export class IfxServerComponent implements OnInit {
   }
 
   reloadData() {
+    this.alertHandler = null;
     // now it's a simple subscription to the observable
-  this.ifxserverService.getIfxServerItem(null)
+    this.ifxserverService.getIfxServerItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -249,6 +251,37 @@ export class IfxServerComponent implements OnInit {
       })
     }
   }
+
+  testSampleItemConnection() {
+    console.log(this.sampleComponentForm.value)
+    this.ifxserverService.testIfxServerItem(this.sampleComponentForm.value)
+    .subscribe(
+    data =>  this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
+    err => {
+        let error = err.json();
+        this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
+      },
+    () =>  { console.log("DONE")});
+
+  }
+
+  importIfxCatalog() {
+
+    this.ifxserverService.importIfxCatalog(this.sampleComponentForm.value)
+    .subscribe(
+    data =>  {
+      console.log('IMPORT:');
+      console.log(data);
+      this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true};
+    },
+    err => {
+        let error = err.json();
+        this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
+      },
+    () =>  { console.log("DONE")});
+
+  }
+
 
   genericForkJoin(obsArray: any) {
     Observable.forkJoin(obsArray)

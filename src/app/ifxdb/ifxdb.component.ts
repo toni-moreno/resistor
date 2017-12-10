@@ -55,7 +55,8 @@ export class IfxDBComponent implements OnInit {
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
-      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
+      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : null],
+      Name: [this.sampleComponentForm ? this.sampleComponentForm.value.Name : '', Validators.required],
       Retention: [this.sampleComponentForm ? this.sampleComponentForm.value.Retention : '', Validators.required],
       IfxServer: [this.sampleComponentForm ? this.sampleComponentForm.value.IfxServer : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']

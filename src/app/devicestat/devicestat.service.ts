@@ -10,21 +10,20 @@ export class DeviceStatService {
     constructor(private http: HttpService,) {
     }
 
+    jsonParser(key,value) {
+        if ( key == 'Active')
+            return ( value === "true" || value === true);
+        return value;
+    }
+
     addDeviceStatItem(dev) {
-        return this.http.post('/api/cfg/devicestat',JSON.stringify(dev,function (key,value) {
-            if ( key == 'Active')
-                return ( value === "true" || value === true);
-            return value;
-        }))
+        return this.http.post('/api/cfg/devicestat',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editDeviceStatItem(dev, id) {
-        return this.http.put('/api/cfg/devicestat/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'Active')
-                return ( value === "true" || value === true);
-            return value;        }))
+        return this.http.put('/api/cfg/devicestat/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 

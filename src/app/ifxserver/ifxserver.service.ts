@@ -10,25 +10,21 @@ export class IfxServerService {
     constructor(private http: HttpService,) {
     }
 
-    addIfxServerItem(dev) {
-        return this.http.post('/api/cfg/ifxserver',JSON.stringify(dev,function (key,value) {
-             if ( key == 'CommonTags') {
-                  return value.split(',');
-                }
+    jsonParser(key,value) {
+        if ( key == 'CommonTags') {
+            return String(value).split(',');
+        }
+        return value; 
+    }
 
-                return value;
-        }))
+    addIfxServerItem(dev) {
+        return this.http.post('/api/cfg/ifxserver',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editIfxServerItem(dev, id) {
-        return this.http.put('/api/cfg/ifxserver/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'CommonTags') {
-                 return value.split(',');
-               }
-            return value;
-        }))
+        return this.http.put('/api/cfg/ifxserver/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 
@@ -73,4 +69,21 @@ export class IfxServerService {
          responseData.json()
         );
     };
+
+    testIfxServerItem(instance) {
+        // return an observable
+        return this.http.post('/api/cfg/ifxserver/ping/',JSON.stringify(instance,this.jsonParser))
+        .map(
+          (responseData) => responseData.json()
+        );
+      };
+
+      importIfxCatalog(instance) {
+        // return an observable
+        return this.http.post('/api/cfg/ifxserver/import/',JSON.stringify(instance,this.jsonParser))
+        .map(
+          (responseData) => responseData.json()
+        );
+      };
+  
 }

@@ -17,16 +17,16 @@ import (
 ***********************************/
 
 /*GetDeviceStatCfgByID get device data by id*/
-func (dbc *DatabaseCfg) GetDeviceStatCfgByID(id string) (DeviceStatCfg, error) {
-	cfgarray, err := dbc.GetDeviceStatCfgArray("id='" + id + "'")
+func (dbc *DatabaseCfg) GetDeviceStatCfgByID(id int64) (DeviceStatCfg, error) {
+	cfgarray, err := dbc.GetDeviceStatCfgArray("id='" + strconv.FormatInt(id, 10) + "'")
 	if err != nil {
 		return DeviceStatCfg{}, err
 	}
 	if len(cfgarray) > 1 {
-		return DeviceStatCfg{}, fmt.Errorf("Error %d results on get DeviceStatCfgArray by id %s", len(cfgarray), id)
+		return DeviceStatCfg{}, fmt.Errorf("Error %d results on get DeviceStatCfgArray by id %d", len(cfgarray), id)
 	}
 	if len(cfgarray) == 0 {
-		return DeviceStatCfg{}, fmt.Errorf("Error no values have been returned with this id %s in the influx config table", id)
+		return DeviceStatCfg{}, fmt.Errorf("Error no values have been returned with this id %d in the influx config table", id)
 	}
 	return *cfgarray[0], nil
 }

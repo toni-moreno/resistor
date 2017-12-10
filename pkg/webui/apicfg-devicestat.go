@@ -92,7 +92,8 @@ func DeleteDeviceStat(ctx *Context) {
 //GetDeviceStatCfgByID --pending--
 func GetDeviceStatCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
-	dev, err := agent.MainConfig.Database.GetDeviceStatCfgByID(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	dev, err := agent.MainConfig.Database.GetDeviceStatCfgByID(nid)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())

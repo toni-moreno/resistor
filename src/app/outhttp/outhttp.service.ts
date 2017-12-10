@@ -10,24 +10,21 @@ export class OutHTTPService {
     constructor(private http: HttpService,) {
     }
 
+    jsonParser(key,value) {
+        if ( key == 'Headers') {
+            if(typeof value === 'string') return value.split(',');
+        }
+        return value;
+    }
+
     addOutHTTPItem(dev) {
-        return this.http.post('/api/cfg/outhttp',JSON.stringify(dev,function (key,value) {
-             if ( key == 'Headers') {
-                if(typeof value === 'string') return value.split(',');
-            }
-                return value;
-        }))
+        return this.http.post('/api/cfg/outhttp',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
     }
 
     editOutHTTPItem(dev, id) {
-        return this.http.put('/api/cfg/outhttp/'+id,JSON.stringify(dev,function (key,value) {
-            if ( key == 'Headers') {
-                if(typeof value === 'string') return value.split(',');
-               }
-            return value;
-        }))
+        return this.http.put('/api/cfg/outhttp/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
     }
 
