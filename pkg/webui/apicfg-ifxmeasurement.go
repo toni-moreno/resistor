@@ -1,6 +1,8 @@
 package webui
 
 import (
+	"strconv"
+
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
@@ -54,9 +56,10 @@ func AddIfxMeasurement(ctx *Context, dev config.IfxMeasurementCfg) {
 func UpdateIfxMeasurement(ctx *Context, dev config.IfxMeasurementCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateIfxMeasurementCfg(id, dev)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	affected, err := agent.MainConfig.Database.UpdateIfxMeasurementCfg(nid, dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for device %d/%s  , affected : %+v , error: %s", dev.ID, dev.Name, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
@@ -68,7 +71,8 @@ func UpdateIfxMeasurement(ctx *Context, dev config.IfxMeasurementCfg) {
 func DeleteIfxMeasurement(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete: %+v", id)
-	affected, err := agent.MainConfig.Database.DelIfxMeasurementCfg(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	affected, err := agent.MainConfig.Database.DelIfxMeasurementCfg(nid)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
 		ctx.JSON(404, err.Error())
@@ -80,7 +84,8 @@ func DeleteIfxMeasurement(ctx *Context) {
 //GetIfxMeasurementCfgByID --pending--
 func GetIfxMeasurementCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
-	dev, err := agent.MainConfig.Database.GetIfxMeasurementCfgByID(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	dev, err := agent.MainConfig.Database.GetIfxMeasurementCfgByID(nid)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
@@ -92,7 +97,8 @@ func GetIfxMeasurementCfgByID(ctx *Context) {
 //GetIfxMeasurementAffectOnDel --pending--
 func GetIfxMeasurementAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
-	obarray, err := agent.MainConfig.Database.GetIfxMeasurementCfgAffectOnDel(id)
+	nid, err := strconv.ParseInt(id, 10, 64)
+	obarray, err := agent.MainConfig.Database.GetIfxMeasurementCfgAffectOnDel(nid)
 	if err != nil {
 		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())

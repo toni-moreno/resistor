@@ -46,6 +46,7 @@ func (dbc *DatabaseCfg) InitDB() {
 	case "sqlite3":
 		dbtype = "sqlite3"
 		datasource = dataDir + "/" + dbc.Name + ".db"
+		dbc.lastIDQuery = "SELECT last_insert_rowid() as rowid"
 	case "mysql":
 		dbtype = "mysql"
 		protocol := "tcp"
@@ -53,7 +54,8 @@ func (dbc *DatabaseCfg) InitDB() {
 			protocol = "unix"
 		}
 		datasource = fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8", dbc.User, dbc.Password, protocol, dbc.Host, dbc.Name)
-		//datasource = dbc.User + ":" + dbc.Pass + "@" + dbc.Host + "/" + dbc.Name + "?charset=utf8"
+		dbc.lastIDQuery = "SELECT LAST_INSERT_ID() as rowid"
+
 	default:
 		log.Errorf("unknown db  type %s", dbc.Type)
 		return

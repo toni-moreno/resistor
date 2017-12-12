@@ -131,21 +131,23 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 		rps := getDBRetention(cli, db)
 		meas := getDBMeasurements(cli, db)
 
+		var itemarray []*config.ItemComponent
 		for _, m := range meas {
 
 			tags := getMeasurementsTags(cli, db, m)
 			fields := getMeasurementsFields(cli, db, m)
-			mcfg := config.IfxMeasurementCfg{ID: m, Tags: tags, Fields: fields}
-			_, err := agent.MainConfig.Database.AddOrUpdateIfxMeasurementCfg(mcfg)
+			mcfg := config.IfxMeasurementCfg{Name: m, Tags: tags, Fields: fields}
+			id, err := agent.MainConfig.Database.AddIfxMeasurementCfg(mcfg)
 			if err != nil {
 				log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
 				ctx.JSON(404, err.Error())
 				return
 			}
-			log.Infof("Got DATABASE [%s] with retention polici [%s] MEASUREMENT %s TAGS [%+v] FIELDS [%+v]", db, rps, m, tags, fields)
+			log.Infof("Got DATABASE [%s] with retention policy [%s] MEASUREMENT %d/%s TAGS [%+v] FIELDS [%+v]", db, rps, id, m, tags, fields)
+			itemarray = append(itemarray, &config.ItemComponent{ID: id, Name: m})
 		}
 
-		dbcfg := config.IfxDBCfg{Name: db, IfxServer: dev.ID, Retention: rps, Measurements: meas}
+		dbcfg := config.IfxDBCfg{Name: db, IfxServer: dev.ID, Retention: rps, Measurements: itemarray}
 		_, err := agent.MainConfig.Database.AddOrUpdateIfxDBCfg(dbcfg)
 		if err != nil {
 			log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)

@@ -67,9 +67,24 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 			log.Warnf("Fail to get MGroup Measurements relationship  data: %v\n", err)
 		}
 
-		for _, mgm := range dbmeas {
-			mVal.Measurements = append(mVal.Measurements, mgm.IfxMeasID)
+		for _, m := range dbmeas {
+			mVal.Measurements = append(mVal.Measurements, &ItemComponent{ID: m.IfxMeasID, Name: m.IfxMeasName})
 		}
+
+		/*results, err := dbc.x.Query("select rel.ifxdbid as dbid , rel.ifxmeasid as measid , meas.name as measname  from  ifx_db_meas_rel as rel , ifx_measurement_cfg as meas  where rel.ifxmeasid  == meas.ID and rel.ifxmeasid == " + strconv.FormatInt(mVal.ID, 10))
+		if err != nil {
+			log.Warnf("Fail to Query DB to Measurement : %s", err)
+		}
+
+		for _, item := range results {
+			id, err := strconv.ParseInt(string(item["measid"]), 10, 64)
+			if err != nil {
+				log.Warnf("Fail to parse int from select  data: %v\n", err)
+			}
+			lab := string(item["measname"])
+
+			mVal.Measurements = append(mVal.Measurements, &ItemComponent{ID: id, Label: lab})
+		}*/
 	}
 	return devices, nil
 }
@@ -86,12 +101,24 @@ func (dbc *DatabaseCfg) AddIfxDBCfg(dev IfxDBCfg) (int64, error) {
 		session.Rollback()
 		return 0, err
 	}
+	// GET ID
+	result, err2 := session.Query(dbc.lastIDQuery)
+	if err2 != nil {
+		session.Rollback()
+		return 0, err
+	}
+	irow, err3 := strconv.ParseInt(string(result[0]["rowid"]), 10, 64)
+	if err3 != nil {
+		session.Rollback()
+		return 0, err
+	}
 
 	//Measurement Fields
 	for _, meas := range dev.Measurements {
 		mstruct := IfxDBMeasRel{
-			IfxDBID:   dev.ID,
-			IfxMeasID: meas,
+			IfxDBID:     irow,
+			IfxMeasID:   meas.ID,
+			IfxMeasName: meas.Name,
 		}
 		_, err = session.Insert(&mstruct)
 		if err != nil {
@@ -106,7 +133,7 @@ func (dbc *DatabaseCfg) AddIfxDBCfg(dev IfxDBCfg) (int64, error) {
 	}
 	log.Infof("Added new Kapacitor backend Successfully with id %s ", dev.ID)
 	dbc.addChanges(affected)
-	return affected, nil
+	return irow, nil
 }
 
 /*DelIfxDBCfg for deleting influx databases from ID*/
@@ -188,8 +215,9 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(id int64, dev IfxDBCfg) (int64, error) {
 	//Measurement Fields
 	for _, meas := range dev.Measurements {
 		mstruct := IfxDBMeasRel{
-			IfxDBID:   id,
-			IfxMeasID: meas,
+			IfxDBID:     id,
+			IfxMeasID:   meas.ID,
+			IfxMeasName: meas.Name,
 		}
 		_, err = session.Insert(&mstruct)
 		if err != nil {

@@ -26,14 +26,20 @@ type IfxServerCfg struct {
 	Description string `xorm:"description"`
 }
 
+// ItemComponent for ID's/Names
+type ItemComponent struct {
+	ID   int64
+	Name string
+}
+
 // IfxDBCfg Influx Database definition
 type IfxDBCfg struct {
-	ID           int64    `xorm:"'id' pk autoincr"`
-	Name         string   `xorm:"'name'  not null unique(ifxdb)" binding:"Required"`
-	IfxServer    string   `xorm:"'ifxserver'  not null unique(ifxdb)" binding:"Required"`
-	Retention    []string `xorm:"retention" binding:"Required"`
-	Description  string   `xorm:"description"`
-	Measurements []string `xorm:"-"`
+	ID           int64            `xorm:"'id' pk autoincr"`
+	Name         string           `xorm:"'name'  not null unique(ifxdb)" binding:"Required"`
+	IfxServer    string           `xorm:"'ifxserver'  not null unique(ifxdb)" binding:"Required"`
+	Retention    []string         `xorm:"retention" binding:"Required"`
+	Description  string           `xorm:"description"`
+	Measurements []*ItemComponent `xorm:"-"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -43,7 +49,8 @@ func (IfxDBCfg) TableName() string {
 
 // IfxMeasurementCfg Measurement Definition
 type IfxMeasurementCfg struct {
-	ID          string   `xorm:"'id' unique" binding:"Required"`
+	ID          int64    `xorm:"'id'  pk autoincr " binding:"Required"`
+	Name        string   `xorm:"'name' not  null"`
 	Tags        []string `xorm:"tags" binding:"Required"`
 	Fields      []string `xorm:"fields" binding:"Required"`
 	Description string   `xorm:"description"`
@@ -51,8 +58,9 @@ type IfxMeasurementCfg struct {
 
 // IfxDBMeasRel Relationship between Ifx DB's and Its measurements
 type IfxDBMeasRel struct {
-	IfxDBID   int64  `xorm:"ifxdbid" `
-	IfxMeasID string `xorm:"ifxmeasid"`
+	IfxDBID     int64  `xorm:"ifxdbid" `
+	IfxMeasID   int64  `xorm:"ifxmeasid"`
+	IfxMeasName string `xorm:"ifxmeasname"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
