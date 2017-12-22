@@ -46,7 +46,7 @@
           <label class="control-label col-sm-2" for="Products">Products</label>
           <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Set of products in this product group "></i>
           <div class="col-sm-9">
-            <input formControlName="Products" id="Products" [ngModel]="sampleComponentForm.value.Products" />
+            <ss-multiselect-dropdown [options]="select_product" formControlName="Products" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Products"></ss-multiselect-dropdown>
             <control-messages [control]="sampleComponentForm.controls.Products"></control-messages>
           </div>
       </div>

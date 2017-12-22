@@ -1,6 +1,6 @@
 export const ProductGroupComponentConfig: any =
   {
-    'name' : 'Product',
+    'name' : 'Product Groups',
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Products', 'name': 'Products' },
