@@ -3,20 +3,22 @@ import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
 import { ProductGroupService } from './productgroup.service';
-import { ValidationService } from '../common/validation.service'
-import { ExportServiceCfg } from '../common/dataservice/export.service'
-
+import { ValidationService } from '../common/validation.service';
+import { ExportServiceCfg } from '../common/dataservice/export.service';
+import { ProductService } from '../product/product.service';
 import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
 import { ProductGroupComponentConfig } from './productgroup.data';
 
+import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from '../common/multiselect-dropdown';
+
 declare var _:any;
 
 @Component({
   selector: 'productgroup-component',
-  providers: [ProductGroupService, ValidationService],
+  providers: [ProductGroupService, ProductService, ValidationService],
   templateUrl: './productgroup.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -34,7 +36,7 @@ export class ProductGroupComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = ProductGroupComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public select_product : IMultiSelectOption[] = [];
   public selectedArray : any = [];
 
   public data : Array<any>;
@@ -43,21 +45,20 @@ export class ProductGroupComponent implements OnInit {
   private builder;
   private oldID : string;
 
+
   ngOnInit() {
     this.editmode = 'list';
     this.reloadData();
   }
 
-  constructor(public productgroupService: ProductGroupService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public productgroupService: ProductGroupService, public productService : ProductService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      BaseLines: [this.sampleComponentForm ? this.sampleComponentForm.value.BaseLines : '', Validators.required],
-      IDTagName: [this.sampleComponentForm ? this.sampleComponentForm.value.IDTagName : '', Validators.required],
-      CommonTags: [this.sampleComponentForm ? this.sampleComponentForm.value.CommonTags : '', null],
+      Products: [this.sampleComponentForm ? this.sampleComponentForm.value.Products : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -147,12 +148,14 @@ export class ProductGroupComponent implements OnInit {
   }
   newItem() {
     //No hidden fields, so create fixed Form
+    this.getProductItem();
     this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
     let id = row.ID;
+    this.getProductItem();
     this.productgroupService.getProductGroupItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
@@ -258,6 +261,26 @@ export class ProductGroupComponent implements OnInit {
                 },
                 err => console.error(err),
               );
+  }
+
+  getProductItem() {
+    this.productService.getProductItem(null)
+      .subscribe(
+      data => {
+        this.select_product = [];
+        this.select_product = this.createMultiselectArray(data, 'ID','ID');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
+  createMultiselectArray(tempArray, ID?, Name?) : any {
+    let myarray = [];
+    for (let entry of tempArray) {
+      myarray.push({ 'id': entry[ID], 'name': entry[Name], 'description': entry.Description });
+    }
+    return myarray;
   }
 
 }
