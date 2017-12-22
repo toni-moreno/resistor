@@ -10,19 +10,16 @@ import {
     Headers,
     XHRBackend
 } from '@angular/http';
+
 import { Router } from '@angular/router';
-
-
 import { DefaultRequestOptions } from './default-request.options';
-
 import { LoaderService } from './loader/loader.service';
 
 @Injectable()
 export class HttpService extends Http {
 
-    apiUrl = 'https://dingo-api.codingo.me/';
-
     public router : Router;
+    protected headersUpload: Headers;
 
     constructor(
         backend: XHRBackend,
@@ -59,11 +56,26 @@ export class HttpService extends Http {
             });
     }
 
-    put(url: string, data:any, options?: RequestOptionsArgs ): Observable<any> {
-        return super.put(this.getFullUrl(url), data, this.requestOptions(options))
+    postFile(url:string, data:any, options?: RequestOptionsArgs) : Observable<any> {
+        if (options == null) options = {};
+        options.headers = this.headersUpload;
+        return super.post(this.getFullUrl(url), data, options)
             .catch(this.onCatch.bind(this))
             .do((res: Response) => {
                 this.onSuccess(res);
+            }, (error: any) => {
+                this.onError(error);
+            })
+            .finally(() => {
+                this.onEnd();
+            });
+    }
+
+    put(url: string, data:any, options?: RequestOptionsArgs, hideAlert? : boolean ): Observable<any> {
+        return super.put(this.getFullUrl(url), data, this.requestOptions(options))
+            .catch(this.onCatch.bind(this))
+            .do((res: Response) => {
+              if (!hideAlert) this.onSuccess(res);
             }, (error: any) => {
                 this.onError(error);
             })
@@ -90,11 +102,9 @@ export class HttpService extends Http {
         if (options == null) {
             options = new DefaultRequestOptions();
         }
-
         if (options.headers == null) {
             options.headers = new Headers();
         }
-
         return options;
     }
 
