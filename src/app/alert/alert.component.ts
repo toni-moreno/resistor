@@ -461,7 +461,7 @@ export class AlertComponent implements OnInit {
       data => {
         this.ifxdb_list = data;
         this.select_ifxdb = [];
-        this.select_ifxdb = this.createMultiselectArray(data, 'ID','Name');
+        this.select_ifxdb = this.createMultiselectArray(data, 'ID','Name','IfxServer');
       },
       err => console.error(err),
       () => console.log('DONE')
