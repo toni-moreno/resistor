@@ -11,7 +11,7 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { IfxServerComponentConfig } from './ifxserver.data';
+import { IfxServerComponentConfig, TableRole, OverrideRoleActions } from './ifxserver.data';
 
 declare var _:any;
 
@@ -36,7 +36,8 @@ export class IfxServerComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = IfxServerComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
@@ -93,6 +94,8 @@ export class IfxServerComponent implements OnInit {
       case 'remove':
         this.removeItem(action.event);
       break;
+      case 'importcatalog':
+        this.importIfxCatalog(action.event);
       case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
@@ -265,9 +268,8 @@ export class IfxServerComponent implements OnInit {
 
   }
 
-  importIfxCatalog() {
-
-    this.ifxserverService.importIfxCatalog(this.sampleComponentForm.value)
+  importIfxCatalog(data) {
+    this.ifxserverService.importIfxCatalog(data)
     .subscribe(
     data =>  {
       console.log('IMPORT:');
