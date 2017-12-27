@@ -1,25 +1,25 @@
-import { Component, Input, Output, EventEmitter, forwardRef, IterableDiffers,SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, IterableDiffers, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs/Rx';
 
 import { ItemsPerPageOptions } from './global-constants';
 import { TableActions } from './table-actions';
 import { AvailableTableActions } from './table-available-actions';
-import { OnInit,OnChanges } from '@angular/core';
+import { OnInit, OnChanges } from '@angular/core';
 
 
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 
 
-declare var _:any;
+declare var _: any;
 
 @Component({
-    selector: 'table-list',
-    styles: [`
+  selector: 'table-list',
+  styles: [`
 		a { outline: none !important; }
 	`],
-    template: `
+  template: `
     <div class="row">
     <div class="col-md-8 text-left">
     <!--Filtering section-->
@@ -53,78 +53,78 @@ declare var _:any;
     </pagination>
     <pre *ngIf="config.paging" class="card card-block card-header">Page: {{page}} / {{numPages}}</pre>
     `,
-    styleUrls: ['../../css/component-styles.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['../../css/component-styles.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TableListComponent implements OnInit, OnChanges {
 
-    //Inputs
-    @Input() typeComponent : string;
-    @Input() columns : Array<any>;
-    @Input() data : Array<any>;
-    @Input() counterItems : any = 0;
-    @Input() counterErrors : any = [];
-    @Input() selectedArray : any = [];
-    @Input() isRequesting : boolean = false;
-    @Input() tableRole : string = 'fullEdit';
-    @Input() showCustom : boolean = true;
-    @Input() sanitizeCell : Function;
-    @Output() public customClicked:EventEmitter<any> = new EventEmitter();
+  //Inputs
+  @Input() typeComponent: string;
+  @Input() columns: Array<any>;
+  @Input() data: Array<any>;
+  @Input() counterItems: any = 0;
+  @Input() counterErrors: any = [];
+  @Input() selectedArray: any = [];
+  @Input() isRequesting: boolean = false;
+  @Input() tableRole: string = 'fullEdit';
+  @Input() showCustom: boolean = true;
+  @Input() sanitizeCell: Function;
+  @Output() public customClicked: EventEmitter<any> = new EventEmitter();
 
-    //Vars
-    private editEnabled : boolean = false;
-    private rows: Array<any> = [];
-    public page: number = 1;
-    public itemsPerPage: number = 20;
-    public itemsPerPageOptions : any = ItemsPerPageOptions;
-    public maxSize: number = 5;
-    public numPages: number = 1;
-    public length: number = 0;
-    public tableAvailableActions : any;
-    public myFilterValue: any;
+  //Vars
+  private editEnabled: boolean = false;
+  private rows: Array<any> = [];
+  public page: number = 1;
+  public itemsPerPage: number = 20;
+  public itemsPerPageOptions: any = ItemsPerPageOptions;
+  public maxSize: number = 5;
+  public numPages: number = 1;
+  public length: number = 0;
+  public tableAvailableActions: any;
+  public myFilterValue: any;
 
 
 
-    //Set config
-    public config: any = {
-      paging: true,
-      sorting: { columns: this.columns },
-      filtering: { filterString: '' },
-      className: ['table-striped', 'table-bordered']
-    };
+  //Set config
+  public config: any = {
+    paging: true,
+    sorting: { columns: this.columns },
+    filtering: { filterString: '' },
+    className: ['table-striped', 'table-bordered']
+  };
 
-    ngOnChanges(changes : SimpleChanges) {
-        if (!this.data) this.data = [];
-        this.onChangeTable(this.config);
-        this.cd.markForCheck();
+  ngOnChanges(changes: SimpleChanges) {
+    if (!this.data) this.data = [];
+    this.onChangeTable(this.config);
+    this.cd.markForCheck();
 
-    }
+  }
 
-    ngOnInit() {
-        this.config.sorting = { columns : this.columns };
-        this.onChangeTable(this.config)
-    }
+  ngOnInit() {
+    this.config.sorting = { columns: this.columns };
+    this.onChangeTable(this.config)
+  }
 
-    constructor(public cd: ChangeDetectorRef) {}
+  constructor(public cd: ChangeDetectorRef) { }
 
-    //Enable edit tables
-    enableEdit() {
-      this.editEnabled = !this.editEnabled;
-      let obsArray = [];
-      this.tableAvailableActions = new AvailableTableActions(this.typeComponent).availableOptions;
-    }
+  //Enable edit tables
+  enableEdit() {
+    this.editEnabled = !this.editEnabled;
+    let obsArray = [];
+    this.tableAvailableActions = new AvailableTableActions(this.typeComponent).availableOptions;
+  }
 
-    public changePage(page: any, data: Array<any> = this.data): Array<any> {
+  public changePage(page: any, data: Array<any> = this.data): Array<any> {
     //Check if we have to change the actual page
 
-    let maxPage =  Math.ceil(data.length/this.itemsPerPage);
+    let maxPage = Math.ceil(data.length / this.itemsPerPage);
     if (page.page > maxPage && page.page != 1) this.page = page.page = maxPage;
     let start = (page.page - 1) * page.itemsPerPage;
     let end = page.itemsPerPage > -1 ? (start + page.itemsPerPage) : data.length;
     return data.slice(start, end);
-    }
+  }
 
-    public changeSort(data: any, config: any): any {
+  public changeSort(data: any, config: any): any {
     if (!config.sorting) {
       return data;
     }
@@ -153,9 +153,9 @@ export class TableListComponent implements OnInit, OnChanges {
       }
       return 0;
     });
-    }
+  }
 
-    public changeFilter(data: any, config: any): any {
+  public changeFilter(data: any, config: any): any {
     let filteredData: Array<any> = data;
     this.columns.forEach((column: any) => {
       if (column.filtering) {
@@ -193,39 +193,39 @@ export class TableListComponent implements OnInit, OnChanges {
     });
     filteredData = tempArray;
     return filteredData;
-    }
+  }
 
-    changeItemsPerPage (items) {
+  changeItemsPerPage(items) {
     this.itemsPerPage = parseInt(items);
-    let maxPage =  Math.ceil(this.length/this.itemsPerPage);
+    let maxPage = Math.ceil(this.length / this.itemsPerPage);
     if (this.page > maxPage) this.page = maxPage;
     this.onChangeTable(this.config);
-    }
+  }
 
-    public onChangeTable(config: any, page: any = { page: this.page, itemsPerPage: this.itemsPerPage }): any {
+  public onChangeTable(config: any, page: any = { page: this.page, itemsPerPage: this.itemsPerPage }): any {
     if (config) {
-    if (config.filtering) {
-      Object.assign(this.config.filtering, config.filtering);
-    }
-    if (config.sorting) {
-      Object.assign(this.config.sorting, config.sorting);
-    }
+      if (config.filtering) {
+        Object.assign(this.config.filtering, config.filtering);
+      }
+      if (config.sorting) {
+        Object.assign(this.config.sorting, config.sorting);
+      }
     }
     let filteredData = this.changeFilter(this.data, this.config);
     let sortedData = this.changeSort(filteredData, this.config);
     this.rows = page && config.paging ? this.changePage(page, sortedData) : sortedData;
     this.length = sortedData.length;
-    }
+  }
 
-    onResetFilter() : void {
-      this.page = 1;
-      this.myFilterValue = "";
-      this.config.filtering = {filtering: { filterString: '' }};
-      this.onChangeTable(this.config);
-    }
+  onResetFilter(): void {
+    this.page = 1;
+    this.myFilterValue = "";
+    this.config.filtering = { filtering: { filterString: '' } };
+    this.onChangeTable(this.config);
+  }
 
-    customClick (clicked : string, event : any = "", data : any = "") : void {
-        this.customClicked.emit({'option' : clicked, 'event': event, 'data' : data});
-    }
+  customClick(clicked: string, event: any = "", data: any = ""): void {
+    this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data });
+  }
 
 }
