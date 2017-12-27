@@ -27,10 +27,12 @@ declare var _: any;
       <input *ngIf="config.filtering" placeholder="Filter all columns" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
       <span [ngClass]="length > 0 ? ['label label-info'] : ['label label-warning']" style="font-size : 100%">{{length}} Results</span>
     <!--Table Actions-->
-    <ng-container *ngIf="tableRole === 'fullEdit'">
+    <ng-container *ngIf="tableRole === 'fulledit'">
       <button style ="margin-top: -5px;" type="button" (click)="customClick('new')" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> New</button>
     </ng-container>
-     <button style ="margin-top: -5px;" type="button" (click)="enableEdit()" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i> {{editEnabled === false ? 'Enable Edit' : 'Disable Edit' }}</button>
+    <ng-container *ngIf="tableRole !== 'viewonly'">
+      <button style ="margin-top: -5px;" type="button" (click)="enableEdit()" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i> {{editEnabled === false ? 'Enable Edit' : 'Disable Edit' }}</button>
+    </ng-container>
       </div>
     <!--Items per page selection-->
     <div class="col-md-4 text-right">
@@ -45,7 +47,17 @@ declare var _: any;
     <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="customClick('tableaction',$event,selectedArray)"></table-actions>
     <my-spinner [isRunning]="isRequesting"></my-spinner>
     <!--Table with data -->
-    <ng-table *ngIf="isRequesting === false && data" [tableRole]="tableRole" [sanitizeCell]="sanitizeCell" [config]="config" [(checkedItems)]="selectedArray" [editMode]="editEnabled" (tableChanged)="onChangeTable(config)" (viewedItem)="customClick('view',$event)" (editedItem)="customClick('edit',$event)" (removedItem)="customClick('remove',$event)" [showCustom]="showCustom" [rows]="rows" [columns]="columns">
+    <ng-table *ngIf="isRequesting === false && data"
+      [rows]="rows"
+      [columns]="columns"
+      [sanitizeCell]="sanitizeCell"
+      [config]="config"
+      [(checkedItems)]="selectedArray"
+      [editMode]="editEnabled"
+      (tableChanged)="onChangeTable(config)"
+      (customClicked)="customClick($event.action, $event.row)"
+      [tableRole]="tableRole"
+      [roleActions]="roleActions">
     </ng-table>
 
     <!-- Pagination -->
@@ -66,8 +78,15 @@ export class TableListComponent implements OnInit, OnChanges {
   @Input() counterErrors: any = [];
   @Input() selectedArray: any = [];
   @Input() isRequesting: boolean = false;
-  @Input() tableRole: string = 'fullEdit';
-  @Input() showCustom: boolean = true;
+
+  @Input() tableRole : any = 'fulledit';
+  @Input() roleActions : any = [
+    {'name':'export', 'type':'icon', 'icon' : 'glyphicon glyphicon-download-alt text-info', 'tooltip': 'Export item'},
+    {'name':'view', 'type':'icon', 'icon' : 'glyphicon glyphicon-eye-open text-success', 'tooltip': 'View item'},
+    {'name':'edit', 'type':'icon', 'icon' : 'glyphicon glyphicon-edit text-warning', 'tooltip': 'Edit item'},
+    {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'}
+  ]
+
   @Input() sanitizeCell: Function;
   @Output() public customClicked: EventEmitter<any> = new EventEmitter();
 
@@ -82,8 +101,6 @@ export class TableListComponent implements OnInit, OnChanges {
   public length: number = 0;
   public tableAvailableActions: any;
   public myFilterValue: any;
-
-
 
   //Set config
   public config: any = {

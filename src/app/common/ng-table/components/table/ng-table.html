@@ -6,7 +6,7 @@
                 <label (click)="selectAllItems(true)" class="glyphicon glyphicon-check text-success"></label>-
                 <label (click)="selectAllItems(false)" class="glyphicon glyphicon-unchecked text-danger"></label>
             </th>
-            <th *ngIf="showCustom == true" [ngStyle]="exportType ? {'min-width': '95px'} : {'min-width': '80px'}">
+            <th *ngIf="tableRole === 'fulledit' || tableRole === 'viewdelete'" [ngStyle]="exportType ? {'min-width': '95px'} : {'min-width': '80px'}">
             </th>
             <th *ngIf="showStatus == true" [ngStyle]="exportType ? {'min-width': '95px'} : {'min-width': '80px'}">
             </th>
@@ -43,7 +43,7 @@
     </thead>
     <tbody>
         <tr *ngIf="showFilterRow ">
-            <td *ngIf="showCustom==true " style="width:100px ">
+            <td *ngIf="tableRole === 'fulledit' || tableRole === 'viewdelete'" style="width:100px ">
             </td>
             <td *ngIf="showStatus==true " style="width:100px ">
             </td>
@@ -56,11 +56,9 @@
             <td *ngIf="editMode==true ">
                 <i [ngClass]="checkItems(row.ID) ? [ 'glyphicon glyphicon-unchecked text-danger'] : [ 'glyphicon glyphicon-check text-success'] " (click)="selectItem(row) "></i>
             </td>
-            <td *ngIf="showCustom==true ">
-                <i *ngIf="exportType " class="glyphicon glyphicon-download-alt " [tooltip]=" 'Export item' " (click)="exportItem(row, exportType) "></i>
-                <i class="glyphicon glyphicon-eye-open " [tooltip]=" 'View item' " (click)="viewItem(row) "></i>
-                <i class="glyphicon glyphicon-edit " [tooltip]=" 'Edit item' " (click)="editItem(row) "></i>
-                <i class="glyphicon glyphicon glyphicon-remove " [tooltip]=" 'Remove Item' " (click)="removeItem(row) "></i>
+            <td *ngIf="tableRole === 'fulledit' || tableRole === 'viewdelete'">
+                <i *ngFor="let action of roleActions" [ngClass]="action.icon" [tooltip]="action.tooltip" (click)="customClick(action.name, row)" style="padding-left:5px">
+                </i>
             </td>
             <td *ngIf="showStatus==true " style="min-width: 170px ">
                 <label style="display: inline; margin-right: 2px " container=body [tooltip]=" 'View '+ row.ID " class="label label-primary glyphicon glyphicon-eye-open " (click)="viewItem(row) "></label>

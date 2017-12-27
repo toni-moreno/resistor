@@ -15,14 +15,17 @@ import { ElapsedSecondsPipe } from '../../../custom-pipe/elapsedseconds.pipe';
 export class NgTableComponent {
   // Table values
   @Input() public rows: Array<any> = [];
-  @Input() public showCustom: boolean = false;
+  @Input() public showRoleActions: boolean = true;
+
+  @Input() public roleActions: any;
+  @Input() public tableRole : string = 'fulledit';
+
   @Input() public showStatus: boolean = false;
   @Input() public editMode: boolean = false;
   @Input() public exportType: string;
   @Input() public extraActions: Array<any>;
   @Input() checkedItems: Array<any>;
   @Input() checkRows: Array<any>;
-  @Input() tableRole : any;
   @Input() sanitizeCell: Function;
 
   @Input()
@@ -36,19 +39,10 @@ export class NgTableComponent {
     this._config = conf;
   }
 
-  public reportMetricStatus: Array<Object> = [
-    { value: 0, name: 'Never Report', icon: 'glyphicon glyphicon-remove-circle', class: 'text-danger' },
-    { value: 1, name: 'Report', icon: 'glyphicon glyphicon-ok-circle', class: 'text-success' },
-    { value: 2, name: 'Report if not zero', icon: 'glyphicon glyphicon-ban-circle', class: 'text-warning' }
-  ];
-
   // Outputs (Events)
   @Output() public tableChanged: EventEmitter<any> = new EventEmitter();
   @Output() public cellClicked: EventEmitter<any> = new EventEmitter();
-  @Output() public viewedItem: EventEmitter<any> = new EventEmitter();
-  @Output() public editedItem: EventEmitter<any> = new EventEmitter();
-  @Output() public removedItem: EventEmitter<any> = new EventEmitter();
-  @Output() public exportedItem: EventEmitter<any> = new EventEmitter();
+  @Output() public customClicked: EventEmitter<any> = new EventEmitter();
   @Output() public testedConnection: EventEmitter<any> = new EventEmitter();
   @Output() public extraActionClicked: EventEmitter<any> = new EventEmitter();
 
@@ -102,8 +96,6 @@ export class NgTableComponent {
             if (typeof item[item2] === 'boolean') {
               if (item[item2]) test += ' <i class="glyphicon glyphicon-arrow-right"></i>'
               else test += ' <i class="glyphicon glyphicon-alert"></i>'
-            } else if (typeof item[item2] === 'number') {
-              test += '<i class="' + this.reportMetricStatus[item[item2]]['icon'] + ' ' + this.reportMetricStatus[item[item2]]['class'] + ' displayinline"></i>'
             } else if (item2 === 'TagID') {
               test += '<h4 class="text-success displayinline">'+item[item2] +' - </h4>';
             } else {
@@ -206,18 +198,11 @@ export class NgTableComponent {
   public cellClick(row: any, column: any): void {
     this.cellClicked.emit({ row, column });
   }
-  public viewItem(row: any): void {
-    this.viewedItem.emit(row);
+
+  public customClick(action: string, row: any) : void {
+    this.customClicked.emit({'action' : action, 'row' : row});
   }
-  public editItem(row: any): void {
-    this.editedItem.emit(row);
-  }
-  public removeItem(row: any): void {
-    this.removedItem.emit(row);
-  }
-  public exportItem(row: any, exportType : any) : void {
-    this.exportedItem.emit({row, exportType});
-  }
+
   public testConnection(row: any) : void {
     this.testedConnection.emit(row);
   }
