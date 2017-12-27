@@ -11,7 +11,7 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { IfxMeasurementComponentConfig } from './ifxmeasurement.data';
+import { IfxMeasurementComponentConfig, TableRole, OverrideRoleActions } from './ifxmeasurement.data';
 
 declare var _:any;
 
@@ -35,7 +35,8 @@ export class IfxMeasurementComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = IfxMeasurementComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
