@@ -117,31 +117,43 @@
           <label class="control-label col-sm-2" for="InfluxDB">InfluxDB</label>
           <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
           <div class="col-sm-9">
-            <input formControlName="InfluxDB" id="InfluxDB" [(ngModel)]="sampleComponentForm.value.InfluxDB" />
+            <ss-multiselect-dropdown *ngIf="ifxdb_list" [options]="select_ifxdb" formControlName="InfluxDB" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxDB" (ngModelChange)="pickDBItem($event)"></ss-multiselect-dropdown>
+            <!--input formControlName="InfluxDB" id="InfluxDB" [(ngModel)]="sampleComponentForm.value.InfluxDB" /-->
             <control-messages [control]="sampleComponentForm.controls.InfluxDB"></control-messages>
           </div>
         </div>
-        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxRP">
+        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxRP && sampleComponentForm.value.InfluxDB">
           <label class="control-label col-sm-2" for="InfluxRP">InfluxRP</label>
           <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
           <div class="col-sm-9">
-            <input formControlName="InfluxRP" id="InfluxRP" [ngModel]="sampleComponentForm.value.InfluxRP" />
+            <ss-multiselect-dropdown [options]="select_ifxrp" formControlName="InfluxRP" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxRP"></ss-multiselect-dropdown>
+
+            <!--input formControlName="InfluxRP" id="InfluxRP" [ngModel]="sampleComponentForm.value.InfluxRP" /-->
             <control-messages [control]="sampleComponentForm.controls.InfluxRP"></control-messages>
           </div>
         </div>
-        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxMeasurement">
+        <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxMeasurement && sampleComponentForm.value.InfluxRP">
           <label class="control-label col-sm-2" for="InfluxMeasurement">InfluxMeasurement</label>
           <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
           <div class="col-sm-9">
-            <input formControlName="InfluxMeasurement" id="InfluxMeasurement" [ngModel]="sampleComponentForm.value.InfluxMeasurement" />
-            <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+            <ss-multiselect-dropdown [options]="select_ifxms" formControlName="InfluxMeasurement" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxMeasurement" (ngModelChange)="pickMeasItem($event)"></ss-multiselect-dropdown>
+            <!--input formControlName="InfluxMeasurement" id="InfluxMeasurement" [ngModel]="sampleComponentForm.value.InfluxMeasurement" /-->
+            <control-messages [control]="sampleComponentForm.controls.InfluxMeasurement"></control-messages>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sampleComponentForm.controls.Field && sampleComponentForm.value.InfluxMeasurement">
+          <label class="control-label col-sm-2" for="Field">Field</label>
+          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="col-sm-9">
+            <ss-multiselect-dropdown *ngIf="ifxdb_list" [options]="select_ifxfs" formControlName="Field" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Field"></ss-multiselect-dropdown>
+            <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
           </div>
         </div>
         <div class="form-group" *ngIf="sampleComponentForm.controls.TagDescription">
           <label class="control-label col-sm-2" for="TagDescription">TagDescription</label>
           <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
           <div class="col-sm-9">
-            <input formControlName="TagDescription" id="TagDescription" [ngModel]="sampleComponentForm.value.TagDescription" />
+            <ss-multiselect-dropdown [options]="select_ifxts" formControlName="TagDescription" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.TagDescription"></ss-multiselect-dropdown>
             <control-messages [control]="sampleComponentForm.controls.TagDescription"></control-messages>
           </div>
         </div>
@@ -159,15 +171,6 @@
           <div class="col-sm-9">
             <input formControlName="IntervalCheck" id="IntervalCheck" [ngModel]="sampleComponentForm.value.IntervalCheck" />
             <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
-          </div>
-        </div>
-
-        <div class="form-group" *ngIf="sampleComponentForm.controls.Field">
-          <label class="control-label col-sm-2" for="Field">Field</label>
-          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-          <div class="col-sm-9">
-            <input formControlName="Field" id="Field" [ngModel]="sampleComponentForm.value.Field" />
-            <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
           </div>
         </div>
       </div>

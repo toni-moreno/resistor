@@ -7,6 +7,8 @@ import { ProductService } from '../product/product.service';
 import { RangeTimeService } from '../rangetime/rangetime.service';
 import { OutHTTPService } from '../outhttp/outhttp.service';
 import { KapacitorService } from '../kapacitor/kapacitor.service';
+import { IfxDBService } from '../ifxdb/ifxdb.service';
+import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service';
 
 import { ValidationService } from '../common/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
@@ -24,7 +26,7 @@ declare var _:any;
 
 @Component({
   selector: 'alert-component',
-  providers: [AlertService, ProductService, RangeTimeService, OutHTTPService, KapacitorService, ValidationService],
+  providers: [AlertService, ProductService, RangeTimeService, OutHTTPService, KapacitorService, IfxDBService,IfxMeasurementService, ValidationService],
   templateUrl: './alert.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -46,8 +48,19 @@ export class AlertComponent implements OnInit {
 
   public select_product : IMultiSelectOption[] = [];
   public select_rangetime : IMultiSelectOption[] = [];
-  public select_outhttp : IMultiSelectOption[] = [];;
+  public select_outhttp : IMultiSelectOption[] = [];
   public select_kapacitor : IMultiSelectOption[] = [];
+  public select_ifxdb : IMultiSelectOption[] = [];
+  public select_ifxrp : IMultiSelectOption[] = [];
+  public select_ifxms : IMultiSelectOption[] = [];
+  public select_ifxfs : IMultiSelectOption[] = [];
+  public select_ifxts : IMultiSelectOption[] = [];
+
+
+  public ifxdb_list : any = [];
+  public picked_ifxdb: any = null;
+  public picked_ifxms: any = null;
+
   private single_select: IMultiSelectSettings = {
       singleSelect: true,
   };
@@ -63,7 +76,7 @@ export class AlertComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public outhttpService: OutHTTPService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public outhttpService: OutHTTPService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -75,9 +88,9 @@ export class AlertComponent implements OnInit {
       GroupID: [this.sampleComponentForm ? this.sampleComponentForm.value.GroupID : '', Validators.required],
       NumAlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.NumAlertID : '', Validators.required],
       TrigerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TrigerType : 'THRESHOLD', Validators.required],
-      InfluxDB: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxDB : '', Validators.required],
-      InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : '', Validators.required],
-      InfluxMeasurement: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxMeasurement : '', Validators.required],
+      InfluxDB: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxDB : null, Validators.required],
+      InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : null, Validators.required],
+      InfluxMeasurement: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxMeasurement : null, Validators.required],
       TagDescription: [this.sampleComponentForm ? this.sampleComponentForm.value.TagDescription : ''],
       InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : '', Validators.required],
       IntervalCheck: [this.sampleComponentForm ? this.sampleComponentForm.value.IntervalCheck : '', Validators.required],
@@ -270,6 +283,7 @@ export class AlertComponent implements OnInit {
     this.getRangeTimeItem();
     this.getOutHTTPItem();
     this.getKapacitorItem();
+    this.getIfxDBItem();
     if (this.sampleComponentForm) {
       this.setDynamicFields(this.sampleComponentForm.value.TigerType);
     } else {
@@ -284,6 +298,7 @@ export class AlertComponent implements OnInit {
     this.getRangeTimeItem();
     this.getOutHTTPItem();
     this.getKapacitorItem();
+    this.getIfxDBItem();
     this.alertService.getAlertItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
@@ -397,7 +412,7 @@ export class AlertComponent implements OnInit {
       .subscribe(
       data => {
         this.select_product = [];
-        this.select_product = this.createMultiselectArray(data);
+        this.select_product = this.createMultiselectArray(data, 'ID','ID');
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -410,7 +425,7 @@ export class AlertComponent implements OnInit {
       .subscribe(
       data => {
         this.select_rangetime = [];
-        this.select_rangetime = this.createMultiselectArray(data);
+        this.select_rangetime = this.createMultiselectArray(data, 'ID','ID');
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -422,7 +437,7 @@ export class AlertComponent implements OnInit {
       .subscribe(
       data => {
         this.select_outhttp = [];
-        this.select_outhttp = this.createMultiselectArray(data);
+        this.select_outhttp = this.createMultiselectArray(data, 'ID','ID');
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -433,18 +448,69 @@ export class AlertComponent implements OnInit {
       .subscribe(
       data => {
         this.select_kapacitor = [];
-        this.select_kapacitor = this.createMultiselectArray(data);
+        this.select_kapacitor = this.createMultiselectArray(data, 'ID','ID');
       },
       err => console.error(err),
       () => console.log('DONE')
       );
   }
 
-  createMultiselectArray(tempArray) : any {
-    let myarray = [];
-    for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
+  getIfxDBItem() {
+    this.ifxDBService.getIfxDBItem(null)
+      .subscribe(
+      data => {
+        this.ifxdb_list = data;
+        this.select_ifxdb = [];
+        this.select_ifxdb = this.createMultiselectArray(data, 'ID','Name');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
+  pickDBItem(ifxdb_picked) {
+
+    if (this.picked_ifxdb) {
+      if (ifxdb_picked !== this.picked_ifxdb['ID']) {
+        this.sampleComponentForm.controls.InfluxRP.setValue(null);
+        this.sampleComponentForm.controls.InfluxMeasurement.setValue(null);
+      }
     }
+    //Clear Vars:
+    this.select_ifxrp = null;
+    this.picked_ifxdb = this.ifxdb_list.filter((x) => x['ID'] === ifxdb_picked)[0];
+
+    if(this.picked_ifxdb) {
+      this.select_ifxrp = this.createMultiselectArray(this.picked_ifxdb['Retention']);
+      this.select_ifxms = this.createMultiselectArray(this.picked_ifxdb['Measurements'], 'Name', 'Name','ID');
+    }
+  }
+
+  pickMeasItem(ifxms_picked) {
+    this.sampleComponentForm.controls.Field.setValue(null);
+    this.sampleComponentForm.controls.TagDescription.setValue(null);
+
+    if (ifxms_picked){
+      this.select_ifxfs = [];
+      this.ifxMeasurementService.getIfxMeasurementItemById(_.find(this.select_ifxms, {'id' : ifxms_picked})['extraData'])
+      .subscribe(
+        data => {
+          console.log(data);
+          this.select_ifxfs = this.createMultiselectArray(data.Fields);
+          this.select_ifxts = this.createMultiselectArray(data.Tags);
+        },
+        err => console.error(err),
+        () => console.log('DONE')
+      );
+    }
+  }
+
+  createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
+    let myarray = [];
+    if(tempArray)
+    for (let entry of tempArray) {
+      myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
+    };
     return myarray;
   }
 
