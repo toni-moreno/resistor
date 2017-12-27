@@ -11,7 +11,8 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { IfxDBComponentConfig } from './ifxdb.data';
+import { IfxDBComponentConfig, tableCellParser } from './ifxdb.data';
+
 
 declare var _:any;
 
@@ -44,6 +45,8 @@ export class IfxDBComponent implements OnInit {
   private builder;
   private oldID : string;
 
+  public cellParser : Function = tableCellParser;
+
   ngOnInit() {
     this.editmode = 'list';
     this.reloadData();
@@ -51,6 +54,8 @@ export class IfxDBComponent implements OnInit {
 
   constructor(public ifxdbService: IfxDBService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
+    console.log(this.cellParser);
+
   }
 
   createStaticForm() {

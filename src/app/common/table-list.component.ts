@@ -22,25 +22,34 @@ declare var _:any;
     template: `
     <div class="row">
     <div class="col-md-8 text-left">
+    <!--Filtering section-->
       <label [tooltip]="'Clear Filter'" container="body" (click)="onResetFilter()" style="margin-top: 10px"><i class="glyphicon glyphicon-trash text-primary"></i></label>
       <input *ngIf="config.filtering" placeholder="Filter all columns" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
       <span [ngClass]="length > 0 ? ['label label-info'] : ['label label-warning']" style="font-size : 100%">{{length}} Results</span>
+    <!--Table Actions-->
+    <ng-container *ngIf="tableRole === 'fullEdit'">
       <button style ="margin-top: -5px;" type="button" (click)="customClick('new')" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> New</button>
-      <button style ="margin-top: -5px;" type="button" (click)="enableEdit()" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i> {{editEnabled === false ? 'Enable Edit' : 'Disable Edit' }}</button>
+    </ng-container>
+     <button style ="margin-top: -5px;" type="button" (click)="enableEdit()" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i> {{editEnabled === false ? 'Enable Edit' : 'Disable Edit' }}</button>
       </div>
+    <!--Items per page selection-->
     <div class="col-md-4 text-right">
         <span style="margin-left: 20px"> Items per page: </span>
         <select class="select-pages" style="width:auto" [ngModel]="itemsPerPage || 'All'" (ngModelChange)="changeItemsPerPage($event)">
-                    <option *ngFor="let option of itemsPerPageOptions" style="padding-left:2px" [value]="option.value">{{option.title}}</option>
+            <option *ngFor="let option of itemsPerPageOptions" style="padding-left:2px" [value]="option.value">{{option.title}}</option>
         </select>
       </div>
     </div>
     <br>
+    <!--Table available actions-->
     <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="customClick('tableaction',$event,selectedArray)"></table-actions>
     <my-spinner [isRunning]="isRequesting"></my-spinner>
-    <ng-table *ngIf="isRequesting === false && data" [config]="config" [(checkedItems)]="selectedArray" [editMode]="editEnabled" (tableChanged)="onChangeTable(config)" (viewedItem)="customClick('view',$event)" (editedItem)="customClick('edit',$event)" (removedItem)="customClick('remove',$event)" [showCustom]="true" [rows]="rows" [columns]="columns">
+    <!--Table with data -->
+    <ng-table *ngIf="isRequesting === false && data" [tableRole]="tableRole" [sanitizeCell]="sanitizeCell" [config]="config" [(checkedItems)]="selectedArray" [editMode]="editEnabled" (tableChanged)="onChangeTable(config)" (viewedItem)="customClick('view',$event)" (editedItem)="customClick('edit',$event)" (removedItem)="customClick('remove',$event)" [showCustom]="showCustom" [rows]="rows" [columns]="columns">
     </ng-table>
-    <pagination *ngIf="config.paging" class="pagination-sm" [(ngModel)]="page" [totalItems]="length" [itemsPerPage]="itemsPerPage" [maxSize]="maxSize" [boundaryLinks]="true" [rotate]="false" (pageChanged)="onChangeTable(config, $event)" (numPages)="numPages = $event">
+
+    <!-- Pagination -->
+    <pagination *ngIf="config.paging" class="pagination-sm" [ngModel]="page" [totalItems]="length" [itemsPerPage]="itemsPerPage" [maxSize]="maxSize" [boundaryLinks]="false" [rotate]="false" (pageChanged)="onChangeTable(config, $event)" (numPages)="numPages = $event">
     </pagination>
     <pre *ngIf="config.paging" class="card card-block card-header">Page: {{page}} / {{numPages}}</pre>
     `,
@@ -57,8 +66,10 @@ export class TableListComponent implements OnInit, OnChanges {
     @Input() counterErrors : any = [];
     @Input() selectedArray : any = [];
     @Input() isRequesting : boolean = false;
+    @Input() tableRole : string = 'fullEdit';
+    @Input() showCustom : boolean = true;
+    @Input() sanitizeCell : Function;
     @Output() public customClicked:EventEmitter<any> = new EventEmitter();
-
 
     //Vars
     private editEnabled : boolean = false;
@@ -92,7 +103,6 @@ export class TableListComponent implements OnInit, OnChanges {
     ngOnInit() {
         this.config.sorting = { columns : this.columns };
         this.onChangeTable(this.config)
-
     }
 
     constructor(public cd: ChangeDetectorRef) {}
@@ -169,8 +179,9 @@ export class TableListComponent implements OnInit, OnChanges {
       let flag = false;
       this.columns.forEach((column: any) => {
         if (item[column.name] === null) {
-          item[column.name] = '--'
+          item[column.name] = ''
         }
+        console.log(column.name);
         if (item[column.name].toString().match(this.config.filtering.filterString)) {
           flag = true;
         }
