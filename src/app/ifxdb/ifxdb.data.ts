@@ -9,9 +9,14 @@ export const IfxDBComponentConfig: any =
     ]
   };
 
-export function tableCellParser (data: any, column: string) {
+export const TableRole : string = 'viewdelete';
+export const OverrideRoleActions : Array<Object> = [
+  {'name':'view', 'type':'icon', 'icon' : 'glyphicon glyphicon-eye-open text-success', 'tooltip': 'View item'},
+  {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'},
+]
+
+export function TableCellParser (data: any, column: string) {
   if (column === "parseMeasurements") {
-    console.log("DATA",data);
     if (data){
       var test: any = '<ul class="list-unstyled">';
       for (var i of data) {

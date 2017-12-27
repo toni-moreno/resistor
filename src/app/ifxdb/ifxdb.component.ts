@@ -11,7 +11,7 @@ import { GenericModal } from '../common/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { IfxDBComponentConfig, tableCellParser } from './ifxdb.data';
+import { IfxDBComponentConfig, TableCellParser, TableRole, OverrideRoleActions } from './ifxdb.data';
 
 
 declare var _:any;
@@ -36,16 +36,16 @@ export class IfxDBComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = IfxDBComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
   public selectedArray : any = [];
-
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public data : Array<any>;
   public isRequesting : boolean;
 
   private builder;
   private oldID : string;
 
-  public cellParser : Function = tableCellParser;
+  public cellParser : Function = TableCellParser;
 
   ngOnInit() {
     this.editmode = 'list';
@@ -54,8 +54,6 @@ export class IfxDBComponent implements OnInit {
 
   constructor(public ifxdbService: IfxDBService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
-    console.log(this.cellParser);
-
   }
 
   createStaticForm() {

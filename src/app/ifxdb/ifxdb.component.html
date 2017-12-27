@@ -14,9 +14,9 @@
     [counterErrors]="counterErrors"
     [selectedArray]="selectedArray"
     [isRequesting]="isRequesting"
-    [showCustom]="true"
-    [tableRole]="viewDelete"
+    [tableRole]="tableRole"
     [sanitizeCell]="cellParser"
+    [roleActions] = "overrideRoleActions"
     (customClicked)="customActions($event)">
   </table-list>
 </ng-template>
