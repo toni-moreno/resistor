@@ -262,7 +262,7 @@ export class RangeTimeComponent implements OnInit {
   createMultiselectArray(tempArray) : any {
     let myarray = [];
     for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
+      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'extraData': entry.Description });
     }
     return myarray;
   }

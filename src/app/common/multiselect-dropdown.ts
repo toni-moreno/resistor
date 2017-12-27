@@ -22,7 +22,7 @@ const MULTISELECT_VALUE_ACCESSOR: any = {
 export interface IMultiSelectOption {
     id: any;
     name: string;
-    description? : string;
+    extraData? : string;
 }
 
 export interface IMultiSelectSettings {
@@ -99,7 +99,7 @@ export class MultiSelectSearchFilter {
                             </span>
                             <span>{{ option.name }}</span>
                         </dt>
-                          <dd style="margin-left:210px"><span>{{option.description}}</span></dd>
+                          <dd style="margin-left:210px"><span>{{option.extraData}}</span></dd>
                         </dl>
                     </span>
                 </li>

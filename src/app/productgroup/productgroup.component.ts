@@ -278,7 +278,7 @@ export class ProductGroupComponent implements OnInit {
   createMultiselectArray(tempArray, ID?, Name?) : any {
     let myarray = [];
     for (let entry of tempArray) {
-      myarray.push({ 'id': entry[ID], 'name': entry[Name], 'description': entry.Description });
+      myarray.push({ 'id': entry[ID], 'name': entry[Name], 'extraData': entry.Description });
     }
     return myarray;
   }
