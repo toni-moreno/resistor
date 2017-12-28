@@ -1,4 +1,3 @@
-import { URL } from 'url';
 import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
@@ -96,6 +95,10 @@ export class IfxServerComponent implements OnInit {
       break;
       case 'importcatalog':
         this.importIfxCatalog(action.event);
+      break;
+      case 'test-connection':
+        this.testSampleItemConnection(action.event);
+      break;
       case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
@@ -153,11 +156,13 @@ export class IfxServerComponent implements OnInit {
   }
   newItem() {
     //No hidden fields, so create fixed Form
+    this.alertHandler = null;
     this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
+    this.alertHandler = null;
     let id = row.ID;
     this.ifxserverService.getIfxServerItemById(id)
       .subscribe(data => {
@@ -255,14 +260,13 @@ export class IfxServerComponent implements OnInit {
     }
   }
 
-  testSampleItemConnection() {
-    console.log(this.sampleComponentForm.value)
-    this.ifxserverService.testIfxServerItem(this.sampleComponentForm.value)
+  testSampleItemConnection(data) {
+    this.ifxserverService.testIfxServerItem(data)
     .subscribe(
-    data =>  this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
+    data =>  this.alertHandler = {msg: 'InfluxDB Version: '+data['Message'], elapsed: data['Elapsed'], type: 'success', closable: true},
     err => {
         let error = err.json();
-        this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
+        this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], type: 'danger', closable: true}
       },
     () =>  { console.log("DONE")});
 

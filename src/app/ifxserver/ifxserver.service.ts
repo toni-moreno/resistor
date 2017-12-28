@@ -14,7 +14,7 @@ export class IfxServerService {
         if ( key == 'CommonTags') {
             return String(value).split(',');
         }
-        return value; 
+        return value;
     }
 
     addIfxServerItem(dev) {
@@ -85,5 +85,5 @@ export class IfxServerService {
           (responseData) => responseData.json()
         );
       };
-  
+
 }

@@ -3,92 +3,93 @@
 <ng-container [ngSwitch]="editmode">
   <ng-template ngSwitchCase="list">
     <test-modal #viewModal [titleName]="defaultConfig.name"></test-modal>
-    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Kapacitor instance will affect the following components','Deleting this InfluxDB Server will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
+    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this InfluxDB Server will affect the following components','Deleting this InfluxDB Server will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
-  <table-list #listTableComponent
-    [typeComponent]="'ifxserver-component'"
-    [data]="data"
-    [columns]="defaultConfig['table-columns']"
-    [counterItems]="counterItems"
-    [counterErrors]="counterErrors"
-    [selectedArray]="selectedArray"
-    [isRequesting]="isRequesting"
-    [tableRole]="tableRole"
-    [roleActions] = "overrideRoleActions"
-    (customClicked)="customActions($event)"></table-list>
-</ng-template>
+    <table-list #listTableComponent [typeComponent]="'ifxserver-component'" [data]="data" [columns]="defaultConfig['table-columns']" [counterItems]="counterItems" [counterErrors]="counterErrors" [selectedArray]="selectedArray" [isRequesting]="isRequesting"
+        [tableRole]="tableRole" [roleActions]="overrideRoleActions" (customClicked)="customActions($event)"></table-list>
+  </ng-template>
   <ng-template ngSwitchDefault>
     <form [formGroup]="sampleComponentForm" class="form-horizontal" (ngSubmit)="editmode == 'create' ? saveSampleItem() : updateSampleItem()">
-  <ng-container>
-    <div class="row well well-sm" style="">
-      <span style="font-size: 20px; background-color: rgb(255, 255, 255); margin-left: 19px;  border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
-        <i class="glyphicon glyphicon-cog text-info"></i> {{ editmode | uppercase}}
-      </span>
-      <div class="pull-right" style="margin-right: 20px">
-        <button class="btn btn-primary" type="button" (click)="importIfxCatalog(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-import"></i></button>
-        <button class="btn btn-info" type="button" (click)="testSampleItemConnection()" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-flash"></i></button>        <button class="btn btn-success" type="submit" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-ok-circle"></i></button>
-        <button class="btn btn-warning" type="reset" [disabled]="!sampleComponentForm.dirty"><i class="glyphicon glyphicon-ban-circle"></i> </button>
-        <button class="btn btn-danger" type="button" (click)="cancelEdit()"><i class="glyphicon glyphicon-remove-circle"></i></button>
-      </div>
-    </div>
-  </ng-container>
-  {{alertHandler|json}}
-  <div class="well well-sm">
-    <span style="font-size: 16px;background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
-  ifxserver
-  </span>
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="ID">ID</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-        <div class="col-sm-9">
-          <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
-          <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+      <ng-container>
+        <div class="row well well-sm">
+          <h4 style="display:inline"><i class="glyphicon glyphicon-cog text-info"></i> {{ editmode | uppercase}}</h4>
+          <div class="pull-right" style="margin-right: 20px">
+            <div style="display:inline" tooltip='Import Data' container=body>
+              <button class="btn btn-primary" type="button" (click)="importIfxCatalog(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-import"></i></button>
+            </div>
+            <div style="display:inline" tooltip='Test Connection' container=body>
+              <button class="btn btn-info" type="button" (click)="testSampleItemConnection(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-flash"></i></button>
+            </div>
+            <div style="display:inline" tooltip='Submit' container=body>
+              <button class="btn btn-success" type="submit" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-ok-circle"></i></button>
+            </div>
+            <div style="display:inline" tooltip='Reset' container=body>
+              <button class="btn btn-warning" type="reset" [disabled]="!sampleComponentForm.dirty"><i class="glyphicon glyphicon-ban-circle"></i> </button>
+            </div>
+            <div style="display:inline" tooltip='Cancel' container=body>
+              <button class="btn btn-danger" type="button" (click)="cancelEdit()"><i class="glyphicon glyphicon-remove-circle"></i></button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <div class="form-fixed-height">
+        <div class="well well-sm">
+          <span class="editsection">Connection Settings</span>
+          <div class="form-group" style="margin-top: 25px">
+            <label class="control-label col-sm-2" for="ID">ID</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-9">
+              <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
+              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="URL">URL</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="InfluxDB server connection URL"></i>
+            <div class="col-sm-9">
+              <input formControlName="URL" id="URL" [ngModel]="sampleComponentForm.value.URL" placeholder="http://localhost:8086" />
+              <control-messages [control]="sampleComponentForm.controls.URL"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="AdminUser">AdminUser</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="InfluxDB Admin user"></i>
+            <div class="col-sm-9">
+              <input formControlName="AdminUser" id="AdminUser" [ngModel]="sampleComponentForm.value.AdminUser" />
+              <control-messages [control]="sampleComponentForm.controls.AdminUser"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="AdminPasswd">AdminPasswd</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="InfluxDB Admin password"></i>
+            <div class="col-sm-9">
+              <input #AdminPasswd formControlName="AdminPasswd" id="AdminPasswd" type="password" [ngModel]="sampleComponentForm.value.AdminPasswd" />
+              <i style="margin-left:-25px; margin-right:6px" [ngClass]="AdminPasswd.type === 'password' ? ['glyphicon glyphicon-eye-open text-primary'] : ['glyphicon glyphicon-eye-close text-primary']" passwordToggle [input]="AdminPasswd"> </i>
+              <control-messages [control]="sampleComponentForm.controls.AdminPasswd"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <div *ngIf="alertHandler" class="col-md-offset-2 col-sm-5">
+              <div [ngClass]="['panel-body', 'bg-'+alertHandler.type,'text-'+alertHandler.type]">
+                <span>Ping elapsed: {{alertHandler.elapsed / 1000000 }} ms</span>
+                <p>{{alertHandler.msg}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="well well-sm">
+          <span class="editsection">Extra Settings</span>
+          <div class="form-group" style="margin-top: 25px">
+            <label class="control-label col-sm-2" for="Description">Description</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
+            <div class="col-sm-9">
+              <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
+              <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="URL">URL</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
-        <div class="col-sm-9">
-          <input formControlName="URL" id="URL" [ngModel]="sampleComponentForm.value.URL"/>
-          <control-messages [control]="sampleComponentForm.controls.URL"></control-messages>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="AdminUser">AdminUser</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
-        <div class="col-sm-9">
-          <input formControlName="AdminUser" id="AdminUser" [ngModel]="sampleComponentForm.value.AdminUser"/>
-          <control-messages [control]="sampleComponentForm.controls.AdminUser"></control-messages>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="AdminPasswd">AdminPasswd</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
-        <div class="col-sm-9">
-          <input formControlName="AdminPasswd" id="AdminPasswd" [ngModel]="sampleComponentForm.value.AdminPasswd"/>
-          <control-messages [control]="sampleComponentForm.controls.AdminPasswd"></control-messages>
-        </div>
-      </div>
-  </div>
-
-  <div class="well well-sm">
-    <span style="font-size: 16px; background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
-  Extra Information
-  </span>
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="Description">Description</label>
-        <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
-        <div class="col-sm-9">
-          <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
-          <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
-        </div>
-      </div>
-  </div>
     </form>
   </ng-template>
-
 </ng-container>
