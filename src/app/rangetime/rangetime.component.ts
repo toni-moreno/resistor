@@ -10,7 +10,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { RangeTimeComponentConfig } from './rangetime.data';
+import { RangeTimeComponentConfig, TableRole, OverrideRoleActions } from './rangetime.data';
 
 declare var _:any;
 
@@ -34,6 +34,8 @@ export class RangeTimeComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = RangeTimeComponentConfig;
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
