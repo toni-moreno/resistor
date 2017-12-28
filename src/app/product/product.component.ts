@@ -10,7 +10,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { ProductComponentConfig } from './product.data';
+import { ProductComponentConfig, TableRole, OverrideRoleActions } from './product.data';
 
 declare var _:any;
 
@@ -34,7 +34,8 @@ export class ProductComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = ProductComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
