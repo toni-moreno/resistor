@@ -10,7 +10,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { ProductGroupComponentConfig } from './productgroup.data';
+import { ProductGroupComponentConfig, TableRole, OverrideRoleActions } from './productgroup.data';
 
 import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from '../common/multiselect-dropdown';
 
@@ -36,6 +36,8 @@ export class ProductGroupComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = ProductGroupComponentConfig;
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public select_product : IMultiSelectOption[] = [];
   public selectedArray : any = [];
 
