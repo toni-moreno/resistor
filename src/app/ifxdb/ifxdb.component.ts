@@ -4,10 +4,10 @@ import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
 import { IfxDBService } from './ifxdb.service';
-import { ValidationService } from '../common/validation.service'
+import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
-import { GenericModal } from '../common/generic-modal';
+import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';

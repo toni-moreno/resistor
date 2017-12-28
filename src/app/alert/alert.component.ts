@@ -10,10 +10,10 @@ import { KapacitorService } from '../kapacitor/kapacitor.service';
 import { IfxDBService } from '../ifxdb/ifxdb.service';
 import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service';
 
-import { ValidationService } from '../common/validation.service'
+import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 
-import { GenericModal } from '../common/generic-modal';
+import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';

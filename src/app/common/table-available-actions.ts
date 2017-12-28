@@ -1,5 +1,5 @@
 import { FormBuilder, Validators, FormArray, FormGroup, FormControl} from '@angular/forms';
-import { ValidationService } from './validation.service'
+import { ValidationService } from './custom-validation/validation.service'
 
 export class AvailableTableActions {
 

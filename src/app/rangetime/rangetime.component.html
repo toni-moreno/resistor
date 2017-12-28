@@ -68,7 +68,6 @@
         <label class="control-label col-sm-2" for="WeeKDays">WeeKDays</label>
         <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="WeekDay selection separated by commas"></i>
         <div class="col-sm-9">
-          <ss-multiselect-dropdown [options]="availableDays" formControlName="WeeKDays" [texts]="myTexts" [ngModel]="sampleComponentForm.value.WeeKDays"></ss-multiselect-dropdown>
           <input formControlName="WeeKDays" id="WeeKDays" [ngModel]="sampleComponentForm.value.WeeKDays"/>
           <control-messages [control]="sampleComponentForm.controls.WeeKDays"></control-messages>
         </div>

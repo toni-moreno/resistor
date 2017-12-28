@@ -20,7 +20,7 @@ import { App } from './app';
 
 import { AppRoutes } from './app.routes';
 //common
-import { ControlMessagesComponent } from './common/control-messages.component';
+import { ControlMessagesComponent } from './common/custom-validation/control-messages.component';
 import { MultiselectDropdownModule } from './common/multiselect-dropdown'
 import { PasswordToggleDirective } from './common/custom-directives'
 import { TableActions } from './common/table-actions';
@@ -35,7 +35,7 @@ import { ModalDirective } from 'ngx-bootstrap';
 import { ProgressbarModule } from 'ngx-bootstrap';
 import { TimepickerModule } from 'ngx-bootstrap';
 
-import { GenericModal } from './common/generic-modal';
+import { GenericModal } from './common/custom-modal/generic-modal';
 import { AboutModal } from './home/about-modal';
 import { TreeView } from './common/dataservice/treeview';
 import { ImportFileModal } from './common/dataservice/import-file-modal'
@@ -43,7 +43,7 @@ import { CoreModule } from './core/core.module';
 
 //others
 import { WindowRef } from './common/windowref';
-import { ValidationService } from './common/validation.service';
+import { ValidationService } from './common/custom-validation/validation.service';
 import { ExportServiceCfg } from './common/dataservice/export.service'
 
 import { CustomPipesModule } from './common/custom-pipe/custom-pipe.module';
