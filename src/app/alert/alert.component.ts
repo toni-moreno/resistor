@@ -17,7 +17,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { AlertComponentConfig } from './alert.data';
+import { AlertComponentConfig, TableRole, OverrideRoleActions } from './alert.data';
 
 import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from '../common/multiselect-dropdown';
 
@@ -44,6 +44,8 @@ export class AlertComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = AlertComponentConfig;
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public select_product : IMultiSelectOption[] = [];
