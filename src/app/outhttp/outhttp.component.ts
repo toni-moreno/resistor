@@ -10,7 +10,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { OutHTTPComponentConfig } from './outhttp.data';
+import { OutHTTPComponentConfig, TableRole, OverrideRoleActions } from './outhttp.data';
 
 declare var _:any;
 
@@ -34,7 +34,8 @@ export class OutHTTPComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = OutHTTPComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
@@ -55,7 +56,7 @@ export class OutHTTPComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      Url: [this.sampleComponentForm ? this.sampleComponentForm.value.Url : '', Validators.required],
+      URL: [this.sampleComponentForm ? this.sampleComponentForm.value.URL : '', Validators.required],
       Headers: [this.sampleComponentForm ? this.sampleComponentForm.value.Headers : '', Validators.required],
       AlertTpl: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertTpl : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
