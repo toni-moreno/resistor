@@ -12,7 +12,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { DeviceStatComponentConfig } from './devicestat.data';
+import { DeviceStatComponentConfig, TableRole, OverrideRoleActions } from './devicestat.data';
 import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from '../common/multiselect-dropdown';
 
 declare var _:any;
@@ -38,7 +38,8 @@ export class DeviceStatComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = DeviceStatComponentConfig;
-
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public select_alert : IMultiSelectOption[] = [];
   private single_select: IMultiSelectSettings = {singleSelect: true};
 
@@ -63,10 +64,10 @@ export class DeviceStatComponent implements OnInit {
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
-      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : null],
       Order: [this.sampleComponentForm ? this.sampleComponentForm.value.Order : '', Validators.required],
       DeviceID: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceID : '', Validators.required],
       AlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertID : '', Validators.required],
+      ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
       Exception: [this.sampleComponentForm ? this.sampleComponentForm.value.Exception : '', Validators.required],
       Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaseLine: [this.sampleComponentForm ? this.sampleComponentForm.value.BaseLine : '', Validators.required],
