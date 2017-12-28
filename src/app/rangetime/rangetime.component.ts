@@ -54,8 +54,8 @@ export class RangeTimeComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      MaxHour: [this.sampleComponentForm ? this.sampleComponentForm.value.MaxHour : 23, Validators.required],
-      MinHour: [this.sampleComponentForm ? this.sampleComponentForm.value.MinHour : 0, Validators.required],
+      MaxHour: [this.sampleComponentForm ? this.sampleComponentForm.value.MaxHour : 23, Validators.compose([Validators.required, ValidationService.hourValidator])],
+      MinHour: [this.sampleComponentForm ? this.sampleComponentForm.value.MinHour : 0, Validators.compose([Validators.required, ValidationService.hourValidator])],
       WeeKDays: [this.sampleComponentForm ? this.sampleComponentForm.value.WeeKDays : '01234567', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
@@ -258,13 +258,4 @@ export class RangeTimeComponent implements OnInit {
                 err => console.error(err),
               );
   }
-
-  createMultiselectArray(tempArray) : any {
-    let myarray = [];
-    for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'extraData': entry.Description });
-    }
-    return myarray;
-  }
-
 }

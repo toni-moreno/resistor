@@ -7,7 +7,6 @@ import { TableActions } from './table-actions';
 import { AvailableTableActions } from './table-available-actions';
 import { OnInit, OnChanges } from '@angular/core';
 
-
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 
@@ -198,7 +197,6 @@ export class TableListComponent implements OnInit, OnChanges {
         if (item[column.name] === null) {
           item[column.name] = ''
         }
-        console.log(column.name);
         if (item[column.name].toString().match(this.config.filtering.filterString)) {
           flag = true;
         }

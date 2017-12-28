@@ -133,7 +133,6 @@ export class AlertComponent implements OnInit {
   setDynamicFields (field : any, override? : boolean) : void  {
     //Saves on the array all values to push into formGroup
     let controlArray : Array<any> = [];
-
     switch (field) {
       case 'THRESHOLD':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
@@ -151,7 +150,7 @@ export class AlertComponent implements OnInit {
       controlArray.push({'ID': 'ThInfoEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThInfoEx2', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThInfoRangeTimeID', 'defVal' : '', 'Validators' : Validators.required });
-
+      break;
       case 'TREND':
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });

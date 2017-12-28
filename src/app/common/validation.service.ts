@@ -14,7 +14,8 @@ export class ValidationService {
             'invalidUInteger8': 'Invalid Number . Must be a Unsigned (positive) Integer with range 0-255',
             'invalidUInteger8NotZero': 'Invalid Number . Must be a Unsigned (positive) Integer with range 1-255',
             'invalidUIntegerNotZero': 'Invalid Number . Must be a Unsigned (positive) Integer not Zero',
-            'invalidUIntegerAndLessOne': 'Invalid Number . Must be a Unsigned (positive) Integer or -1'
+            'invalidUIntegerAndLessOne': 'Invalid Number . Must be a Unsigned (positive) Integer or -1',
+            'invalidHour': 'Invalid hour. Must be between 0 and 23'
         };
 
         return config[validatorName];
@@ -91,6 +92,16 @@ export class ValidationService {
                 return null;
             } else {
                 return { 'invalidUInteger': true };
+            }
+        }
+    }
+
+    static hourValidator(control) {
+        if (control.value){
+            if (control.value > 0 && control.value < 24) {
+                return null;
+            } else {
+                return { 'invalidHour': true };
             }
         }
     }
