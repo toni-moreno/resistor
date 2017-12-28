@@ -6,6 +6,17 @@ html {
   border-left: 5px solid #1b809e;
   padding-left: 5px;
 }
+
+.editsection {
+  font-family: sans-serif;
+  font-size: 18px;
+  background-color: rgb(255, 255, 255);
+  margin-left: 19px;
+  border-radius: 0px 0px 20px 20px;
+  padding: 20px 20px 5px 20px;
+
+}
+
 /*form {
   padding: 10px;
   max-width: 320px;
@@ -16,6 +27,11 @@ label {
 //  float: left;
   display: block;
 }*/
+.form-fixed-height {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height: 70vh;
+}
 
 .info {
   color: #337ab7;
