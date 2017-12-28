@@ -10,7 +10,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { TemplateComponentConfig } from './template.data';
+import { TemplateComponentConfig, TableRole, OverrideRoleActions } from './template.data';
 
 declare var _:any;
 
@@ -34,7 +34,8 @@ export class TemplateComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = TemplateComponentConfig;
-  public  selectedDays : any  =  [1,2,3];
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
