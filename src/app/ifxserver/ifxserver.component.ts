@@ -269,6 +269,9 @@ export class IfxServerComponent implements OnInit {
   }
 
   importIfxCatalog(data) {
+    var r = true;
+    r = confirm("Importing catalog from " + data.ID + ". Proceed?");
+    if(r === true) {
     this.ifxserverService.importIfxCatalog(data)
     .subscribe(
     data =>  {
@@ -281,7 +284,7 @@ export class IfxServerComponent implements OnInit {
         this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
       },
     () =>  { console.log("DONE")});
-
+    }
   }
 
 

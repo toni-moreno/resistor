@@ -26,13 +26,14 @@
         <i class="glyphicon glyphicon-cog text-info"></i> {{ editmode | uppercase}}
       </span>
       <div class="pull-right" style="margin-right: 20px">
-        <button class="btn btn-info" (click)="testSampleItemConnection()" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-flash"></i></button>
-        <button class="btn btn-success" type="submit" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-ok-circle"></i></button>
+        <button class="btn btn-primary" type="button" (click)="importIfxCatalog(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-import"></i></button>
+        <button class="btn btn-info" type="button" (click)="testSampleItemConnection()" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-flash"></i></button>        <button class="btn btn-success" type="submit" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-ok-circle"></i></button>
         <button class="btn btn-warning" type="reset" [disabled]="!sampleComponentForm.dirty"><i class="glyphicon glyphicon-ban-circle"></i> </button>
         <button class="btn btn-danger" type="button" (click)="cancelEdit()"><i class="glyphicon glyphicon-remove-circle"></i></button>
       </div>
     </div>
   </ng-container>
+  {{alertHandler|json}}
   <div class="well well-sm">
     <span style="font-size: 16px;background-color: rgb(255, 255, 255); margin-left: 19px; border-radius: 0px 0px 20px 20px; padding: 20px 20px 5px 20px;">
   ifxserver
@@ -71,9 +72,6 @@
           <input formControlName="AdminPasswd" id="AdminPasswd" [ngModel]="sampleComponentForm.value.AdminPasswd"/>
           <control-messages [control]="sampleComponentForm.controls.AdminPasswd"></control-messages>
         </div>
-      </div>
-      <div class="form-group">
-        <button class="btn btn-info" (click)="importIfxCatalog()" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-flash"></i>Import Catalog</button>
       </div>
   </div>
 

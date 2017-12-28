@@ -16,5 +16,5 @@ export const IfxServerComponentConfig: any =
     {'name':'view', 'type':'icon', 'icon' : 'glyphicon glyphicon-eye-open text-success', 'tooltip': 'View item'},
     {'name':'edit', 'type':'icon', 'icon' : 'glyphicon glyphicon-edit text-warning', 'tooltip': 'Edit item'},
     {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'},
-    {'name':'importcatalog', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-flash text-info', 'tooltip': 'Import catalog'}
+    {'name':'importcatalog', 'type':'icon', 'icon' : 'glyphicon glyphicon-import text-info', 'tooltip': 'Import catalog'}
   ]
