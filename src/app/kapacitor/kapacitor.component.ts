@@ -10,7 +10,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { KapacitorComponentConfig } from './kapacitor.data';
+import { KapacitorComponentConfig, TableRole, OverrideRoleActions } from './kapacitor.data';
 
 declare var _:any;
 
@@ -35,7 +35,8 @@ export class KapacitorComponent implements OnInit {
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = KapacitorComponentConfig;
-
+  public tableRole : any = TableRole;
+  public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
   public data : Array<any>;
@@ -90,6 +91,8 @@ export class KapacitorComponent implements OnInit {
       case 'remove':
         this.removeItem(action.event);
       break;
+      case 'test-connection':
+        this.testSampleItemConnection(action.event);
       case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
@@ -147,11 +150,13 @@ export class KapacitorComponent implements OnInit {
   }
   newItem() {
     //No hidden fields, so create fixed Form
+    this.alertHandler =  null;
     this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
+    this.alertHandler =  null;
     let id = row.ID;
     this.kapacitorService.getKapacitorItemById(id)
       .subscribe(data => {
@@ -250,9 +255,8 @@ export class KapacitorComponent implements OnInit {
   }
 
 
-  testSampleItemConnection() {
-    console.log(this.sampleComponentForm.value)
-    this.kapacitorService.testKapacitorItem(this.sampleComponentForm.value)
+  testSampleItemConnection(data) {
+    this.kapacitorService.testKapacitorItem(data)
     .subscribe(
     data =>  this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true},
     err => {
