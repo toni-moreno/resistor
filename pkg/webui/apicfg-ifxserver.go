@@ -137,18 +137,18 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 			tags := getMeasurementsTags(cli, db, m)
 			fields := getMeasurementsFields(cli, db, m)
 			mcfg := config.IfxMeasurementCfg{Name: m, Tags: tags, Fields: fields}
-			id, err := agent.MainConfig.Database.AddIfxMeasurementCfg(mcfg)
+			_, err := agent.MainConfig.Database.AddIfxMeasurementCfg(&mcfg)
 			if err != nil {
 				log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
 				ctx.JSON(404, err.Error())
 				return
 			}
-			log.Infof("Got DATABASE [%s] with retention policy [%s] MEASUREMENT %d/%s TAGS [%+v] FIELDS [%+v]", db, rps, id, m, tags, fields)
-			itemarray = append(itemarray, &config.ItemComponent{ID: id, Name: m})
+			log.Infof("Got DATABASE [%s] with retention policy [%s] MEASUREMENT %d/%s TAGS [%+v] FIELDS [%+v]", db, rps, mcfg.ID, m, tags, fields)
+			itemarray = append(itemarray, &config.ItemComponent{ID: mcfg.ID, Name: m})
 		}
 
 		dbcfg := config.IfxDBCfg{Name: db, IfxServer: dev.ID, Retention: rps, Measurements: itemarray}
-		_, err := agent.MainConfig.Database.AddOrUpdateIfxDBCfg(dbcfg)
+		_, err := agent.MainConfig.Database.AddOrUpdateIfxDBCfg(&dbcfg)
 		if err != nil {
 			log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
 			ctx.JSON(404, err.Error())
@@ -192,7 +192,7 @@ func GetIfxServer(ctx *Context) {
 // AddIfxServer Insert new snmpdevice to de internal BBDD --pending--
 func AddIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddIfxServerCfg(dev)
+	affected, err := agent.MainConfig.Database.AddIfxServerCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -206,7 +206,7 @@ func AddIfxServer(ctx *Context, dev config.IfxServerCfg) {
 func UpdateIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateIfxServerCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateIfxServerCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

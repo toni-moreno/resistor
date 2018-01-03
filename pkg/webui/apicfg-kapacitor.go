@@ -36,12 +36,14 @@ func PingKapacitor(ctx *Context, dev config.KapacitorCfg) {
 		log.Errorf("Error on ping Kapacitor :%s", err)
 		return
 	}
+	log.Errorf("RESPONSE: %+v", resp)
+
 	if resp.StatusCode != 204 {
 		ctx.JSON(404, err.Error())
 		log.Errorf("Error on ping Kapacitor Status Code :%d", resp.StatusCode)
 		return
 	}
-	log.Infof("Ping Test On %s  StatusCode:%d", dev.ID, resp.StatusCode)
+	log.Infof("Ping Test On %s  StatusCode:%d - version: %s", dev.ID, resp.StatusCode, resp.Header["X-Kapacitor-Version"])
 	ctx.JSON(200, "kapacitor OK")
 }
 
@@ -60,7 +62,7 @@ func GetKapacitor(ctx *Context) {
 // AddKapacitor Insert new snmpdevice to de internal BBDD --pending--
 func AddKapacitor(ctx *Context, dev config.KapacitorCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddKapacitorCfg(dev)
+	affected, err := agent.MainConfig.Database.AddKapacitorCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -74,7 +76,7 @@ func AddKapacitor(ctx *Context, dev config.KapacitorCfg) {
 func UpdateKapacitor(ctx *Context, dev config.KapacitorCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateKapacitorCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateKapacitorCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

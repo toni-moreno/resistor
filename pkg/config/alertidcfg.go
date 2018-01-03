@@ -79,7 +79,7 @@ func (dbc *DatabaseCfg) GetAlertIDCfgArray(filter string) ([]*AlertIDCfg, error)
 }
 
 /*AddAlertIDCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddAlertIDCfg(dev AlertIDCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddAlertIDCfg(dev *AlertIDCfg) (int64, error) {
 	var err error
 	var affected, newo int64
 	session := dbc.x.NewSession()
@@ -109,7 +109,7 @@ func (dbc *DatabaseCfg) AddAlertIDCfg(dev AlertIDCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Kapacitor backend Successfully with id %s [ %d HTTP Output] ", dev.ID, newo)
+	log.Infof("Added new Alert ID Successfully with id %s [ %d HTTP Output] ", dev.ID, newo)
 	dbc.addChanges(affected)
 	return affected, nil
 }
@@ -151,7 +151,7 @@ func (dbc *DatabaseCfg) DelAlertIDCfg(id string) (int64, error) {
 }
 
 /*UpdateAlertIDCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateAlertIDCfg(id string, dev AlertIDCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateAlertIDCfg(id string, dev *AlertIDCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
@@ -186,7 +186,7 @@ func (dbc *DatabaseCfg) UpdateAlertIDCfg(id string, dev AlertIDCfg) (int64, erro
 		return 0, err
 	}
 
-	log.Infof("Updated KapacitorID Config Successfully with id %s and data:%+v, affected", id, dev)
+	log.Infof("Updated Alert ID Config Successfully with id %s and data:%+v, affected", id, dev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }

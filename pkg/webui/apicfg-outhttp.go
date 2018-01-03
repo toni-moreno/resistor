@@ -40,7 +40,7 @@ func GetOutHTTP(ctx *Context) {
 // AddOutHTTP Insert new snmpdevice to de internal BBDD --pending--
 func AddOutHTTP(ctx *Context, dev config.OutHTTPCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddOutHTTPCfg(dev)
+	affected, err := agent.MainConfig.Database.AddOutHTTPCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -54,7 +54,7 @@ func AddOutHTTP(ctx *Context, dev config.OutHTTPCfg) {
 func UpdateOutHTTP(ctx *Context, dev config.OutHTTPCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateOutHTTPCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateOutHTTPCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

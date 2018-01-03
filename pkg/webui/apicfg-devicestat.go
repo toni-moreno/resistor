@@ -42,7 +42,7 @@ func GetDeviceStat(ctx *Context) {
 // AddDeviceStat Insert new snmpdevice to de internal BBDD --pending--
 func AddDeviceStat(ctx *Context, dev config.DeviceStatCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddDeviceStatCfg(dev)
+	affected, err := agent.MainConfig.Database.AddDeviceStatCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -61,7 +61,7 @@ func UpdateDeviceStat(ctx *Context, dev config.DeviceStatCfg) {
 		log.Warningf("Error on get ID for UpdateDeviceStats device %d , error: %s", dev.ID, err)
 		ctx.JSON(404, err.Error())
 	}
-	affected, err := agent.MainConfig.Database.UpdateDeviceStatCfg(nid, dev)
+	affected, err := agent.MainConfig.Database.UpdateDeviceStatCfg(nid, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %d  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

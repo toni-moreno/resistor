@@ -40,7 +40,7 @@ func GetProductGroup(ctx *Context) {
 // AddProductGroup Insert new snmpdevice to de internal BBDD --pending--
 func AddProductGroup(ctx *Context, dev config.ProductGroupCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddProductGroupCfg(dev)
+	affected, err := agent.MainConfig.Database.AddProductGroupCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -54,7 +54,7 @@ func AddProductGroup(ctx *Context, dev config.ProductGroupCfg) {
 func UpdateProductGroup(ctx *Context, dev config.ProductGroupCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateProductGroupCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateProductGroupCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

@@ -61,7 +61,7 @@ func (dbc *DatabaseCfg) GetKapacitorCfgArray(filter string) ([]*KapacitorCfg, er
 }
 
 /*AddKapacitorCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddKapacitorCfg(dev KapacitorCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddKapacitorCfg(dev *KapacitorCfg) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -106,13 +106,13 @@ func (dbc *DatabaseCfg) DelKapacitorCfg(id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully influx db with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	log.Infof("Deleted Successfully Kapacitor Config with ID %s [ %d Devices Affected  ]", id, affecteddev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
 
 /*UpdateKapacitorCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateKapacitorCfg(id string, dev KapacitorCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateKapacitorCfg(id string, dev *KapacitorCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()

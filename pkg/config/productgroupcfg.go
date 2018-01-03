@@ -61,7 +61,7 @@ func (dbc *DatabaseCfg) GetProductGroupCfgArray(filter string) ([]*ProductGroupC
 }
 
 /*AddProductGroupCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddProductGroupCfg(dev ProductGroupCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddProductGroupCfg(dev *ProductGroupCfg) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -77,7 +77,7 @@ func (dbc *DatabaseCfg) AddProductGroupCfg(dev ProductGroupCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Kapacitor backend Successfully with id %s ", dev.ID)
+	log.Infof("Added new Product Group Successfully with id %s ", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }
@@ -106,13 +106,13 @@ func (dbc *DatabaseCfg) DelProductGroupCfg(id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully influx db with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	log.Infof("Deleted Successfully Product Group with ID %s [ %d Devices Affected  ]", id, affecteddev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
 
 /*UpdateProductGroupCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateProductGroupCfg(id string, dev ProductGroupCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateProductGroupCfg(id string, dev *ProductGroupCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
@@ -136,7 +136,7 @@ func (dbc *DatabaseCfg) UpdateProductGroupCfg(id string, dev ProductGroupCfg) (i
 		return 0, err
 	}
 
-	log.Infof("Updated KapacitorID Config Successfully with id %s and data:%+v, affected", id, dev)
+	log.Infof("Updated Product Group Successfully with id %s and data:%+v, affected", id, dev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }

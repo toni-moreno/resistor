@@ -42,7 +42,7 @@ func GetIfxMeasurement(ctx *Context) {
 // AddIfxMeasurement Insert new snmpdevice to de internal BBDD --pending--
 func AddIfxMeasurement(ctx *Context, dev config.IfxMeasurementCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddIfxMeasurementCfg(dev)
+	affected, err := agent.MainConfig.Database.AddIfxMeasurementCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -57,7 +57,7 @@ func UpdateIfxMeasurement(ctx *Context, dev config.IfxMeasurementCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
 	nid, err := strconv.ParseInt(id, 10, 64)
-	affected, err := agent.MainConfig.Database.UpdateIfxMeasurementCfg(nid, dev)
+	affected, err := agent.MainConfig.Database.UpdateIfxMeasurementCfg(nid, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %d/%s  , affected : %+v , error: %s", dev.ID, dev.Name, affected, err)
 		ctx.JSON(404, err.Error())

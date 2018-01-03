@@ -40,7 +40,7 @@ func GetAlertID(ctx *Context) {
 // AddAlertID Insert new snmpdevice to de internal BBDD --pending--
 func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddAlertIDCfg(dev)
+	affected, err := agent.MainConfig.Database.AddAlertIDCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -54,7 +54,7 @@ func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

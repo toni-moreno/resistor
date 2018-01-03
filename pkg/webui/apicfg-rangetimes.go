@@ -40,7 +40,7 @@ func GetRangeTime(ctx *Context) {
 // AddRangeTime Insert new snmpdevice to de internal BBDD --pending--
 func AddRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddRangeTimeCfg(dev)
+	affected, err := agent.MainConfig.Database.AddRangeTimeCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -54,7 +54,7 @@ func AddRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 func UpdateRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateRangeTimeCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateRangeTimeCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

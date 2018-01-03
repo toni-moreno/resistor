@@ -42,7 +42,7 @@ func GetIfxDB(ctx *Context) {
 // AddIfxDB Insert new snmpdevice to de internal BBDD --pending--
 func AddIfxDB(ctx *Context, dev config.IfxDBCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddIfxDBCfg(dev)
+	affected, err := agent.MainConfig.Database.AddIfxDBCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -57,7 +57,7 @@ func UpdateIfxDB(ctx *Context, dev config.IfxDBCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
 	nid, err := strconv.ParseInt(id, 10, 64)
-	affected, err := agent.MainConfig.Database.UpdateIfxDBCfg(nid, dev)
+	affected, err := agent.MainConfig.Database.UpdateIfxDBCfg(nid, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

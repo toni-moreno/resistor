@@ -90,7 +90,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 }
 
 /*AddIfxDBCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddIfxDBCfg(dev IfxDBCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddIfxDBCfg(dev *IfxDBCfg) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -101,22 +101,13 @@ func (dbc *DatabaseCfg) AddIfxDBCfg(dev IfxDBCfg) (int64, error) {
 		session.Rollback()
 		return 0, err
 	}
-	// GET ID
-	result, err2 := session.Query(dbc.lastIDQuery)
-	if err2 != nil {
-		session.Rollback()
-		return 0, err
-	}
-	irow, err3 := strconv.ParseInt(string(result[0]["rowid"]), 10, 64)
-	if err3 != nil {
-		session.Rollback()
-		return 0, err
-	}
+
+	//log.Debugf("IROW1 %d  | IROW2 %d ", irow, irow2)
 
 	//Measurement Fields
 	for _, meas := range dev.Measurements {
 		mstruct := IfxDBMeasRel{
-			IfxDBID:     irow,
+			IfxDBID:     dev.ID,
 			IfxMeasID:   meas.ID,
 			IfxMeasName: meas.Name,
 		}
@@ -131,9 +122,9 @@ func (dbc *DatabaseCfg) AddIfxDBCfg(dev IfxDBCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Kapacitor backend Successfully with id %s ", dev.ID)
+	log.Infof("Added new Influx DB backend Config Successfully with id %d ", dev.ID)
 	dbc.addChanges(affected)
-	return irow, nil
+	return affected, nil
 }
 
 /*DelIfxDBCfg for deleting influx databases from ID*/
@@ -166,7 +157,7 @@ func (dbc *DatabaseCfg) DelIfxDBCfg(id int64) (int64, error) {
 }
 
 // AddOrUpdateIfxDBCfg this method insert data if not previouosly exist the tuple ifxServer.Name or update it if already exist
-func (dbc *DatabaseCfg) AddOrUpdateIfxDBCfg(dev IfxDBCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddOrUpdateIfxDBCfg(dev *IfxDBCfg) (int64, error) {
 	log.Debugf("ADD OR UPDATE %+v", dev)
 	//check if exist
 	m, err := dbc.GetIfxDBCfgArray("name == '" + dev.Name + "' AND ifxserver == '" + dev.IfxServer + "'")
@@ -188,34 +179,44 @@ func (dbc *DatabaseCfg) AddOrUpdateIfxDBCfg(dev IfxDBCfg) (int64, error) {
 }
 
 /*UpdateIfxDBCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateIfxDBCfg(id int64, dev IfxDBCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 
+	m, err := dbc.GetIfxDBCfgArray("name == '" + new.Name + "' AND ifxserver == '" + new.IfxServer + "'")
+	if err != nil {
+		return 0, err
+	}
+	old := m[0]
 	//first get ID
 
 	session := dbc.x.NewSession()
 	defer session.Close()
+	//Delete first
 
 	//first check if id < 1 => search for the current ID for the unique IfxServer.Name
 
-	affected, err = session.Where("id='" + strconv.FormatInt(id, 10) + "'").UseBool().AllCols().Update(dev)
+	affected, err = session.Where("id='" + strconv.FormatInt(old.ID, 10) + "'").UseBool().AllCols().Update(new)
 	if err != nil {
 		session.Rollback()
 		return 0, err
 	}
 
-	//Delete relations
-	affecteddev, err = session.Where("ifxdbid ==" + strconv.FormatInt(id, 10)).Delete(&IfxDBMeasRel{})
+	//Delete current relations
+	affecteddev, err = session.Where("ifxdbid ==" + strconv.FormatInt(old.ID, 10)).Delete(&IfxDBMeasRel{})
 	if err != nil {
 		session.Rollback()
-		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %d, error: %s", id, err)
+		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %d, error: %s", old.ID, err)
+	}
+	//Delete old measurements new ones has been initialized witn  new ID's
+	for _, meas := range old.Measurements {
+		dbc.DelIfxMeasurementCfg(meas.ID)
 	}
 	//Add New Relations
 	//Measurement Fields
-	for _, meas := range dev.Measurements {
+	for _, meas := range new.Measurements {
 		mstruct := IfxDBMeasRel{
-			IfxDBID:     id,
+			IfxDBID:     old.ID,
 			IfxMeasID:   meas.ID,
 			IfxMeasName: meas.Name,
 		}
@@ -231,7 +232,7 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(id int64, dev IfxDBCfg) (int64, error) {
 		return 0, err
 	}
 
-	log.Infof("Updated KapacitorID Config Successfully with id %s and data:%+v, affected", id, dev)
+	log.Infof("Updated Influx DB Config Successfully with id %d and data:%+v, affected", old.ID, new)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }

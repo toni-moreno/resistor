@@ -62,7 +62,7 @@ func (dbc *DatabaseCfg) GetDeviceStatCfgArray(filter string) ([]*DeviceStatCfg, 
 }
 
 /*AddDeviceStatCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddDeviceStatCfg(dev DeviceStatCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddDeviceStatCfg(dev *DeviceStatCfg) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -78,7 +78,7 @@ func (dbc *DatabaseCfg) AddDeviceStatCfg(dev DeviceStatCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Kapacitor backend Successfully with id %s ", dev.ID)
+	log.Infof("Added new Device Stat Successfully with id %d ", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }
@@ -101,13 +101,13 @@ func (dbc *DatabaseCfg) DelDeviceStatCfg(id int64) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully influx db with ID %d [ %d Devices Affected  ]", id, affecteddev)
+	log.Infof("Deleted Successfully Device Stat with ID %d [ %d Devices Affected  ]", id, affecteddev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
 
 /*UpdateDeviceStatCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateDeviceStatCfg(id int64, dev DeviceStatCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateDeviceStatCfg(id int64, dev *DeviceStatCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
@@ -131,7 +131,7 @@ func (dbc *DatabaseCfg) UpdateDeviceStatCfg(id int64, dev DeviceStatCfg) (int64,
 		return 0, err
 	}
 
-	log.Infof("Updated KapacitorID Config Successfully with id %s and data:%+v, affected", id, dev)
+	log.Infof("Updated Device Stats Config Successfully with id %d and data:%+v, affected", id, dev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }

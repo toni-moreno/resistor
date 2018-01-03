@@ -40,7 +40,7 @@ func GetTemplate(ctx *Context) {
 // AddTemplate Insert new snmpdevice to de internal BBDD --pending--
 func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
-	affected, err := agent.MainConfig.Database.AddTemplateCfg(dev)
+	affected, err := agent.MainConfig.Database.AddTemplateCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
@@ -54,7 +54,7 @@ func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	affected, err := agent.MainConfig.Database.UpdateTemplateCfg(id, dev)
+	affected, err := agent.MainConfig.Database.UpdateTemplateCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())

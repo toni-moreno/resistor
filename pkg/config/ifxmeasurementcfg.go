@@ -62,7 +62,7 @@ func (dbc *DatabaseCfg) GetIfxMeasurementCfgArray(filter string) ([]*IfxMeasurem
 }
 
 /*AddIfxMeasurementCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddIfxMeasurementCfg(dev IfxMeasurementCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddIfxMeasurementCfg(dev *IfxMeasurementCfg) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -73,40 +73,25 @@ func (dbc *DatabaseCfg) AddIfxMeasurementCfg(dev IfxMeasurementCfg) (int64, erro
 		session.Rollback()
 		return 0, err
 	}
-	result, err2 := session.Query(dbc.lastIDQuery)
-	if err2 != nil {
-		session.Rollback()
-		return 0, err
-	}
-	irow, err3 := strconv.ParseInt(string(result[0]["rowid"]), 10, 64)
-	if err3 != nil {
-		session.Rollback()
-		return 0, err
-	}
+
 	//no other relation
 	err = session.Commit()
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Kapacitor backend Successfully with id %s ", dev.ID)
+	log.Infof("Added new InfluxMeasurement Successfully with id %d ", dev.ID)
 	dbc.addChanges(affected)
-	return irow, nil
+	return affected, nil
 }
 
 /*DelIfxMeasurementCfg for deleting influx databases from ID*/
 func (dbc *DatabaseCfg) DelIfxMeasurementCfg(id int64) (int64, error) {
-	var affecteddev, affected int64
+	var affected int64
 	var err error
 
 	session := dbc.x.NewSession()
 	defer session.Close()
-	/*
-		affecteddev, err = session.Where("kapacitorid='" + id + "'").Cols("kapacitorid").Update(&AlertIDCfg{})
-		if err != nil {
-			session.Rollback()
-			return 0, fmt.Errorf("Error on Delete IfxMeasurementCfg with id: %s, error: %s", id, err)
-		}
-	*/
+
 	affected, err = session.Where("id='" + strconv.FormatInt(id, 10) + "'").Delete(&IfxMeasurementCfg{})
 	if err != nil {
 		session.Rollback()
@@ -117,13 +102,13 @@ func (dbc *DatabaseCfg) DelIfxMeasurementCfg(id int64) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully influx db with ID %s [ %d Devices Affected  ]", id, affecteddev)
-	dbc.addChanges(affected + affecteddev)
+	log.Infof("Deleted Successfully influx measurements with ID %d [ %d Devices Affected  ]", id, affected)
+	dbc.addChanges(affected)
 	return affected, nil
 }
 
 /*UpdateIfxMeasurementCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id int64, dev IfxMeasurementCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id int64, dev *IfxMeasurementCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
@@ -148,7 +133,7 @@ func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id int64, dev IfxMeasurementCfg)
 		return 0, err
 	}
 
-	log.Infof("Updated KapacitorID Config Successfully with id %s and data:%+v, affected", id, dev)
+	log.Infof("Updated Influx Measurement Successfully with id %d and data:%+v, affected", id, dev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }

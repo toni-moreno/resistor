@@ -61,7 +61,7 @@ func (dbc *DatabaseCfg) GetRangeTimeCfgArray(filter string) ([]*RangeTimeCfg, er
 }
 
 /*AddRangeTimeCfg for adding new devices*/
-func (dbc *DatabaseCfg) AddRangeTimeCfg(dev RangeTimeCfg) (int64, error) {
+func (dbc *DatabaseCfg) AddRangeTimeCfg(dev *RangeTimeCfg) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -77,7 +77,7 @@ func (dbc *DatabaseCfg) AddRangeTimeCfg(dev RangeTimeCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Kapacitor backend Successfully with id %s ", dev.ID)
+	log.Infof("Added new Time  Range Successfully with id %s ", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }
@@ -116,13 +116,13 @@ func (dbc *DatabaseCfg) DelRangeTimeCfg(id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully influx db with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	log.Infof("Deleted Successfully  Time Rante with ID %s [ %d Devices Affected  ]", id, affecteddev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
 
 /*UpdateRangeTimeCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateRangeTimeCfg(id string, dev RangeTimeCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateRangeTimeCfg(id string, dev *RangeTimeCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
