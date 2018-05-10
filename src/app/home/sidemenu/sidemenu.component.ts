@@ -24,7 +24,7 @@ export class SideMenuComponent {
 
   constructor(){ }
 
-  linkClicked(url: string) {
+  linkClicked() {
     this.link.emit()
   }
 

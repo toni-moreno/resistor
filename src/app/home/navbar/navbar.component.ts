@@ -27,7 +27,7 @@ export class NavbarComponent {
     this.showModal.emit();
   }
 
-  linkClicked(url: string) {
+  linkClicked() {
     this.link.emit();
   }
 
