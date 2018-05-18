@@ -108,7 +108,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 		// Provider configuration, it's corresponding to provider.
 		ProviderConfig: "",
 		// Cookie name to save session ID. Default is "MacaronSession".
-		CookieName: "snmpcollector-sess-" + cookie,
+		CookieName: "resistor-sess-" + cookie,
 		// Cookie path to store. Default is "/".
 		CookiePath: "/",
 		// GC interval time in seconds. Default is 3600.
