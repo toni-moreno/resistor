@@ -10,8 +10,7 @@
       <ng-template #dangerAlert>
         <div style="display:inline-block">
           <p style="font-weight: 700;">{{alert.message.statusText}}</p>
-          <span *ngIf="alert.message.status !== 403">{{alert.message['_body']}}</span>
-          <span *ngIf="alert.message.status === 403">{{alert.message.url}}</span>
+          <span>{{alert.message['_body']}}</span>
         </div>
       </ng-template>
       <ng-template #successAlert>
