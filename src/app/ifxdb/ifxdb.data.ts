@@ -5,8 +5,9 @@ export const IfxDBComponentConfig: any =
       { 'title': 'Influx Server', 'name': 'IfxServer' },
       { 'title': 'DB Name', 'name': 'Name' },
       { 'title': 'Retention', 'name': 'Retention' },
-      { 'title': 'Measurements', 'name': 'Measurements', 'transform':"parseMeasurements" },
-    ]
+      { 'title': 'Measurements', 'name': 'Measurements', 'transform':"parseMeasurements", 'extraField': "Name" },
+    ],
+    'slug' : 'ifxdbcfg'
   };
 
 export const TableRole : string = 'viewdelete';
