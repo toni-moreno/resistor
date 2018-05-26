@@ -12,7 +12,8 @@ export const DeviceStatComponentConfig: any =
       { 'title': 'FilterTagKey', 'name': 'FilterTagKey' },
       { 'title': 'FilterTagValue', 'name': 'FilterTagValue' },
       { 'title': 'Description', 'name': 'Description' },
-    ]
+    ],
+    'slug' : 'devicestatcfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [
