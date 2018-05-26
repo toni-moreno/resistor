@@ -5,6 +5,7 @@ import { FormArray, FormGroup, FormControl} from '@angular/forms';
 import { ProductService } from './product.service';
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
+import { ExportFileModal } from '../common/dataservice/export-file-modal';
 
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
@@ -25,6 +26,7 @@ export class ProductComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
+  @ViewChild('exportFileModal') public exportFileModal : ExportFileModal;
 
 
   public editmode: string; //list , create, modify
@@ -82,6 +84,10 @@ export class ProductComponent implements OnInit {
     switch (action.option) {
       case 'new' :
         this.newItem()
+      break;
+      case 'export' :
+        this.exportItem(action.event);
+      break;
       case 'view':
         this.viewItem(action.event);
       break;
@@ -120,6 +126,10 @@ export class ProductComponent implements OnInit {
 
   viewItem(id) {
     this.viewModal.parseObject(id);
+  }
+
+  exportItem(item : any) : void {
+    this.exportFileModal.initExportModal(item);
   }
 
   removeAllSelectedItems(myArray) {

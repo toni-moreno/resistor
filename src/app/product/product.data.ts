@@ -6,7 +6,8 @@ export const ProductComponentConfig: any =
       { 'title': 'ID Tag Name', 'name': 'IDTagName' },
       { 'title': 'CommonTags', 'name': 'CommonTags' },
       { 'title': 'Base Lines', 'name': 'BaseLines' },
-    ]
+    ],
+    'slug' : 'productcfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [
