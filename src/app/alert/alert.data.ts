@@ -42,7 +42,8 @@ export const AlertComponentConfig: any =
       { 'title': 'ExtraLabel', 'name': 'ThCritDef' },
       { 'title': 'KapacitorID', 'name': 'ThCritDef' },
       { 'title': 'OutHTTP', 'name': 'ThCritDef' }
-    ]
+    ],
+    'slug' : 'alertcfg'
   };
 
   export const TableRole : string = 'fulledit';

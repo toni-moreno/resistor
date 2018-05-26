@@ -12,6 +12,7 @@ import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service'
 
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
+import { ExportFileModal } from '../common/dataservice/export-file-modal';
 
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
@@ -35,6 +36,7 @@ export class AlertComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
+  @ViewChild('exportFileModal') public exportFileModal : ExportFileModal;
 
 
   public editmode: string; //list , create, modify
@@ -214,6 +216,10 @@ export class AlertComponent implements OnInit {
     switch (action.option) {
       case 'new' :
         this.newItem()
+      break;
+      case 'export' :
+        this.exportItem(action.event);
+      break;
       case 'view':
         this.viewItem(action.event);
       break;
@@ -252,6 +258,10 @@ export class AlertComponent implements OnInit {
 
   viewItem(id) {
     this.viewModal.parseObject(id);
+  }
+
+  exportItem(item : any) : void {
+    this.exportFileModal.initExportModal(item);
   }
 
   removeAllSelectedItems(myArray) {
@@ -306,6 +316,7 @@ export class AlertComponent implements OnInit {
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
         this.setDynamicFields(row.TigerType);
+
         this.editmode = "modify";
       },
       err => console.error(err)
