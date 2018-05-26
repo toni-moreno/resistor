@@ -12,7 +12,8 @@
       <ng-container *ngIf="group.expanded === true">
         <ng-container *ngFor="let items of group.items; index as o; last as last">
           <li [ngClass]="last ? 'last-li' : ''">
-            <a (click)="clickedMenu(items)" role="button" [ngClass]="item_type === items.selector ? 'active-menu' : ''">{{items.title}}</a>
+            <a *ngIf="items.type === 'component'" (click)="clickedMenu(items)" role="button" [ngClass]="item_type === items.selector ? 'active-menu' : ''">{{items.title}}</a>
+            <a *ngIf="items.type == 'button'" (click)="clickedButton(items)" role="button">{{items.title}}</a>
           </li>
         </ng-container>
       </ng-container>

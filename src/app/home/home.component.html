@@ -5,15 +5,14 @@
   </res-navbar>
 
   <div id="wrapper">
-    <res-sidemenu [menuItems]="menuItems" [mode]="mode" (showModal)="showAboutModal()" (clickMenu)="clickMenu($event)" (link)="link('https://github.com/toni-moreno/resistor/wiki')">
+    <res-sidemenu [menuItems]="menuItems" [mode]="mode" (showModal)="showAboutModal()" (clickMenu)="clickMenu($event)" (clickButton)="clickButton($event)" (link)="link('https://github.com/toni-moreno/resistor/wiki')">
     </res-sidemenu>
 
     <div id="page-content-wrapper" style="margin-bottom:50px" [ngStyle]="mode === true ? {'padding-left': '0px'} : {'padding-left' : '215px'}">
       <div class="container-fluid">
         <div class="row">
           <import-file-modal #importFileModal [showValidation]="true" [textValidation]="'Import'" titleName='Importing:'></import-file-modal>
-          <!--export-file-modal #exportBulkFileModal [showValidation]="true" [bulkExport]="true" [prepareExport]="false" [textValidation]="'Export'" titleName='Exporting Data:'></<export-file-modal></export-file-modal-->
-
+          <export-file-modal #exportBulkFileModal [showValidation]="true" [bulkExport]="true" [prepareExport]="false" [textValidation]="'Export'" titleName='Exporting Data:'></export-file-modal>
           <div class="col-lg-12">
             <ng-container *ngComponentOutlet="componentList"></ng-container>
           </div>
