@@ -39,6 +39,7 @@ import { GenericModal } from './common/custom-modal/generic-modal';
 import { AboutModal } from './home/about-modal';
 import { TreeView } from './common/dataservice/treeview';
 import { ImportFileModal } from './common/dataservice/import-file-modal'
+import { ExportFileModal } from './common/dataservice/export-file-modal'
 import { CoreModule } from './core/core.module';
 
 //others
@@ -75,6 +76,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     GenericModal,
     AboutModal,
     ImportFileModal,
+    ExportFileModal,
     BlockUIComponent,
     TreeView,
     SpinnerComponent,
