@@ -491,6 +491,7 @@ export class AlertComponent implements OnInit {
     //Clear Vars:
     this.select_ifxrp = null;
     this.picked_ifxdb = this.ifxdb_list.filter((x) => x['ID'] === ifxdb_picked)[0];
+    this.select_ifxts = [];
 
     if(this.picked_ifxdb) {
       this.select_ifxrp = this.createMultiselectArray(this.picked_ifxdb['Retention']);
@@ -499,8 +500,11 @@ export class AlertComponent implements OnInit {
   }
 
   pickMeasItem(ifxms_picked) {
-    this.sampleComponentForm.controls.Field.setValue(null);
-    this.sampleComponentForm.controls.TagDescription.setValue(null);
+    //Only reset values when default values are loaded
+    if (ifxms_picked !== this.sampleComponentForm.value.InfluxMeasurement){
+      this.sampleComponentForm.controls.Field.setValue(null);
+      this.sampleComponentForm.controls.TagDescription.setValue(null);
+    }
 
     if (ifxms_picked){
       this.select_ifxfs = [];
@@ -519,10 +523,11 @@ export class AlertComponent implements OnInit {
 
   createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
     let myarray = [];
-    if(tempArray)
-    for (let entry of tempArray) {
-      myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
-    };
+    if(tempArray){
+      for (let entry of tempArray) {
+        myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
+      };
+    }
     return myarray;
   }
 
