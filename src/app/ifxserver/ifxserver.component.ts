@@ -1,11 +1,15 @@
-import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
 import { IfxServerService } from './ifxserver.service';
+
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
+import { ExportFileModal } from '../common/dataservice/export-file-modal';
 
+import { BlockUIService } from '../common/blockui/blockui-service';
+import { BlockUIComponent } from '../common/blockui/blockui-component';
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
@@ -16,7 +20,7 @@ declare var _:any;
 
 @Component({
   selector: 'ifxserver-component',
-  providers: [IfxServerService, ValidationService],
+  providers: [IfxServerService, ValidationService, BlockUIService],
   templateUrl: './ifxserver.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -25,6 +29,8 @@ export class IfxServerComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
+  @ViewChild('blocker', { read: ViewContainerRef }) container: ViewContainerRef;
+  @ViewChild('exportFileModal') public exportFileModal : ExportFileModal;
 
 
   public editmode: string; //list , create, modify
@@ -50,7 +56,7 @@ export class IfxServerComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public ifxserverService: IfxServerService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public ifxserverService: IfxServerService, public exportServiceCfg: ExportServiceCfg, public blocker: BlockUIService, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -84,6 +90,10 @@ export class IfxServerComponent implements OnInit {
     switch (action.option) {
       case 'new' :
         this.newItem()
+      break;
+      case 'export' :
+        this.exportItem(action.event);
+      break;
       case 'view':
         this.viewItem(action.event);
       break;
@@ -130,6 +140,9 @@ export class IfxServerComponent implements OnInit {
     this.viewModal.parseObject(id);
   }
 
+  exportItem(item : any) : void {
+    this.exportFileModal.initExportModal(item);
+  }
   removeAllSelectedItems(myArray) {
     let obsArray = [];
     this.counterItems = 0;
@@ -276,9 +289,11 @@ export class IfxServerComponent implements OnInit {
     var r = true;
     r = confirm("Importing catalog from " + data.ID + ". Proceed?");
     if(r === true) {
+    this.blocker.start(this.container, "Importing data from "+ data.ID +". Please wait...");
     this.ifxserverService.importIfxCatalog(data)
     .subscribe(
     data =>  {
+      this.blocker.stop();
       console.log('IMPORT:');
       console.log(data);
       this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true};

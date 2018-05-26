@@ -7,7 +7,8 @@ export const IfxServerComponentConfig: any =
       { 'title': 'Admin User', 'name': 'AdminUser' },
       { 'title': 'AdminPasswd', 'name': 'AdminPasswd' },
       { 'title': 'Description', 'name': 'Description' }
-    ]
+    ],
+    'slug' : 'ifxservercfg'
   };
 
   export const TableRole : string = 'fulledit';
