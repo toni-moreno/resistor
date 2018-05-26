@@ -17,7 +17,7 @@ import { ExportServiceCfg } from './export.service'
           </div>
           <div *ngIf="error" style="display: inline; width: 100%" class="text-left col-md-8 ">
           <h4 [ngClass]="error ? ['text-danger'] : ['text-success']">
-          <i [ngClass]="error ? ['glyphicon glyphicon-warning-sign'] : ['glyphicon glyphicon-ok-sign']" tooltipAnimation="true" tooltip="{{error}}"></i>
+          <i [ngClass]="error ? ['glyphicon glyphicon-warning-sign'] : ['glyphicon glyphicon-ok-sign']" container=body tooltipAnimation="true" tooltip="{{error}}"></i>
           {{error | json }}
           </h4>
           </div>
@@ -29,7 +29,7 @@ import { ExportServiceCfg } from './export.service'
           </div>
         </div>
         <div class="panel-body" *ngIf="visible === true">
-        <pre > {{object | json }} </pre>
+        <pre style="background: none; border: none"> {{object | json }} </pre>
         </div>
       </div>
       </div>
@@ -55,14 +55,15 @@ export class TreeView {
 
 
   public colorsObject : Object = {
-   "snmpdevicecfg" : 'danger',
-   "influxcfg" : 'info',
-   "measfiltercfg": 'warning',
-   "oidconditioncfg" : 'success',
-   "customfiltercfg" : 'default',
-   "measurementcfg" : 'primary',
-   "snmpmetriccfg" : 'warning',
-   "measgroupcfg" : 'success'
+    "alertcfg": 'danger',
+    "devicestatcfg": 'info',
+    "ifxservercfg": 'success',
+    "kapacitorcfg": 'primary',
+    "outhttpcfg": 'default',
+    "productcfg": 'warning',
+    "productgroupcfg": 'info',
+    "rangetimecfg": 'danger',
+    "templatecfg": 'primary'
  };
  recursive : boolean;
 
