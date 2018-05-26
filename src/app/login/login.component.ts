@@ -1,23 +1,24 @@
 
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpService} from '../core/http.service'
+import { LoginService } from './login.service'
 
 @Component({
   selector: 'login',
+  providers: [LoginService],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 
 export class LoginComponent {
-  constructor(public router: Router, public http: HttpService) {
+  constructor(public router: Router, public loginService: LoginService) {
   }
   ifErrors: any;
 
   login(event, username, password) {
     event.preventDefault();
     let body = JSON.stringify({ username, password });
-    this.http.post('/login', body, null, true)
+    this.loginService.login(body)
       .subscribe(
         response => {
           this.router.navigate(['home']);

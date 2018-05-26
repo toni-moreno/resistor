@@ -12,6 +12,7 @@ import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service'
 
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
+import { ExportFileModal } from '../common/dataservice/export-file-modal';
 
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
@@ -35,6 +36,7 @@ export class AlertComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
+  @ViewChild('exportFileModal') public exportFileModal : ExportFileModal;
 
 
   public editmode: string; //list , create, modify
@@ -214,6 +216,10 @@ export class AlertComponent implements OnInit {
     switch (action.option) {
       case 'new' :
         this.newItem()
+      break;
+      case 'export' :
+        this.exportItem(action.event);
+      break;
       case 'view':
         this.viewItem(action.event);
       break;
@@ -252,6 +258,10 @@ export class AlertComponent implements OnInit {
 
   viewItem(id) {
     this.viewModal.parseObject(id);
+  }
+
+  exportItem(item : any) : void {
+    this.exportFileModal.initExportModal(item);
   }
 
   removeAllSelectedItems(myArray) {
@@ -306,6 +316,7 @@ export class AlertComponent implements OnInit {
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
         this.setDynamicFields(row.TigerType);
+
         this.editmode = "modify";
       },
       err => console.error(err)
@@ -480,6 +491,7 @@ export class AlertComponent implements OnInit {
     //Clear Vars:
     this.select_ifxrp = null;
     this.picked_ifxdb = this.ifxdb_list.filter((x) => x['ID'] === ifxdb_picked)[0];
+    this.select_ifxts = [];
 
     if(this.picked_ifxdb) {
       this.select_ifxrp = this.createMultiselectArray(this.picked_ifxdb['Retention']);
@@ -488,8 +500,11 @@ export class AlertComponent implements OnInit {
   }
 
   pickMeasItem(ifxms_picked) {
-    this.sampleComponentForm.controls.Field.setValue(null);
-    this.sampleComponentForm.controls.TagDescription.setValue(null);
+    //Only reset values when default values are loaded
+    if (ifxms_picked !== this.sampleComponentForm.value.InfluxMeasurement){
+      this.sampleComponentForm.controls.Field.setValue(null);
+      this.sampleComponentForm.controls.TagDescription.setValue(null);
+    }
 
     if (ifxms_picked){
       this.select_ifxfs = [];
@@ -508,10 +523,11 @@ export class AlertComponent implements OnInit {
 
   createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
     let myarray = [];
-    if(tempArray)
-    for (let entry of tempArray) {
-      myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
-    };
+    if(tempArray){
+      for (let entry of tempArray) {
+        myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
+      };
+    }
     return myarray;
   }
 

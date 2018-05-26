@@ -6,7 +6,8 @@ export const OutHTTPComponentConfig: any =
       { 'title': 'URL', 'name': 'URL' },
       { 'title': 'Headers', 'name': 'Headers' },
       { 'title': 'AlertTpl', 'name': 'AlertTpl' }
-    ]
+    ],
+    'slug' : 'outhttpcfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [

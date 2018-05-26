@@ -4,7 +4,8 @@ export const KapacitorComponentConfig: any =
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'URL', 'name': 'URL' }
-    ]
+    ],
+    'slug' : 'kapacitorcfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [

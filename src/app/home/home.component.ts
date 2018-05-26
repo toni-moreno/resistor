@@ -2,29 +2,14 @@ import { Component, ViewChild,ViewContainerRef } from '@angular/core';
 import { NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
+import { MenuItems, DefaultItem } from './home.data';
 import { BlockUIService } from '../common/blockui/blockui-service';
 import { BlockUIComponent } from '../common/blockui/blockui-component';
 import { ImportFileModal } from '../common/dataservice/import-file-modal';
+import { ExportFileModal } from '../common/dataservice/export-file-modal';
 import { HomeService } from './home.service';
 import { AboutModal } from './about-modal'
 import { WindowRef } from '../common/windowref';
-
-//Menu Components  to load them dynamically
-import { IfxServerComponent } from '../ifxserver/ifxserver.component';
-import { IfxDBComponent } from '../ifxdb/ifxdb.component';
-import { IfxMeasurementComponent } from '../ifxmeasurement/ifxmeasurement.component';
-import { KapacitorComponent } from '../kapacitor/kapacitor.component';
-import { RangeTimeComponent } from '../rangetime/rangetime.component';
-import { ProductComponent } from '../product/product.component';
-import { ProductGroupComponent } from '../productgroup/productgroup.component';
-import { TemplateComponent } from '../template/template.component';
-import { OutHTTPComponent } from '../outhttp/outhttp.component';
-import { AlertComponent } from '../alert/alert.component';
-import { DeviceStatComponent } from '../devicestat/devicestat.component'
-import { NavbarComponent } from './navbar/navbar.component'
-import { SideMenuComponent } from './sidemenu/sidemenu.component'
-
-
 
 declare var _:any;
 
@@ -39,6 +24,8 @@ export class HomeComponent {
 
   @ViewChild('blocker', { read: ViewContainerRef }) container: ViewContainerRef;
   @ViewChild('importFileModal') public importFileModal : ImportFileModal;
+  @ViewChild('exportBulkFileModal') public exportBulkFileModal : ExportFileModal;
+
   @ViewChild('aboutModal') public aboutModal : AboutModal;
   @ViewChild('RuntimeComponent') public rt : any;
 
@@ -46,38 +33,8 @@ export class HomeComponent {
   response: string;
   item_type: string;
   version: RInfo;
-  menuItems : Array<any> = [
-  {'groupName' : 'Runtime', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
-    [
-      {'title': 'Agent status', 'selector' : 'runtime', 'component': null}
-    ]
-  },
-  {'groupName' : 'Influx Catalog', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
-  [
-    {'title': 'Influx Databases', 'selector' : 'ifdb-component', 'component': IfxDBComponent},
-    {'title': 'Influx Measurements', 'selector' : 'ifmeasurement-component', 'component': IfxMeasurementComponent}
-  ]
-  },
-  {'groupName' : 'External Server Config', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
-  [
-    {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'component': IfxServerComponent},
-    {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'component': KapacitorComponent},
-    {'title': 'HTTP Alerting Backends', 'selector' : 'outhttp-component', 'component': OutHTTPComponent},
-  ]
-  }, 
-  {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
-    [
-      {'title': 'RangeTime', 'selector' : 'rangetime-component', 'component': RangeTimeComponent},
-      {'title': 'Product', 'selector' : 'product-component', 'component': ProductComponent},
-      {'title': 'Product Groups', 'selector' : 'productgroup-component', 'component': ProductGroupComponent},
-      {'title': 'Template', 'selector' : 'template-component', 'component': TemplateComponent},
-      {'title': 'Alert Definition', 'selector' : 'alert-component', 'component': AlertComponent},
-      {'title': 'Device Stats', 'selector' : 'devicestat-component', 'component': DeviceStatComponent},
-    ]
-  }];
-
-
-  componentList = KapacitorComponent;
+  menuItems = MenuItems
+  componentList = DefaultItem;
 
   mode : boolean = false;
   userIn : boolean = false;
@@ -117,7 +74,18 @@ export class HomeComponent {
   }
 
   clickMenu(menuItem : any) : void {
-    this.componentList = menuItem.component;
+    this.componentList = menuItem.data;
+  }
+
+  clickButton(menuItem : any) : void {
+    switch (menuItem.data) {
+      case 'importdata':
+        this.showImportModal();
+      break;
+      case 'exportdata':
+        this.showExportBulkModal();
+      break;
+    }
   }
 
   showImportModal() {
@@ -125,9 +93,9 @@ export class HomeComponent {
   }
 
   showExportBulkModal() {
-    //this.exportBulkFileModal.initExportModal(null, false);
+    this.exportBulkFileModal.initExportModal(null, false);
   }
-
+  
   showAboutModal() {
     this.aboutModal.showModal(this.version);
   }

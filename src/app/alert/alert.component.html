@@ -6,6 +6,7 @@
     <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Kapacitor instance will affect the following components','Deleting this InfluxDB Server will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
+    <export-file-modal #exportFileModal [showValidation]="true" [exportType]="defaultConfig['slug']" [textValidation]="'Export'" titleName='Exporting:'></export-file-modal>
     <table-list #listTableComponent [typeComponent]="'alert-component'" [data]="data" [columns]="defaultConfig['table-columns']" [counterItems]="counterItems" [counterErrors]="counterErrors" [selectedArray]="selectedArray" [isRequesting]="isRequesting" [tableRole]="tableRole"
         [roleActions]="overrideRoleActions" (customClicked)="customActions($event)"></table-list>
   </ng-template>
@@ -107,7 +108,7 @@
             <label class="control-label col-sm-2" for="InfluxDB">InfluxDB</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown *ngIf="ifxdb_list" [options]="select_ifxdb" formControlName="InfluxDB" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxDB" (ngModelChange)="pickDBItem($event)"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown *ngIf="ifxdb_list && select_ifxdb.length > 0" [options]="select_ifxdb" formControlName="InfluxDB" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxDB" (ngModelChange)="pickDBItem($event)"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.InfluxDB"></control-messages>
             </div>
           </div>
@@ -115,7 +116,7 @@
             <label class="control-label col-sm-2" for="InfluxRP">InfluxRP</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_ifxrp" formControlName="InfluxRP" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxRP"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown *ngIf="select_ifxrp && select_ifxdb.length > 0" [options]="select_ifxrp" formControlName="InfluxRP" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxRP"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.InfluxRP"></control-messages>
             </div>
           </div>
@@ -123,7 +124,8 @@
             <label class="control-label col-sm-2" for="InfluxMeasurement">InfluxMeasurement</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_ifxms" formControlName="InfluxMeasurement" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxMeasurement" (ngModelChange)="pickMeasItem($event)"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown *ngIf="select_ifxms && select_ifxdb.length > 0" [options]="select_ifxms" formControlName="InfluxMeasurement" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxMeasurement" (ngModelChange)="pickMeasItem($event)"></ss-multiselect-dropdown>
+              <span *ngIf="!select_ifxms">No Fields found</span>
               <control-messages [control]="sampleComponentForm.controls.InfluxMeasurement"></control-messages>
             </div>
           </div>
@@ -131,7 +133,7 @@
             <label class="control-label col-sm-2" for="Field">Field</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown *ngIf="ifxdb_list" [options]="select_ifxfs" formControlName="Field" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Field"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown *ngIf="select_ifxfs" [options]="select_ifxfs" formControlName="Field" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Field"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
             </div>
           </div>
@@ -139,7 +141,7 @@
             <label class="control-label col-sm-2" for="TagDescription">TagDescription</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_ifxts" formControlName="TagDescription" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.TagDescription"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown *ngIf="select_ifxts" [options]="select_ifxts" formControlName="TagDescription" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.TagDescription"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.TagDescription"></control-messages>
             </div>
           </div>

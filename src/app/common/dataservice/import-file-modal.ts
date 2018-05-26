@@ -8,7 +8,7 @@ import { TreeView} from './treeview';
   selector: 'import-file-modal',
   template: `
       <div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
+          <div class="modal-dialog" style="width:90%">
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" (click)="childModal.hide()" aria-label="Close">
@@ -38,16 +38,16 @@ import { TreeView} from './treeview';
               </div>
               <h4 [ngClass]="importResult.IsOk === true ? ['text-success'] : ['text-danger']">
               <i [ngClass]="importResult.IsOk === true ? ['glyphicon glyphicon-ok-circle'] : ['glyphicon glyphicon-remove-circle']"></i>
-              {{ importResult.Message }}
+              {{importResult.Message }} - {{ importResult["Data"]["Objects"].length}} items
               </h4>
               <div class="text-right">
                 <label class="control-label" for="AutoRename">AutoRename</label>
-                  <select name="auto_rename" id="auto_rename" [(ngModel)]="auto_rename">
+                  <select name="auto_rename" id="auto_rename" [(ngModel)]="auto_rename" [disabled]="over_write.toString() === 'true'">
                     <option value="true">True</option>
                     <option value="false">False</option>
                   </select>
                 <label class="control-label" for="OverWrite" style="margin-left: 10px">OverWrite</label>
-                  <select name="over_write" id="over_write" [(ngModel)]="over_write">
+                  <select name="over_write" id="over_write" [(ngModel)]="over_write" [disabled]="auto_rename.toString() === 'true'">
                     <option value="true">True</option>
                     <option value="false">False</option>
                   </select>
@@ -63,7 +63,7 @@ import { TreeView} from './treeview';
                 <form (ngSubmit)="uploadFile()" class="form-horizontal">
                 <div class="form-group">
                   <label class="control-label col-sm-2" for="AutoRename">AutoRename</label>
-                  <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Auto rename duplicated objects"></i>
+                  <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" container=body tooltip="Auto rename duplicated objects"></i>
                   <div class="col-sm-9">
                     <select name="auto_rename" id="auto_rename" [(ngModel)]="auto_rename" [disabled]="over_write.toString() === 'true'">
                       <option value="true">True</option>
@@ -73,7 +73,7 @@ import { TreeView} from './treeview';
                 </div>
                 <div class="form-group">
                   <label class="control-label col-sm-2" for="OverWrite">OverWrite</label>
-                  <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Overwrite existing objects"></i>
+                  <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" container=body tooltip="Overwrite existing objects"></i>
                   <div class="col-sm-9">
                     <select name="over_write" id="over_write" [(ngModel)]="over_write" [disabled]="auto_rename.toString() === 'true'">
                       <option value="true">True</option>
@@ -83,7 +83,7 @@ import { TreeView} from './treeview';
                 </div>
                 <div class="form-group">
                   <label class="control-label col-sm-2" for="File">File</label>
-                  <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="File with data to import"></i>
+                  <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" container=body tooltip="File with data to import"></i>
                   <div class="col-sm-9">
                     <input name="export_file" type="file" (change)="selectFile($event)" style="width:100% !important" /><br />
                   </div>

@@ -4,7 +4,8 @@ export const ProductGroupComponentConfig: any =
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Products', 'name': 'Products' },
-    ]
+    ],
+    'slug' : 'productgroupcfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [

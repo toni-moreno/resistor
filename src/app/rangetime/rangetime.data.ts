@@ -6,7 +6,8 @@ export const RangeTimeComponentConfig: any =
       { 'title': 'MaxHour', 'name': 'MaxHour' },
       { 'title': 'MinHour', 'name': 'MinHour' },
       { 'title': 'WeeKDays', 'name': 'WeeKDays' },
-  ]
+  ],
+  'slug' : 'rangetimecfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [

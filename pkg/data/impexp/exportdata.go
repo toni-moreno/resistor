@@ -2,10 +2,11 @@ package impexp
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
-	"time"
 )
 
 var (
@@ -107,36 +108,68 @@ func (e *ExportData) UpdateTmpObject() {
 func (e *ExportData) Export(ObjType string, id string, recursive bool, level int) error {
 
 	switch ObjType {
-	case "xxxxx":
-		/*contains sensible data
-		v, err := dbc.GetSnmpDeviceCfgByID(id)
+	case "rangetimecfg":
+		//contains sensible data
+		v, err := dbc.GetRangeTimeCfgByID(id)
 		if err != nil {
 			return err
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "snmpdevicecfg", ObjectID: id, ObjectCfg: v})
+		e.PrependObject(&ExportObject{ObjectTypeID: "rangetimecfg", ObjectID: id, ObjectCfg: v})
+	case "ifxservercfg":
+		//contains sensible data
+		v, err := dbc.GetIfxServerCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "ifxservercfg", ObjectID: id, ObjectCfg: v})
+	case "kapacitorcfg":
+		v, err := dbc.GetKapacitorCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "kapacitorcfg", ObjectID: id, ObjectCfg: v})
+	case "productcfg":
+		v, err := dbc.GetProductCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "productcfg", ObjectID: id, ObjectCfg: v})
+	case "productgroupcfg":
+		//contains sensible data
+		v, err := dbc.GetProductGroupCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "productgroupcfg", ObjectID: id, ObjectCfg: v})
 		if !recursive {
 			break
 		}
-		for _, val := range v.MeasurementGroups {
-			e.Export("measgroupcfg", val, recursive, level+1)
+		for _, val := range v.Products {
+			e.Export("productcfg", val, recursive, level+1)
 		}
-		for _, val := range v.MeasFilters {
-			e.Export("measfiltercfg", val, recursive, level+1)
-		}
-		e.Export("influxcfg", v.OutDB, recursive, level+1)*/
-	case "yyyyy":
-		/*contains sensible probable
-		v, err := dbc.GetInfluxCfgByID(id)
+	case "outhttpcfg":
+		v, err := dbc.GetOutHTTPCfgByID(id)
 		if err != nil {
 			return err
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "influxcfg", ObjectID: id, ObjectCfg: v})*/
-	case "zzzzz":
-		//
-	case "aaaaa":
-		//
+		e.PrependObject(&ExportObject{ObjectTypeID: "outhttpcfg", ObjectID: id, ObjectCfg: v})
+	case "alertcfg":
+		//contains sensible data
+		v, err := dbc.GetAlertIDCfgByID(id)
+		if err != nil {
+			return err
+		}
+		if !recursive {
+			break
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
+		for _, val := range v.OutHTTP {
+			e.Export("outhttpcfg", val, recursive, level+1)
+		}
+		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
+		e.Export("productcfg", v.ProductID, recursive, level+1)
 	default:
-		return fmt.Errorf("Unknown type obje$$$ type %s ", ObjType)
+		return fmt.Errorf("Unknown type object type %s ", ObjType)
 	}
 	if level == 0 {
 		e.UpdateTmpObject()

@@ -5,7 +5,8 @@ export const IfxMeasurementComponentConfig: any =
       { 'title': 'Measurement Name', 'name': 'Name' },
       { 'title': 'Tags', 'name': 'Tags' },
       { 'title': 'Fields', 'name': 'Fields' },
-    ]
+    ],
+    'slug' : 'ifxmeasurementcfg'
   };
 
   export const TableRole : string = 'viewdelete';

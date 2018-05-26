@@ -8,7 +8,8 @@ export const TemplateComponentConfig: any =
       { 'title': 'CritDirection', 'name': 'CritDirection' },
       { 'title': 'ThresholdType', 'name': 'ThresholdType' },
       { 'title': 'TplData', 'name': 'TplData' },
-    ]
+    ],
+    'slug' : 'templatecfg'
   };
   export const TableRole : string = 'fulledit';
   export const OverrideRoleActions : Array<Object> = [
