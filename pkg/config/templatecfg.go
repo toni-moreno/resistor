@@ -101,7 +101,8 @@ func (dbc *DatabaseCfg) DelTemplateCfg(id string) (int64, error) {
 		return 0, err
 	}
 
-	log.Infof("Deleted Successfully Template with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	//log.Infof("Deleted Successfully Template with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	log.Infof("Deleted Successfully Template with ID %s [ %d templates Affected  ]", id, affected)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
