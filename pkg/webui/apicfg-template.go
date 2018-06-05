@@ -1,6 +1,8 @@
 package webui
 
 import (
+	"time"
+
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
@@ -25,24 +27,41 @@ func NewAPICfgTemplate(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetTemplate Return snmpdevice list to frontend
+// GetTemplate Return templates list to frontend
 func GetTemplate(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetTemplateCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get templates: %+s", err)
 		return
 	}
+	kapaserversarray, err := GetKapaServers("")
+	if err != nil {
+		log.Warningf("Error getting kapacitor servers: %+s", err)
+	} else {
+		_ = GetKapaTemplates(devcfgarray, kapaserversarray)
+	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting templates %+v", &devcfgarray)
 }
 
-// AddTemplate Insert new snmpdevice to de internal BBDD --pending--
+// AddTemplate Inserts new template into the internal DB and into the kapacitor servers
 func AddTemplate(ctx *Context, dev config.TemplateCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	dev.Modified = time.Now()
+	sKapaSrvsNotOK := make([]string, 0)
+	kapaserversarray, err := GetKapaServers("")
+	if err != nil {
+		log.Warningf("Error getting kapacitor servers: %+s", err)
+	} else {
+		_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
+	}
+	if len(sKapaSrvsNotOK) > 0 {
+		log.Warningf("Error on inserting for template %s. Not inserted for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
+	}
+	log.Printf("ADDING template %+v", dev)
 	affected, err := agent.MainConfig.Database.AddTemplateCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data  or affected
@@ -50,13 +69,24 @@ func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 	}
 }
 
-// UpdateTemplate --pending--
+// UpdateTemplate Updates template into the internal DB and into the kapacitor servers
 func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
+	dev.Modified = time.Now()
+	sKapaSrvsNotOK := make([]string, 0)
+	kapaserversarray, err := GetKapaServers("")
+	if err != nil {
+		log.Warningf("Error getting kapacitor servers: %+s", err)
+	} else {
+		_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
+	}
+	if len(sKapaSrvsNotOK) > 0 {
+		log.Warningf("Error on updating for template %s. Not updated for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
+	}
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateTemplateCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
@@ -67,13 +97,25 @@ func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 //DeleteTemplate delete template from database
 func DeleteTemplate(ctx *Context) {
 	id := ctx.Params(":id")
-	log.Debugf("Trying to delete: %+v", id)
-	affected, err := agent.MainConfig.Database.DelTemplateCfg(id)
+	log.Debugf("Trying to delete template: %+v", id)
+	sKapaSrvsNotOK := make([]string, 0)
+	kapaserversarray, err := GetKapaServers("")
 	if err != nil {
-		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
-		ctx.JSON(404, err.Error())
+		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		ctx.JSON(200, "deleted")
+		_, _, sKapaSrvsNotOK = DeleteKapaTemplate(id, kapaserversarray)
+	}
+	if len(sKapaSrvsNotOK) == 0 {
+		affected, err := agent.MainConfig.Database.DelTemplateCfg(id)
+		if err != nil {
+			log.Warningf("Error on deleting for template %s  , affected : %+v , error: %s", id, affected, err)
+			ctx.JSON(404, err.Error())
+		} else {
+			ctx.JSON(200, "deleted")
+		}
+	} else {
+		log.Warningf("Error on deleting for template %s. Not deleted for kapacitor servers: %+v.", id, sKapaSrvsNotOK)
+		ctx.JSON(404, "Error on deleting for template. Not deleted for all kapacitor servers.")
 	}
 }
 
@@ -85,6 +127,13 @@ func GetTemplateCfgByID(ctx *Context) {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
+		kapaserversarray, err := GetKapaServers("")
+		if err != nil {
+			log.Warningf("Error getting kapacitor servers: %+s", err)
+		} else {
+			_, _, sKapaSrvsNotOK := GetKapaTemplate(&dev, kapaserversarray)
+			dev.ServersWOLastDeployment = sKapaSrvsNotOK
+		}
 		ctx.JSON(200, &dev)
 	}
 }

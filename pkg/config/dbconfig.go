@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 //Real Time Filtering by device/alertid/or other tags
 
 // DeviceStatCfg current stats by device
@@ -116,13 +118,15 @@ type RangeTimeCfg struct {
 
 // TemplateCfg Templating data strucr
 type TemplateCfg struct {
-	ID            string `xorm:"'id' unique" binding:"Required"`
-	TrigerType    string `xorm:"trigertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman
-	StatFunc      string `xorm:"statfunc"`
-	CritDirection string `xorm:"critdirection"`
-	ThresholdType string `xorm:"thresholdtype"` //Absolute/Relative
-	TplData       string `xorm:"tpldata"`
-	Description   string `xorm:"description"`
+	ID                      string    `xorm:"'id' unique" binding:"Required"`
+	TrigerType              string    `xorm:"trigertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman
+	StatFunc                string    `xorm:"statfunc"`
+	CritDirection           string    `xorm:"critdirection"`
+	ThresholdType           string    `xorm:"thresholdtype"` //Absolute/Relative
+	TplData                 string    `xorm:"tpldata"`
+	Description             string    `xorm:"description"`
+	Modified                time.Time `xorm:"modified"`
+	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 }
 
 // OutHTTPCfg Alert Destination HTTP based backends config
@@ -203,7 +207,9 @@ type AlertIDCfg struct {
 	//Where to deploy this rule
 	KapacitorID string `xorm:"kapacitorid" binding:"Required"`
 
-	OutHTTP []string `xorm:"-"` //relation between alertIDcfgs
+	OutHTTP                 []string  `xorm:"-"` //relation between alertIDcfgs
+	Modified                time.Time `xorm:"modified"`
+	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
