@@ -55,7 +55,19 @@
             <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <input formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc" />
+              <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
+                <option value="NONE" selected="selected">NONE</option>
+                <option value="LAST">LAST</option>
+                <option value="MAX">MAX</option>
+                <option value="MEAN">MEAN</option>
+                <option value="MEDIAN">MEDIAN</option>
+                <option value="MIN">MIN</option>
+                <option value="MOVAVG">MOVAVG</option>
+                <option value="PERCENTILE">PERCENTILE</option>
+                <option value="SPREAD">SPREAD</option>
+                <option value="STDDEV">STDDEV</option>
+                <option value="SUM">SUM</option>
+              </select>
               <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
             </div>
           </div>
