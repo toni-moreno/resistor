@@ -47,7 +47,7 @@ func GetTemplate(ctx *Context) {
 
 // AddTemplate Inserts new template into the internal DB and into the kapacitor servers
 func AddTemplate(ctx *Context, dev config.TemplateCfg) {
-	dev.Modified = time.Now()
+	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
 	kapaserversarray, err := GetKapaServers("")
 	if err != nil {
@@ -71,7 +71,7 @@ func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 
 // UpdateTemplate Updates template into the internal DB and into the kapacitor servers
 func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
-	dev.Modified = time.Now()
+	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
 	kapaserversarray, err := GetKapaServers("")
 	if err != nil {

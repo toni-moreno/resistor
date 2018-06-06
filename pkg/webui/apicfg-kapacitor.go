@@ -219,7 +219,7 @@ func GetKapaTemplates(tplcfgarray []*config.TemplateCfg, devcfgarray []*config.K
 //     - the number of kapacitor servers where the template is     deployed with the last version
 //     - the list   of kapacitor servers where the template is NOT deployed with the last version
 func GetKapaTemplate(dev *config.TemplateCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string) {
-	log.Debugf("GetKapaTemplate. Trying to get template with id: %s. Modified: %+v", dev.ID, dev.Modified)
+	log.Debugf("GetKapaTemplate. Trying to get template with id: %s. Modified (UTC): %+v", dev.ID, dev.Modified.UTC())
 	iNumKapaServers := len(devcfgarray)
 	iNumLastDeployed := 0
 	sKapaSrvsNotOK := make([]string, 0)
@@ -243,9 +243,9 @@ func GetKapaTemplate(dev *config.TemplateCfg, devcfgarray []*config.KapacitorCfg
 				log.Debugf("Kapacitor template %s not found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 				sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 			} else {
-				log.Debugf("Kapacitor template %s found into kapacitor server %s. Modified: %+v.", dev.ID, kapaServerCfg.ID, t.Modified)
+				log.Debugf("Kapacitor template %s found into kapacitor server %s. Modified (UTC): %+v.", dev.ID, kapaServerCfg.ID, t.Modified.UTC())
 				d, _ := time.ParseDuration("10s")
-				if math.Abs(dev.Modified.Sub(t.Modified).Seconds()) > d.Seconds() {
+				if math.Abs(dev.Modified.UTC().Sub(t.Modified.UTC()).Seconds()) > d.Seconds() {
 					log.Debugf("GetKapaTemplate. Difference between update moments greater than 10s.")
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {
@@ -402,7 +402,7 @@ func GetKapaTasks(tplcfgarray []*config.AlertIDCfg, devcfgarray []*config.Kapaci
 //     - the number of kapacitor servers where the task is     deployed with the last version
 //     - the list   of kapacitor servers where the task is NOT deployed with the last version
 func GetKapaTask(dev *config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string) {
-	log.Debugf("GetKapaTask. Trying to get task with id: %s. Modified: %+v", dev.ID, dev.Modified)
+	log.Debugf("GetKapaTask. Trying to get task with id: %s. Modified (UTC): %+v", dev.ID, dev.Modified.UTC())
 	iNumKapaServers := len(devcfgarray)
 	iNumLastDeployed := 0
 	sKapaSrvsNotOK := make([]string, 0)
@@ -426,9 +426,9 @@ func GetKapaTask(dev *config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (in
 				log.Debugf("Kapacitor task %s not found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 				sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 			} else {
-				log.Debugf("Kapacitor task %s found into kapacitor server %s. Modified: %+v.", dev.ID, kapaServerCfg.ID, t.Modified)
+				log.Debugf("Kapacitor task %s found into kapacitor server %s. Modified (UTC): %+v.", dev.ID, kapaServerCfg.ID, t.Modified.UTC())
 				d, _ := time.ParseDuration("10s")
-				if math.Abs(t.Modified.Sub(dev.Modified).Seconds()) > d.Seconds() {
+				if math.Abs(t.Modified.UTC().Sub(dev.Modified.UTC()).Seconds()) > d.Seconds() {
 					log.Debugf("GetKapaTask. Difference between update moments greater than 10s.")
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {

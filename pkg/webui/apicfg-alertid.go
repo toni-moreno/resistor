@@ -47,7 +47,7 @@ func GetAlertID(ctx *Context) {
 
 // AddAlertID Inserts new alert into the internal DB and into the kapacitor servers
 func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
-	dev.Modified = time.Now()
+	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
 	kapaserversarray, err := GetKapaServers(dev.KapacitorID)
 	if err != nil {
@@ -71,7 +71,7 @@ func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 
 // UpdateAlertID Updates alert into the internal DB and into the kapacitor servers
 func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
-	dev.Modified = time.Now()
+	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
 	kapaserversarray, err := GetKapaServers(dev.KapacitorID)
 	if err != nil {
