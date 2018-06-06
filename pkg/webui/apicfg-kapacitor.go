@@ -481,7 +481,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			if t.ID == "" {
 				_, err := kapaClient.CreateTask(kapacitorClient.CreateTaskOptions{
 					ID:         dev.ID,
-					TemplateID: "UMBRAL_2EX_CC_UA_FMOVAVG",
+					TemplateID: getTemplateID(dev),
 					Type:       taskType,
 					DBRPs:      DBRPs,
 					Vars:       vars,
@@ -498,7 +498,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			} else {
 				_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
 					ID:         dev.ID,
-					TemplateID: "UMBRAL_2EX_CC_UA_FMOVAVG",
+					TemplateID: getTemplateID(dev),
 					Type:       taskType,
 					DBRPs:      DBRPs,
 					Vars:       vars,
@@ -517,6 +517,52 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 	}
 	log.Debugf("SetKapaTask. END.")
 	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK
+}
+
+// getTemplateID Gets TemplateID
+// example: "UMBRAL_2EX_CC_UA_FMOVAVG"
+// TrigerTypeTranslated + _2EX_ + CritDirection + _ + ThresholdTypeTranslated + _F + StatFunc
+func getTemplateID(dev config.AlertIDCfg) string {
+	sRet := "DEADMAN"
+	if dev.TrigerType != "DEADMAN" {
+		sTriggerType := translateTriggerType(dev.TrigerType)
+		sThresholdType := translateThresholdType(dev.TrigerType, dev.ThresholdType)
+		sRet = fmt.Sprintf("%s_2EX_%s_%s_F%s", sTriggerType, dev.CritDirection, sThresholdType, dev.StatFunc)
+	}
+	log.Debugf("getTemplateID. %s.", sRet)
+	return sRet
+}
+
+// translateTriggerType Translates TriggerType
+func translateTriggerType(sTriggerType string) string {
+	sRet := sTriggerType
+	switch sTriggerType {
+	case "THRESHOLD":
+		sRet = "UMBRAL"
+	case "TREND":
+		sRet = "TENDENCIA"
+	default:
+		sRet = "DEADMAN"
+	}
+	log.Debugf("translateTriggerType. TriggerType: %s. Returns: %s.", sTriggerType, sRet)
+	return sRet
+}
+
+// translateThresholdType Translates ThresholdType
+func translateThresholdType(sTriggerType string, sThresholdType string) string {
+	sRet := sThresholdType
+	if sThresholdType == "relative" {
+		// only for TREND
+		sRet = "TR"
+	} else { // absolute
+		if sTriggerType == "TREND" {
+			sRet = "TA"
+		} else {
+			sRet = "UA"
+		}
+	}
+	log.Debugf("translateThresholdType. TriggerType: %s, ThresholdType: %s. Returns: %s.", sTriggerType, sThresholdType, sRet)
+	return sRet
 }
 
 // setKapaTaskVars Creates Vars for the Kapacitor task
@@ -554,21 +600,28 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["TH_CRIT_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritDef}
 	vars["TH_CRIT_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx1}
 	vars["TH_CRIT_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx2}
-	min, max := getRangeTimeHours(dev.ThCritRangeTimeID)
-	vars["TH_CRIT_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
-	vars["TH_CRIT_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	min, max := 0, 23
+	if len(dev.ThCritRangeTimeID) > 0 {
+		min, max = getRangeTimeHours(dev.ThCritRangeTimeID)
+		vars["TH_CRIT_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
+		vars["TH_CRIT_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	}
 	vars["TH_WARN_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnDef}
 	vars["TH_WARN_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx1}
 	vars["TH_WARN_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx2}
-	min, max = getRangeTimeHours(dev.ThWarnRangeTimeID)
-	vars["TH_WARN_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
-	vars["TH_WARN_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	if len(dev.ThWarnRangeTimeID) > 0 {
+		min, max = getRangeTimeHours(dev.ThWarnRangeTimeID)
+		vars["TH_WARN_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
+		vars["TH_WARN_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	}
 	vars["TH_INFO_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoDef}
 	vars["TH_INFO_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx1}
 	vars["TH_INFO_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx2}
-	min, max = getRangeTimeHours(dev.ThInfoRangeTimeID)
-	vars["TH_INFO_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
-	vars["TH_INFO_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	if len(dev.ThInfoRangeTimeID) > 0 {
+		min, max = getRangeTimeHours(dev.ThInfoRangeTimeID)
+		vars["TH_INFO_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
+		vars["TH_INFO_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	}
 	//Extra Settings
 	vars["GRAFANA_SERVER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GrafanaServer}
 	vars["GRAFANA_DASH_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GrafanaDashLabel}
