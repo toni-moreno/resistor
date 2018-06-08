@@ -156,6 +156,7 @@ export class AlertComponent implements OnInit {
       controlArray.push({'ID': 'ThInfoRangeTimeID', 'defVal' : '', 'Validators' : Validators.required });
       break;
       case 'TREND':
+      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.required });
