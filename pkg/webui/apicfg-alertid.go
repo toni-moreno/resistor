@@ -1,6 +1,7 @@
 package webui
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-macaron/binding"
@@ -108,23 +109,25 @@ func DeleteAlertID(ctx *Context) {
 	if len(sKapaSrvsNotOK) == 0 {
 		affected, err := agent.MainConfig.Database.DelAlertIDCfg(id)
 		if err != nil {
-			log.Warningf("Error on deleting for alert %s  , affected : %+v , error: %s", id, affected, err)
+			log.Warningf("Error deleting alert %s, affected: %+v, error: %s", id, affected, err)
 			ctx.JSON(404, err.Error())
 		} else {
 			ctx.JSON(200, "deleted")
 		}
 	} else {
-		log.Warningf("Error on deleting for alert %s", id)
-		ctx.JSON(404, "Error on deleting for alert. Not deleted for all kapacitor servers.")
+		log.Warningf("Error deleting alert %s. It can't be deleted for kapacitor servers: %+v", id, sKapaSrvsNotOK)
+		ctx.JSON(404, fmt.Sprintf("Error deleting alert %s. It can't be deleted for kapacitor servers: %+v", id, sKapaSrvsNotOK))
 	}
 }
 
-//GetAlertIDCfgByID --pending--
+//GetAlertIDCfgByID Gets AlertIDCfg By ID from resistor database
+//and checks if the corresponding kapacitor task is deployed on all kapacitor servers.
+//Returns the information of the process with a JSON in context
 func GetAlertIDCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetAlertIDCfgByID(id)
 	if err != nil {
-		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
+		log.Warningf("Error getting alert with id: %s. Error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		kapaserversarray, err := GetKapaServers("")
@@ -136,6 +139,42 @@ func GetAlertIDCfgByID(ctx *Context) {
 		}
 		ctx.JSON(200, &dev)
 	}
+}
+
+//GetAlertIDCfgByTemplate Gets an array of strings with the IDs of the Alerts where this template is used.
+//The input parameters are the 4 fields needed to define a template.
+func GetAlertIDCfgByTemplate(sTriggerType string, sCritDirection string, sThresholdType string, sStatFunc string) ([]string, error) {
+	filter := fmt.Sprintf("trigertype = '%s'", sTriggerType)
+	if sTriggerType != "DEADMAN" {
+		if len(sCritDirection) > 0 {
+			filter += fmt.Sprintf(" and critdirection = '%s'", sCritDirection)
+		}
+		if len(sThresholdType) > 0 {
+			filter += fmt.Sprintf(" and thresholdtype = '%s'", sThresholdType)
+		}
+		if len(sStatFunc) > 0 {
+			filter += fmt.Sprintf(" and statfunc = '%s'", sStatFunc)
+		}
+	}
+	log.Debugf("GetAlertIDCfgByTemplate. Getting alerts with filter: %s.", filter)
+	devcfgarray, err := agent.MainConfig.Database.GetAlertIDCfgArray(filter)
+	idarray := make([]string, 0)
+	if err != nil {
+		log.Errorf("GetAlertIDCfgByTemplate. Error getting alerts with filter: %s. Error: %+s.", filter, err)
+	} else {
+		idarray = getAlertCfgIDArray(devcfgarray)
+		log.Debugf("GetAlertIDCfgByTemplate. Filter: %s. Alerts: %+v.", filter, idarray)
+	}
+	return idarray, err
+}
+
+func getAlertCfgIDArray(devcfgarray []*config.AlertIDCfg) []string {
+	idarray := make([]string, 0)
+	for i := 0; i < len(devcfgarray); i++ {
+		cfg := devcfgarray[i]
+		idarray = append(idarray, cfg.ID)
+	}
+	return idarray
 }
 
 //GetAlertIDAffectOnDel --pending--
