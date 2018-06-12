@@ -92,7 +92,7 @@ export class TemplateComponent implements OnInit {
       case 'THRESHOLD':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       case 'TREND':
-      controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       break;
