@@ -20,6 +20,12 @@ export class TemplateService {
 
     }
 
+    deployTemplateItem(dev) {
+        return this.http.post('/api/cfg/template/deploy',JSON.stringify(dev,this.jsonParser))
+        .map( (responseData) => responseData.json());
+
+    }
+
     editTemplateItem(dev, id) {
         return this.http.put('/api/cfg/template/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
