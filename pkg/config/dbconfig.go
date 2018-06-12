@@ -173,8 +173,8 @@ type AlertIDCfg struct {
 	IntervalCheck     string `xorm:"intervalcheck" binding:"Required"`
 	OperationID       string `xorm:"operationid"`
 	Field             string `xorm:"field" binding:"Required"`
-	StatFunc          string `xorm:"statfunc" binding:"Required"`
-	CritDirection     string `xorm:"critdirection" binding:"Required"`
+	StatFunc          string `xorm:"statfunc"`
+	CritDirection     string `xorm:"critdirection"`
 	Shift             int64  `xorm:"shift"`
 	ThresholdType     string `xorm:"thresholdtype"` //Absolute/Relative
 	//thresholds
