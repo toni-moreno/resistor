@@ -20,6 +20,12 @@ export class AlertService {
 
     }
 
+    deployAlertItem(dev) {
+        return this.http.post('/api/cfg/alertid/deploy',JSON.stringify(dev,this.jsonParser))
+        .map( (responseData) => responseData.json());
+
+    }
+
     editAlertItem(dev, id) {
         return this.http.put('/api/cfg/alertid/'+id,JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());

@@ -74,7 +74,7 @@ export class NgTableComponent {
   public constructor(private sanitizer: DomSanitizer) {
   }
 
-  public sanitize(html: string, transform?: any ): SafeHtml {
+  public sanitize(html: any, transform?: any ): SafeHtml {
 
     let output: string
     if (typeof this.sanitizeCell === "function" ) {

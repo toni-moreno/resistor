@@ -143,6 +143,9 @@ export class TemplateComponent implements OnInit {
       case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
+      case 'deploy':
+        this.deployItem(action.event);
+      break;
     }
   }
 
@@ -255,6 +258,16 @@ export class TemplateComponent implements OnInit {
         );
     }
   }
+
+  deployItem(row) {
+    this.templateService.deployTemplateItem(row)
+    .subscribe(data => { console.log(data) },
+    err => {
+      console.log(err);
+    },
+    () => { this.editmode = "list"; this.reloadData() }
+    );
+}
 
   updateAllSelectedItems(mySelectedArray,field,value, append?) {
     let obsArray = [];

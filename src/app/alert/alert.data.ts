@@ -52,4 +52,5 @@ export const AlertComponentConfig: any =
     {'name':'view', 'type':'icon', 'icon' : 'glyphicon glyphicon-eye-open text-success', 'tooltip': 'View item'},
     {'name':'edit', 'type':'icon', 'icon' : 'glyphicon glyphicon-edit text-warning', 'tooltip': 'Edit item'},
     {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'},
+    {'name':'deploy', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-play text-warning', 'tooltip': 'Deploy item'},
   ]

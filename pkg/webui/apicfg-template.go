@@ -21,6 +21,7 @@ func NewAPICfgTemplate(m *macaron.Macaron) error {
 		m.Get("/", reqSignedIn, GetTemplate)
 		m.Post("/", reqSignedIn, bind(config.TemplateCfg{}), AddTemplate)
 		m.Put("/:id", reqSignedIn, bind(config.TemplateCfg{}), UpdateTemplate)
+		m.Post("/deploy", reqSignedIn, bind(config.TemplateCfg{}), DeployTemplate)
 		m.Delete("/:id", reqSignedIn, DeleteTemplate)
 		m.Get("/:id", reqSignedIn, GetTemplateCfgByID)
 		m.Get("/checkondel/:id", reqSignedIn, GetTemplateAffectOnDel)
@@ -107,6 +108,31 @@ func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 	} else {
 		//TODO: review if needed return device data
 		ctx.JSON(200, &dev)
+	}
+}
+
+// DeployTemplate Deploys template into the kapacitor servers
+func DeployTemplate(ctx *Context, dev config.TemplateCfg) {
+	if len(dev.ServersWOLastDeployment) > 0 {
+		dev.Modified = time.Now().UTC()
+		sKapaSrvsNotOK := make([]string, 0)
+		kapaserversarray, err := GetKapaServersFromArray(dev.ServersWOLastDeployment)
+		if err != nil {
+			log.Warningf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err)
+			ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err))
+		} else {
+			_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
+			if len(sKapaSrvsNotOK) > 0 {
+				log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK)
+				ctx.JSON(404, fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK))
+			} else {
+				log.Infof("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment)
+				ctx.JSON(200, fmt.Sprintf("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment))
+			}
+		}
+	} else {
+		log.Debugf("Template %s is deployed with the last version on all kapacitor servers.", dev.ID)
+		ctx.JSON(200, fmt.Sprintf("Template %s is deployed with the last version on all kapacitor servers.", dev.ID))
 	}
 }
 

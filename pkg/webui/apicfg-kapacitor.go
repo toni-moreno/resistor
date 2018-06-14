@@ -184,6 +184,24 @@ func GetKapaServers(kapacitorid string) ([]*config.KapacitorCfg, error) {
 	return devcfgarray, err
 }
 
+// GetKapaServersFromArray Gets Kapacitor servers array
+func GetKapaServersFromArray(kapacitoridarray []string) ([]*config.KapacitorCfg, error) {
+	filter := ""
+	if len(kapacitoridarray) > 0 {
+		filter = "id IN ("
+		for _, kapacitorid := range kapacitoridarray {
+			filter += fmt.Sprintf("'%s',", kapacitorid)
+		}
+		filter = filter[:len(filter)-1] + ")"
+	}
+	log.Debugf("Getting Kapacitor Servers with filter: %s.", filter)
+	devcfgarray, err := agent.MainConfig.Database.GetKapacitorCfgArray(filter)
+	if err != nil {
+		log.Errorf("Error on getting Kapacitor Servers :%+s", err)
+	}
+	return devcfgarray, err
+}
+
 // ListKapaTemplate lists a kapacitor template
 func ListKapaTemplate(cli *kapacitorClient.Client, id string) (kapacitorClient.Template, error) {
 	template, err := cli.ListTemplates(&kapacitorClient.ListTemplatesOptions{Pattern: id})
@@ -390,12 +408,12 @@ func ListKapaTasks(cli *kapacitorClient.Client) ([]kapacitorClient.Task, error) 
 	return tasks, nil
 }
 
-// GetKapaTasks Gets tasks from the Kapacitor Servers. Returns true if all actions have been done without error, false elsewhere.
-func GetKapaTasks(tplcfgarray []*config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) bool {
+// GetKapaTasks Gets tasks from the Kapacitor Server related. Returns true if all actions have been done without error, false elsewhere.
+func GetKapaTasks(tplcfgarray []*config.AlertIDCfg) bool {
 	log.Debugf("GetKapaTasks. INIT.")
 	allGetsOK := true
 	for _, dev := range tplcfgarray {
-		_, _, sKapaSrvsNotOK := GetKapaTask(dev, devcfgarray)
+		_, _, sKapaSrvsNotOK := GetKapaTask(dev)
 		dev.ServersWOLastDeployment = sKapaSrvsNotOK
 		if len(sKapaSrvsNotOK) > 0 {
 			allGetsOK = false
@@ -405,49 +423,55 @@ func GetKapaTasks(tplcfgarray []*config.AlertIDCfg, devcfgarray []*config.Kapaci
 	return allGetsOK
 }
 
-// GetKapaTask Gets task from the Kapacitor Servers.
+// GetKapaTask Gets task from the Kapacitor Server related to this alert.
 // Returns:
 //     - the number of kapacitor servers
 //     - the number of kapacitor servers where the task is     deployed with the last version
 //     - the list   of kapacitor servers where the task is NOT deployed with the last version
-func GetKapaTask(dev *config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string) {
+func GetKapaTask(dev *config.AlertIDCfg) (int, int, []string) {
 	log.Debugf("GetKapaTask. Trying to get task with id: %s. Modified (UTC): %+v", dev.ID, dev.Modified.UTC())
-	iNumKapaServers := len(devcfgarray)
+	iNumKapaServers := 0
 	iNumLastDeployed := 0
 	sKapaSrvsNotOK := make([]string, 0)
-
-	// For each Kapacitor server
-	// Get Kapacitor Server Config by Kapacitor Server ID
-	// Get Kapacitor Go Client by Kapacitor Server Config
-	// Get link to kapacitor task
-	// Get task from Kapacitor server
-	for i := 0; i < len(devcfgarray); i++ {
-		kapaServerCfg := devcfgarray[i]
-		log.Debugf("Kapacitor Server ID, URL: %+s, %s", kapaServerCfg.ID, kapaServerCfg.URL)
-		kapaClient, _, _, err := GetKapaClient(*kapaServerCfg)
-		if err != nil {
-			log.Errorf("Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
-			sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
-		} else {
-			l := kapaClient.TaskLink(dev.ID)
-			t, _ := kapaClient.Task(l, nil)
-			if t.ID == "" {
-				log.Debugf("Kapacitor task %s not found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
+	devcfgarray, err := GetKapaServers(dev.KapacitorID)
+	if err != nil {
+		log.Warningf("Error getting kapacitor server for alert: %s. Error: %+s", dev.ID, err)
+	} else {
+		iNumKapaServers = len(devcfgarray)
+		// For each Kapacitor server
+		// Get Kapacitor Server Config by Kapacitor Server ID
+		// Get Kapacitor Go Client by Kapacitor Server Config
+		// Get link to kapacitor task
+		// Get task from Kapacitor server
+		for i := 0; i < len(devcfgarray); i++ {
+			kapaServerCfg := devcfgarray[i]
+			log.Debugf("Kapacitor Server ID, URL: %+s, %s", kapaServerCfg.ID, kapaServerCfg.URL)
+			kapaClient, _, _, err := GetKapaClient(*kapaServerCfg)
+			if err != nil {
+				log.Errorf("Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
 				sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 			} else {
-				log.Debugf("Kapacitor task %s found into kapacitor server %s. Modified (UTC): %+v.", dev.ID, kapaServerCfg.ID, t.Modified.UTC())
-				d, _ := time.ParseDuration("10s")
-				diff := math.Abs(t.Modified.UTC().Sub(dev.Modified.UTC()).Seconds())
-				if diff > d.Seconds() {
-					log.Debugf("GetKapaTask. Difference between update moments %.3f s greater than 10 s.", diff)
+				l := kapaClient.TaskLink(dev.ID)
+				t, _ := kapaClient.Task(l, nil)
+				if t.ID == "" {
+					log.Debugf("Kapacitor task %s not found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {
-					log.Debugf("GetKapaTask. Difference between update moments %.3f s lower than 10 s.", diff)
-					iNumLastDeployed++
+					log.Debugf("Kapacitor task %s found into kapacitor server %s. Modified (UTC): %+v.", dev.ID, kapaServerCfg.ID, t.Modified.UTC())
+					d, _ := time.ParseDuration("10s")
+					diff := math.Abs(t.Modified.UTC().Sub(dev.Modified.UTC()).Seconds())
+					if diff > d.Seconds() {
+						log.Debugf("GetKapaTask. Difference between update moments %.3f s greater than 10 s.", diff)
+						sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
+					} else {
+						log.Debugf("GetKapaTask. Difference between update moments %.3f s lower than 10 s.", diff)
+						iNumLastDeployed++
+					}
 				}
 			}
 		}
 	}
+
 	log.Debugf("GetKapaTask. END.")
 	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK
 }

@@ -233,6 +233,9 @@ export class AlertComponent implements OnInit {
       case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
+      case 'deploy':
+        this.deployItem(action.event);
+      break;
     }
   }
 
@@ -355,6 +358,16 @@ export class AlertComponent implements OnInit {
         () => { this.editmode = "list"; this.reloadData() }
         );
     }
+  }
+
+  deployItem(row) {
+    this.alertService.deployAlertItem(row)
+    .subscribe(data => { console.log(data) },
+    err => {
+      console.log(err);
+    },
+    () => { this.editmode = "list"; this.reloadData() }
+    );
   }
 
   updateAllSelectedItems(mySelectedArray,field,value, append?) {
