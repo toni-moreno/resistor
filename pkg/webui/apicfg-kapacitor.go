@@ -264,7 +264,12 @@ func GetKapaTemplate(dev *config.TemplateCfg, devcfgarray []*config.KapacitorCfg
 			sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 		} else {
 			l := kapaClient.TemplateLink(dev.ID)
-			t, _ := kapaClient.Template(l, nil)
+			t, err := kapaClient.Template(l, nil)
+			if err != nil {
+				log.Errorf("Error getting Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+			} else {
+				log.Debugf("Kapacitor template %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
+			}
 			if t.ID == "" {
 				log.Debugf("Kapacitor template %s not found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 				sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
@@ -313,7 +318,12 @@ func SetKapaTemplate(dev config.TemplateCfg, devcfgarray []*config.KapacitorCfg)
 			sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 		} else {
 			l := kapaClient.TemplateLink(dev.ID)
-			t, _ := kapaClient.Template(l, nil)
+			t, err := kapaClient.Template(l, nil)
+			if err != nil {
+				log.Errorf("Error getting Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+			} else {
+				log.Debugf("Kapacitor template %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
+			}
 			if t.ID == "" {
 				_, err := kapaClient.CreateTemplate(kapacitorClient.CreateTemplateOptions{
 					ID:         dev.ID,
@@ -452,7 +462,12 @@ func GetKapaTask(dev *config.AlertIDCfg) (int, int, []string) {
 				sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 			} else {
 				l := kapaClient.TaskLink(dev.ID)
-				t, _ := kapaClient.Task(l, nil)
+				t, err := kapaClient.Task(l, nil)
+				if err != nil {
+					log.Errorf("Error getting Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+				} else {
+					log.Debugf("Kapacitor task %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
+				}
 				if t.ID == "" {
 					log.Debugf("Kapacitor task %s not found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
@@ -502,8 +517,8 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 		} else {
 			//Getting DBRPs
 			DBRPs := make([]kapacitorClient.DBRP, 1)
-			DBRPs[0].Database = agent.MainConfig.Influxdb.DB
-			DBRPs[0].RetentionPolicy = agent.MainConfig.Influxdb.Retention
+			DBRPs[0].Database = getIfxDBNameByID(dev.InfluxDB)
+			DBRPs[0].RetentionPolicy = dev.InfluxRP
 
 			taskType := kapacitorClient.StreamTask
 
@@ -524,7 +539,12 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {
 					l := kapaClient.TaskLink(dev.ID)
-					t, _ := kapaClient.Task(l, nil)
+					t, err := kapaClient.Task(l, nil)
+					if err != nil {
+						log.Errorf("Error getting Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+					} else {
+						log.Debugf("Kapacitor task %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
+					}
 					if t.ID == "" {
 						_, err := kapaClient.CreateTask(kapacitorClient.CreateTaskOptions{
 							ID:         dev.ID,
@@ -532,7 +552,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							Type:       taskType,
 							DBRPs:      DBRPs,
 							Vars:       vars,
-							Status:     kapacitorClient.Disabled,
+							Status:     kapacitorClient.Enabled,
 							//TICKscript: dev.TplData,
 						})
 						if err != nil {
@@ -549,7 +569,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							Type:       taskType,
 							DBRPs:      DBRPs,
 							Vars:       vars,
-							Status:     kapacitorClient.Disabled,
+							Status:     kapacitorClient.Enabled,
 							//TICKscript: dev.TplData,
 						})
 						if err != nil {
@@ -767,7 +787,12 @@ func DeleteKapaTask(id string, devcfgarray []*config.KapacitorCfg) (int, int, []
 			sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 		} else {
 			l := kapaClient.TaskLink(id)
-			t, _ := kapaClient.Task(l, nil)
+			t, err := kapaClient.Task(l, nil)
+			if err != nil {
+				log.Errorf("Error getting Kapacitor Task %s for kapacitor server %s. Error: %+s", id, kapaServerCfg.ID, err)
+			} else {
+				log.Debugf("Kapacitor task %s found into kapacitor server %s.", id, kapaServerCfg.ID)
+			}
 			if t.ID == "" {
 				log.Debugf("Kapacitor task %s does not exist on kapacitor server %s.", id, kapaServerCfg.ID)
 			} else {

@@ -205,7 +205,7 @@ export class TemplateComponent implements OnInit {
   newItem() {
     //Check for subhidden fields
     if (this.sampleComponentForm) {
-      this.setDynamicFields(this.sampleComponentForm.value.TigerType);
+      this.setDynamicFields(this.sampleComponentForm.value.TrigerType);
     } else {
       this.setDynamicFields(null);
     }
@@ -219,7 +219,7 @@ export class TemplateComponent implements OnInit {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
-        this.setDynamicFields(row.T);
+        this.setDynamicFields(data.TrigerType);
         this.editmode = "modify";
       },
       err => console.error(err)
