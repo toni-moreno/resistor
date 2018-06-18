@@ -300,7 +300,7 @@ export class AlertComponent implements OnInit {
     this.getKapacitorItem();
     this.getIfxDBItem();
     if (this.sampleComponentForm) {
-      this.setDynamicFields(this.sampleComponentForm.value.TigerType);
+      this.setDynamicFields(this.sampleComponentForm.value.TrigerType);
     } else {
       this.setDynamicFields(null);
     }
@@ -319,7 +319,7 @@ export class AlertComponent implements OnInit {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
-        this.setDynamicFields(row.TigerType);
+        this.setDynamicFields(data.TrigerType);
 
         this.editmode = "modify";
       },
