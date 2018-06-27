@@ -32,9 +32,17 @@
       <div class="form-fixed-height">
         <div class="well well-sm">
           <span class="editsection">Core Device Settings</span>
+          <div class="form-group" style="margin-top: 25px" hidden>
+            <label class="control-label col-sm-2" for="ID">ID</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier for the Device Stat"></i>
+            <div class="col-sm-9">
+              <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
+              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+            </div>
+          </div>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="Order">Order</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Order for application of rules"></i>
             <div class="col-sm-9">
               <input type="number" formControlName="Order" id="Order" [ngModel]="sampleComponentForm.value.Order" />
               <control-messages [control]="sampleComponentForm.controls.Order"></control-messages>
@@ -42,7 +50,7 @@
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="DeviceID">DeviceID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Id of the Device or * for generic rules."></i>
             <div class="col-sm-9">
               <input formControlName="DeviceID" id="DeviceID" [ngModel]="sampleComponentForm.value.DeviceID" />
               <control-messages [control]="sampleComponentForm.controls.DeviceID"></control-messages>
@@ -50,7 +58,7 @@
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="AlertID">AlertID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="AlertID with format line-product-productgroup-nnn. Regular expressions accepted."></i>
             <div class="col-sm-9">
               <input formControlName="AlertID" id="AlertID" [ngModel]="sampleComponentForm.value.AlertID" />
               <control-messages [control]="sampleComponentForm.controls.AlertID"></control-messages>
@@ -60,7 +68,7 @@
             <label class="control-label col-sm-2" for="ProductID">ProductID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
             <div class="col-sm-9">
-              <input formControlName="ProductID" id="ProductID" [ngModel]="sampleComponentForm.value.ProductID" />
+              <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
             </div>
           </div>
@@ -101,7 +109,7 @@
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="FilterTagValue">FilterTagValue</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Value of the tag. Regular expressions accepted."></i>
             <div class="col-sm-9">
               <input formControlName="FilterTagValue" id="FilterTagValue" [ngModel]="sampleComponentForm.value.FilterTagValue" />
               <control-messages [control]="sampleComponentForm.controls.FilterTagValue"></control-messages>

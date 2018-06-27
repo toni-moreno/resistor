@@ -1,13 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"flag"
 	"fmt"
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -15,10 +15,20 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
 	"github.com/influxdata/kapacitor/udf/agent"
 	"github.com/spf13/viper"
+	"github.com/toni-moreno/resistor/pkg/config"
 )
 
+/*
+*
+*
+*
+ */
+
+//GeneralConfig --pending comment--
 type GeneralConfig struct {
 	InstanceID string `toml:"instanceID"`
 	LogDir     string `toml:"logdir"`
@@ -27,27 +37,31 @@ type GeneralConfig struct {
 	LogLevel   string `toml:"loglevel"`
 }
 
+//DatabaseCfg --pending comment--
 type DatabaseCfg struct {
-	/*Type       string        `toml:"type"`
-	Host       string        `toml:"host"`
-	Name       string        `toml:"name"`
-	User       string        `toml:"user"`
-	Password   string        `toml:"password"`
-	SQLLogFile string        `toml:"sqllogfile"`
-	Debug      string        `toml:"debug"`*/
-	Path   string        `toml:"path"`
-	Period time.Duration `toml:"period"`
+	Type       string `toml:"type"`
+	Host       string `toml:"host"`
+	Name       string `toml:"name"`
+	User       string `toml:"user"`
+	Password   string `toml:"password"`
+	SQLLogFile string `toml:"sqllogfile"`
+	Debug      string `toml:"debug"`
+	x          *xorm.Engine
+	Path       string        `toml:"path"`
+	Period     time.Duration `toml:"period"`
 }
 
+//DeviceMonStat --pending comment--
 type DeviceMonStat struct {
-	alertId           string
-	monExc            int64
-	monActive         bool
-	monLinia          string
-	monFilterTagKey   string
-	monFilterTagValue string
+	AlertID        string
+	Exception      int64
+	Active         bool
+	BaseLine       string
+	FilterTagKey   string
+	FilterTagValue string
 }
 
+//Config --pending comment--
 type Config struct {
 	General  GeneralConfig
 	Database DatabaseCfg
@@ -64,10 +78,12 @@ var (
 	// now load up config settings
 	homeDir string
 	pidFile string
-	DevDB   map[string][]DeviceMonStat
-	mutex   sync.RWMutex
+	//DevDB --pending comment--
+	DevDB map[string][]config.DeviceStatCfg
+	mutex sync.RWMutex
 )
 
+//init Reads configuration file
 func init() {
 	//Log format
 	customFormatter := new(logrus.TextFormatter)
@@ -113,6 +129,53 @@ func init() {
 		homeDir = cfg.General.HomeDir
 	}
 
+	//Initialize the DB configuration
+	cfg.Database.InitDB()
+
+}
+
+//InitDB initialize the DB configuration
+func (dbc *DatabaseCfg) InitDB() {
+	// Create ORM engine and database
+	var err error
+	var dbtype string
+	var datasource string
+
+	log.Debugf("Database config: %+v", dbc)
+
+	switch dbc.Type {
+	case "sqlite3":
+		dbtype = "sqlite3"
+		datasource = dataDir + "/" + dbc.Name + ".db"
+	case "mysql":
+		dbtype = "mysql"
+		protocol := "tcp"
+		if strings.HasPrefix(dbc.Host, "/") {
+			protocol = "unix"
+		}
+		datasource = fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8", dbc.User, dbc.Password, protocol, dbc.Host, dbc.Name)
+
+	default:
+		log.Errorf("unknown db type %s", dbc.Type)
+		return
+	}
+
+	dbc.x, err = xorm.NewEngine(dbtype, datasource)
+	if err != nil {
+		log.Fatalf("Fail to create engine: %v\n", err)
+	}
+
+	if len(dbc.SQLLogFile) != 0 {
+		dbc.x.ShowSQL(true)
+		f, err := os.Create(logDir + "/" + dbc.SQLLogFile)
+		if err != nil {
+			log.Errorf("Fail to create log file: %s.", err)
+		}
+		dbc.x.SetLogger(xorm.NewSimpleLogger(f))
+	}
+	if dbc.Debug == "true" {
+		dbc.x.Logger().SetLevel(core.LOG_DEBUG)
+	}
 }
 
 // resInjector
@@ -122,14 +185,13 @@ func init() {
 //        .setLine(Line)
 //        .timeCrit(weekdays,hourmin,hourmax) => check_crit (true/false)
 //        .timeWarn(weekdays,hourmin,hourmax) => check_warn (true/false)
-//        .timeInfo(wekdays,hourmin,hourmax)  => check_info (true/false)
-// 				.injectAsTag()
-// 	Generates as a booleager/intee Fields or tags the folowinga data
-// 			mon exc = integer
+//        .timeInfo(weekdays,hourmin,hourmax) => check_info (true/false)
+// 		  .injectAsTag()
+// 	Generates as boolean/integer Fields or tags with the following data
+// 			mon_exc = integer
 // 			check_crit = true/false
-//      check_warn = true/false
-// 		, check_info = true/false
-//
+//      	check_warn = true/false
+// 			check_info = true/false
 
 type resInjectorHandler struct {
 	agent       *agent.Agent
@@ -170,7 +232,22 @@ func (*resInjectorHandler) Info() (*agent.InfoResponse, error) {
 	return info, nil
 }
 
-// Initialze the handler based of the provided options.
+// Init Initialize the handler based of the provided options.
+// required options
+// alertId string
+// searchByTag string
+// default values if options are not provided
+// m.critHmax = 23
+// m.warnHmax = 23
+// m.infoHmax = 23
+// m.critHmin = 0
+// m.warnHmin = 0
+// m.infoHmin = 0
+// m.critWeekDay = "0123456" //all days
+// m.warnWeekDay = "0123456" //all days
+// m.infoWeekDay = "0123456" //all days
+// m.line = "LB"
+// m.injectAsTag = false
 func (m *resInjectorHandler) Init(r *agent.InitRequest) (*agent.InitResponse, error) {
 	init := &agent.InitResponse{
 		Success: true,
@@ -189,7 +266,7 @@ func (m *resInjectorHandler) Init(r *agent.InitRequest) (*agent.InitResponse, er
 	m.line = "LB"
 
 	for _, opt := range r.Options {
-		log.Infof("Iniciando opciones: %+v", opt)
+		log.Infof("Init options: %+v", opt)
 		switch opt.Name {
 		case "alertId":
 			m.alertId = opt.Values[0].Value.(*agent.OptionValue_StringValue).StringValue
@@ -222,7 +299,7 @@ func (m *resInjectorHandler) Init(r *agent.InitRequest) (*agent.InitResponse, er
 	}
 	if m.searchByTag == "" {
 		init.Success = false
-		init.Error += " must supply an SearchByTag"
+		init.Error += " must supply SearchByTag"
 		log.Errorf("Error on init: %s", init.Error)
 	}
 	//if not set injectAsTag will be false by default
@@ -247,34 +324,49 @@ func (*resInjectorHandler) BeginBatch(begin *agent.BeginBatch) error {
 	return errors.New("batching not supported")
 }
 
-func (m *resInjectorHandler) ApplyRules(deviceid string, rules []DeviceMonStat, p *agent.Point, critok bool, warnok bool, infook bool) {
-	for _, r := range rules {
-		if r.alertId == m.alertId {
+// ApplyRules Apply Rules from DB to received point
+// adding fields or tags to the point with the following data
+// 			mon_exc = integer
+// 			check_crit = true/false
+//      	check_warn = true/false
+// 			check_info = true/false
+func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceStatCfg, p *agent.Point, critok bool, warnok bool, infook bool) {
+	defer timeTrack(time.Now(), "ApplyRules")
+	log.Debugf("Entering ApplyRules with: deviceid: %s. AlertId: %s. rules: %+v. point: %+v.", deviceid, m.alertId, rules, p)
+	for i, r := range rules {
+		log.Debugf("Rule number %d: %+v.", i, r)
+		ruleAlertID := regexp.MustCompile(r.AlertID)
+		if ruleAlertID.MatchString(m.alertId) {
+			log.Debugf("AlertId %s received from kapacitor matches AlertId %s from rules.", m.alertId, r.AlertID)
 			//check if any other tag to apply a filter match
-			if len(r.monFilterTagKey) > 0 && len(r.monFilterTagValue) > 0 {
-				log.Debugf("a new filter (%s/%s)exist checking...", r.monFilterTagKey, r.monFilterTagValue)
+			if len(r.FilterTagKey) > 0 && len(r.FilterTagValue) > 0 {
+				log.Debugf("a new filter (%s=%s) exists. Checking...", r.FilterTagKey, r.FilterTagValue)
 				// a new filter exist and we should check if this point has
-				if tagval, oktag := p.Tags[r.monFilterTagKey]; oktag {
-					//tag exist in this serie
-					if tagval != r.monFilterTagValue {
-						//next iteration => this tags should not apply
-						log.Debugf("Expecting tag value %s and this point has %s", r.monFilterTagValue, tagval)
+				if tagval, oktag := p.Tags[r.FilterTagKey]; oktag {
+					//tag exists in this serie
+					ruleTagValue := regexp.MustCompile(r.FilterTagValue)
+					if !ruleTagValue.MatchString(tagval) {
+						//next iteration => this tag should not be applied
+						log.Debugf("Expecting tag value %s and this point has %s", r.FilterTagValue, tagval)
 						continue
 					} else {
-						log.Debug("Tag Matching OK!!!")
+						log.Debugf("Tag (%s=%s) Matching OK with rule (%s=%s) !!!", r.FilterTagKey, tagval, r.FilterTagKey, r.FilterTagValue)
 					}
 				} else {
 					//tag doesn't exist
-					log.Warnf("There is not expected tag %s in this AlertiD %s  in this point ", r.monFilterTagKey)
+					log.Warnf("There is not expected tag %s in this AlertID %s in this point.", r.FilterTagKey)
 					continue
 				}
 				//in this point filter tag is matching so we will continue with tag injection
 			}
 
 			//"mon_activo" == TRUE AND "mon_exc" >= 0 AND strContains("mon_linea",ID_LINIA), 1, 0)
-			tmpbool := r.monActive && (r.monExc > 0) && strings.Contains(r.monLinia, m.line)
+			// (r.Exception > 0) !!!???  ==>> changed to (r.Exception >= 0)
+			// Pass only DB rules with Active = true ???
+			//tmpbool := r.Active && (r.Exception > 0) && strings.Contains(r.BaseLine, m.line)
+			tmpbool := r.Active && (r.Exception >= 0) && strings.Contains(r.BaseLine, m.line)
 
-			log.Debugf("MONACTIVE: %t | MONEXC : %d | LINIA: %s (%s) | RESULT :%t", r.monActive, r.monExc, r.monLinia, m.line, tmpbool)
+			log.Debugf("Active: %t | Exception : %d | LINE: %s (%s) | RESULT :%t", r.Active, r.Exception, r.BaseLine, m.line, tmpbool)
 			log.Debugf("CRIT : %t", critok)
 			log.Debugf("WARN : %t", warnok)
 			log.Debugf("INFO : %t", infook)
@@ -296,7 +388,7 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []DeviceMonStat, 
 				} else {
 					p.Tags["check_info"] = "0"
 				}
-				p.Tags["mon_exc"] = strconv.FormatInt(r.monExc, 10)
+				p.Tags["mon_exc"] = strconv.FormatInt(r.Exception, 10)
 
 			} else {
 				//inject data as Fields
@@ -306,28 +398,31 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []DeviceMonStat, 
 				}
 				p.FieldsBool["check_crit"] = tmpbool && critok
 				p.FieldsBool["check_warn"] = tmpbool && warnok
-				p.FieldsBool["check_info"] = tmpbool && warnok
+				p.FieldsBool["check_info"] = tmpbool && infook
 
 				if p.FieldsInt == nil {
 					p.FieldsInt = make(map[string]int64)
 				}
-				p.FieldsInt["mon_exc"] = r.monExc
+				p.FieldsInt["mon_exc"] = r.Exception
 			}
 
-			log.Debugf("Applying DATA for device %s | %s (Filter: %s/%s ):  [crit: %t| warn: %t| info : %t | exc: %d]",
+			log.Debugf("Applying DATA for device %s | AlertID: %s, (Filter: %s/%s ):  [crit: %t| warn: %t| info : %t | exc: %d]",
 				deviceid,
-				r.alertId,
-				r.monFilterTagKey,
-				r.monFilterTagValue,
+				r.AlertID,
+				r.FilterTagKey,
+				r.FilterTagValue,
 				tmpbool && critok,
 				tmpbool && warnok,
-				tmpbool && warnok,
-				r.monExc)
+				tmpbool && infook,
+				r.Exception)
+		} else {
+			log.Debugf("AlertId %s received from kapacitor does not match AlertId %s from rules.", m.alertId, r.AlertID)
 		}
 	}
 
 }
 
+//CheckTime Checks if the point has been received in a day and hour that allows sending the alert
 func (m *resInjectorHandler) CheckTime(p *agent.Point) (bool, bool, bool, error) {
 	tm := p.Time
 
@@ -338,7 +433,7 @@ func (m *resInjectorHandler) CheckTime(p *agent.Point) (bool, bool, bool, error)
 	h, _, _ := t.Clock()
 	wd := strconv.Itoa(int(t.Weekday()))
 
-	log.Debugf("Point  Day: %s Hour: %d", wd, h)
+	log.Debugf("Point WeekDay: %s Hour: %d", wd, h)
 
 	critok := (h >= m.critHmin) && (h <= m.critHmax) && strings.Contains(m.critWeekDay, wd)
 	warnok := (h >= m.warnHmin) && (h <= m.warnHmax) && strings.Contains(m.warnWeekDay, wd)
@@ -349,15 +444,18 @@ func (m *resInjectorHandler) CheckTime(p *agent.Point) (bool, bool, bool, error)
 	return critok, warnok, infook, nil
 }
 
+//SetDefault Sets default values on mon_exc, check_crit, check_warn and check_info
+// Why not mon_exc = 0 ???
 func (m *resInjectorHandler) SetDefault(p *agent.Point) {
-	// 			mon exc = integer
-	// 			check_crit = true/false
+	// 		mon exc = integer
+	// 		check_crit = true/false
 	//      check_warn = true/false
-	// 		, check_info = true/false
+	// 		check_info = true/false
 
+	log.Debugf("Entering SetDefault with injectAsTag=%v and Point: %+v", m.injectAsTag, p)
 	if m.injectAsTag {
-		if _, ok := p.Tags["mon_ext"]; !ok {
-			p.Tags["mon_ext"] = "1"
+		if _, ok := p.Tags["mon_exc"]; !ok {
+			p.Tags["mon_exc"] = "0"
 		}
 		if _, ok := p.Tags["check_crit"]; !ok {
 			p.Tags["check_crit"] = "1"
@@ -388,13 +486,16 @@ func (m *resInjectorHandler) SetDefault(p *agent.Point) {
 			p.FieldsInt = make(map[string]int64)
 		}
 		if _, ok := p.FieldsInt["mon_exc"]; !ok {
-			p.FieldsInt["mon_exc"] = 1
+			p.FieldsInt["mon_exc"] = 0
 		}
 	}
+	log.Debugf("Exiting SetDefault with Point: %+v", p)
 }
 
+//Point Sends back the received point if it pass filter rules specified on injectdb
 func (m *resInjectorHandler) Point(p *agent.Point) error {
 	// Send back the point we just received
+	log.Debugf("Receiving POINT with data: %+v", p)
 	critok, warnok, infook, err := m.CheckTime(p)
 	if err != nil {
 		return err
@@ -413,14 +514,14 @@ func (m *resInjectorHandler) Point(p *agent.Point) error {
 		m.ApplyRules(deviceid, rules, p, critok, warnok, infook)
 		//do something here
 	} else {
-		log.Infof("there is not generic rules for device %s  ", deviceid)
+		log.Infof("there are no generic rules for device %s.", deviceid)
 	}
 	//specific rules after
 	if rules, ok := DevDB[deviceid]; ok {
 		m.ApplyRules(deviceid, rules, p, critok, warnok, infook)
 		//do something here
 	} else {
-		log.Infof("there is not info related to the %s device", deviceid)
+		log.Infof("there are no specific rules for device %s.", deviceid)
 	}
 	mutex.RUnlock()
 
@@ -431,7 +532,8 @@ func (m *resInjectorHandler) Point(p *agent.Point) error {
 			Point: p,
 		},
 	}
-	log.Debugf("POINT: %+v", p)
+	log.Debugf("Returning POINT with data: %+v", p)
+
 	return nil
 }
 
@@ -457,83 +559,34 @@ func (acc *accepter) Accept(conn net.Conn) {
 	h := newresInjectorHandler(a)
 	a.Handler = h
 
-	log.Println("Starting agent for connection", count)
+	log.Debugf("Starting agent %d for connection", count)
 	a.Start()
 	go func() {
 		err := a.Wait()
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("Agent for connection %d finished", count)
+		log.Debugf("Agent for connection %d finished", count)
 	}()
 }
 
-// ---------- Reload data file ---
-
-func reloadData(fn string) error {
+// ---------- Reload data from DB table ---
+func reloadDbData() error {
+	defer timeTrack(time.Now(), "reloadDbData")
 	defer mutex.Unlock()
 	mutex.Lock()
 
-	file, err := os.Open(fn)
-	defer file.Close()
-
-	if err != nil {
-		return err
+	var err error
+	var devices []*config.DeviceStatCfg
+	if err = cfg.Database.x.Where("`active` = 1").OrderBy("`deviceid`, `alertid`, `order`").Find(&devices); err != nil {
+		log.Warnf("Getting devices from DB failed with error: %+v.", err)
 	}
-
-	DevDB = make(map[string][]DeviceMonStat)
-
-	// Start reading from the file with a reader.
-
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		log.Debugf(" > %s", line)
-		if strings.HasPrefix(line, "#") {
-			//is a comment
-			continue
-		}
-		dsArray := strings.Split(line, ",")
-		if len(dsArray) < 7 {
-			log.Warnf("Device data Line not correct: %s", line)
-			continue
-		}
-		var Active bool
-		var exc int64
-		var err error
-		//Active
-		if len(dsArray[2]) > 0 {
-			Active, err = strconv.ParseBool(dsArray[2])
-			if err != nil {
-				log.Warnf("Device data Line not correct Active value is not a correct boolean: %s", err)
-				continue
-			}
-		}
-		//Exc
-		if len(dsArray[4]) > 0 {
-			exc, err = strconv.ParseInt(dsArray[4], 10, 64)
-			if err != nil {
-				log.Warnf("Device data Line not correct Active value is not a correct boolean: %s", err)
-				continue
-			}
-		}
-
-		DevDB[dsArray[0]] = append(DevDB[dsArray[0]], DeviceMonStat{alertId: dsArray[1],
-			monActive:         Active,
-			monLinia:          dsArray[3],
-			monExc:            exc,
-			monFilterTagKey:   dsArray[5],
-			monFilterTagValue: dsArray[6]})
-
+	DevDB = make(map[string][]config.DeviceStatCfg)
+	for _, dev := range devices {
+		DevDB[dev.DeviceID] = append(DevDB[dev.DeviceID], *dev)
 	}
-	if err := scanner.Err(); err != nil {
-		log.Warnf("reading standard input: %s", err)
-	}
-
-	log.Debugf("DATADB: %+v", DevDB)
-
-	return nil
+	log.Debugf("Getting devices from DB returns: %+v", DevDB)
+	return err
 }
 
 func startRefreshProc() {
@@ -541,9 +594,9 @@ func startRefreshProc() {
 	t := time.NewTicker(cfg.Database.Period)
 	for {
 		log.Info("Beginning refresh proc again...")
-		err := reloadData(cfg.Database.Path)
+		err := reloadDbData()
 		if err != nil {
-			log.Errorf("Error on reload data : %s", err)
+			log.Errorf("Error on reload DB data : %s", err)
 		}
 
 	LOOP:
@@ -557,7 +610,13 @@ func startRefreshProc() {
 	}
 }
 
-var socketPath = flag.String("socket", "/tmp/resInjector.sock", "Where to create the unix socket")
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Debugf("TIME: %s took %s", name, elapsed)
+}
+
+var socketFile = "/tmp/resInjector.sock"
+var socketPath = flag.String("socket", socketFile, "Where to create the unix socket")
 
 func main() {
 	flag.Parse()
@@ -565,11 +624,14 @@ func main() {
 	// Create unix socket
 	addr, err := net.ResolveUnixAddr("unix", *socketPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error on ResolveUnixAddr: %s", err)
 	}
+	// Remove the old socket before creating a new one
+	os.Remove(socketFile)
+
 	l, err := net.ListenUnix("unix", addr)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error on ListenUnix: %s", err)
 	}
 
 	//begin data reload.
@@ -584,7 +646,7 @@ func main() {
 	log.Infof("Server listening on %s", addr.String())
 	err = s.Serve()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error on s.Serve(): %s", err)
 	}
 	log.Info("Server stopped")
 }
