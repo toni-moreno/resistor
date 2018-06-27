@@ -96,14 +96,15 @@ export class AlertComponent implements OnInit {
       InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : null, Validators.required],
       InfluxMeasurement: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxMeasurement : null, Validators.required],
       TagDescription: [this.sampleComponentForm ? this.sampleComponentForm.value.TagDescription : ''],
-      InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : '', Validators.required],
-      IntervalCheck: [this.sampleComponentForm ? this.sampleComponentForm.value.IntervalCheck : '', Validators.required],
+      //Don't use InfluxFilter
+      //InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : '', Validators.required],
+      IntervalCheck: [this.sampleComponentForm ? this.sampleComponentForm.value.IntervalCheck : '', Validators.compose([Validators.required, ValidationService.durationValidator])],
       OperationID: [this.sampleComponentForm ? this.sampleComponentForm.value.OperationID : ''],
       Field: [this.sampleComponentForm ? this.sampleComponentForm.value.Field : '', Validators.required],
       GrafanaServer: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaServer : ''],
       GrafanaDashLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashLabel : ''],
       GrafanaDashPanelID: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashPanelID : ''],
-      DeviceIDTag: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDTag : ''],
+      DeviceIDTag: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDTag : '', Validators.required],
       DeviceIDLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDLabel : ''],
       ExtraTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTag : ''],
       ExtraLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraLabel : ''],
@@ -159,7 +160,7 @@ export class AlertComponent implements OnInit {
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.compose([Validators.required, ValidationService.durationValidator]) });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
