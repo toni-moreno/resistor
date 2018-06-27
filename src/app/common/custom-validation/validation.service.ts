@@ -15,7 +15,8 @@ export class ValidationService {
             'invalidUInteger8NotZero': 'Invalid Number . Must be a Unsigned (positive) Integer with range 1-255',
             'invalidUIntegerNotZero': 'Invalid Number . Must be a Unsigned (positive) Integer not Zero',
             'invalidUIntegerAndLessOne': 'Invalid Number . Must be a Unsigned (positive) Integer or -1',
-            'invalidHour': 'Invalid hour. Must be between 0 and 23'
+            'invalidHour': 'Invalid hour. Must be between 0 and 23', 
+            'invalidDuration': 'Invalid duration. A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". ', 
         };
 
         return config[validatorName];
@@ -166,5 +167,14 @@ export class ValidationService {
         }
     }
 
+    static durationValidator(control) {
+        if (control.value){
+            if (control.value.toString().match(/[-+]?([0-9]*(\.[0-9]*)?((ns(?!.))|(us(?!.))|(µs(?!.))|(ms(?!.))|(s(?!.))|(m(?!.))|(h(?!.))){1}?)/)) {
+                return null;
+            } else {
+                return { 'invalidDuration': true };
+            }
+        }
+    }
 
 }

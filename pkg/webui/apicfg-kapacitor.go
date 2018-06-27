@@ -665,7 +665,8 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["INFLUX_MEAS"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxMeasurement}
 	vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.Field}
 	//TagDescription
-	vars["INFLUX_FILTER"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.InfluxFilter}
+	//Don't use InfluxFilter
+	//vars["INFLUX_FILTER"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.InfluxFilter}
 	dIntervalCheck, err := time.ParseDuration(dev.IntervalCheck)
 	if err != nil {
 		log.Warningf("Error parsing duration from interval check %s. 0 will be assigned. Error: %s", dev.IntervalCheck, err)
@@ -673,33 +674,45 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["INTERVALO_CHECK"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dIntervalCheck}
 	//Alert Settings
 	vars["TIPO_TRIGUER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.TrigerType}
-	vars["STAT_FUN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.StatFunc}
-	vars["CRIT_DIRECTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.CritDirection}
-	//ThresholdType
-	vars["TH_CRIT_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritDef}
-	vars["TH_CRIT_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx1}
-	vars["TH_CRIT_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx2}
-	min, max := 0, 23
-	if len(dev.ThCritRangeTimeID) > 0 {
-		min, max = getRangeTimeHours(dev.ThCritRangeTimeID)
-		vars["TH_CRIT_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
-		vars["TH_CRIT_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
-	}
-	vars["TH_WARN_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnDef}
-	vars["TH_WARN_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx1}
-	vars["TH_WARN_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx2}
-	if len(dev.ThWarnRangeTimeID) > 0 {
-		min, max = getRangeTimeHours(dev.ThWarnRangeTimeID)
-		vars["TH_WARN_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
-		vars["TH_WARN_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
-	}
-	vars["TH_INFO_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoDef}
-	vars["TH_INFO_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx1}
-	vars["TH_INFO_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx2}
-	if len(dev.ThInfoRangeTimeID) > 0 {
-		min, max = getRangeTimeHours(dev.ThInfoRangeTimeID)
-		vars["TH_INFO_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
-		vars["TH_INFO_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+	if dev.TrigerType != "DEADMAN" {
+		vars["STAT_FUN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.StatFunc}
+		vars["CRIT_DIRECTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.CritDirection}
+		if dev.TrigerType == "TREND" {
+			dShift, err := time.ParseDuration(dev.Shift)
+			if err != nil {
+				log.Warningf("Error parsing duration from shift field value %s. 0 will be assigned. Error: %s", dev.Shift, err)
+			}
+			vars["SHIFT"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dShift}
+		}
+		//ThresholdType NOT USED !!!
+		vars["TH_CRIT_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritDef}
+		vars["TH_CRIT_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx1}
+		vars["TH_CRIT_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx2}
+		min, max, weekdays := 0, 23, "0123456"
+		if len(dev.ThCritRangeTimeID) > 0 {
+			min, max, weekdays = getRangeTimeInfo(dev.ThCritRangeTimeID)
+			vars["TH_CRIT_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
+			vars["TH_CRIT_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+			vars["DIA_SEMANA_CRIT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
+		}
+		vars["TH_WARN_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnDef}
+		vars["TH_WARN_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx1}
+		vars["TH_WARN_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx2}
+		if len(dev.ThWarnRangeTimeID) > 0 {
+			min, max, weekdays = getRangeTimeInfo(dev.ThWarnRangeTimeID)
+			vars["TH_WARN_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
+			vars["TH_WARN_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+			vars["DIA_SEMANA_WARN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
+		}
+		vars["TH_INFO_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoDef}
+		vars["TH_INFO_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx1}
+		vars["TH_INFO_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx2}
+		if len(dev.ThInfoRangeTimeID) > 0 {
+			min, max, weekdays = getRangeTimeInfo(dev.ThInfoRangeTimeID)
+			vars["TH_INFO_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
+			vars["TH_INFO_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
+			vars["DIA_SEMANA_INFO"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
+		}
 	}
 	//Extra Settings
 	vars["GRAFANA_SERVER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GrafanaServer}
@@ -710,24 +723,18 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["EXTRA_TAG"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraTag}
 	vars["EXTRA_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraLabel}
 
-	//DIA_SEMANA... are declared on template code, but are not used
-	vars["DIA_SEMANA_CRIT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ThCritRangeTimeID}
-	vars["DIA_SEMANA_INFO"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ThInfoRangeTimeID}
-	vars["DIA_SEMANA_WARN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ThWarnRangeTimeID}
-	//envio_mail there is no field on form
-	vars["envio_mail"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: "raul.solorzano.navarro.sa@everis.com"}
-
 	//ALERT_EXTRA_TEXT corresponds to Description field on form???
 	vars["ALERT_EXTRA_TEXT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-	vars["details"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-	vars["durationField"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
 	//vars["FIELD_DEFAULT"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: ""}
-	vars["idTag"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-	vars["levelTag"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-	vars["messageField"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-	vars["pocEntorno"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
 	/*
-
+		//envio_mail there is no field on form
+		vars["envio_mail"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: "raul.solorzano.navarro.sa@everis.com"}
+		vars["details"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
+		vars["durationField"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
+		vars["idTag"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
+		vars["levelTag"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
+		vars["messageField"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
+		vars["pocEntorno"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
 		vars["influx_agrup"] = kapacitorClient.Var{Type: kapacitorClient.VarList, Value: ""}
 		vars["every"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: ""}
 		vars["MOV_AVG_POINTS"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: ""}
@@ -748,18 +755,20 @@ func getIfxDBNameByID(id int64) string {
 	return name
 }
 
-// getRangeTimeHours
-func getRangeTimeHours(id string) (int, int) {
+// getRangeTimeInfo
+func getRangeTimeInfo(id string) (int, int, string) {
 	min := 0
 	max := 23
+	weekdays := "0123456"
 	dev, err := agent.MainConfig.Database.GetRangeTimeCfgByID(id)
 	if err != nil {
-		log.Warningf("Error getting range time hours for id %s. 0, 23 will be returned. Error: %s", id, err)
+		log.Warningf("Error getting range time info for id %s. 0, 23, 0123456 will be returned. Error: %s", id, err)
 	} else {
 		min = dev.MinHour
 		max = dev.MaxHour
+		weekdays = dev.WeekDays
 	}
-	return min, max
+	return min, max, weekdays
 }
 
 // DeleteKapaTask Deletes task from the Kapacitor Servers

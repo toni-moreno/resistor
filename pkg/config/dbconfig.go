@@ -98,7 +98,7 @@ type RangeTimeCfg struct {
 	ID          string `xorm:"'id' unique" binding:"Required"`
 	MaxHour     int    `xorm:"'max_hour' default 23"`
 	MinHour     int    `xorm:"'min_hour' default 0"`
-	WeeKDays    string `xorm:"'weekdays' default '0123456'"`
+	WeekDays    string `xorm:"'weekdays' default '0123456'"`
 	Description string `xorm:"description"`
 }
 
@@ -175,7 +175,7 @@ type AlertIDCfg struct {
 	Field             string `xorm:"field" binding:"Required"`
 	StatFunc          string `xorm:"statfunc"`
 	CritDirection     string `xorm:"critdirection"`
-	Shift             int64  `xorm:"shift"`
+	Shift             string `xorm:"shift"`
 	ThresholdType     string `xorm:"thresholdtype"` //Absolute/Relative
 	//thresholds
 	//CRITICAL

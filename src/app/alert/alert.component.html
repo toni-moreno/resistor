@@ -44,7 +44,7 @@
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <input formControlName="BaselineID" id="BaselineID" [ngModel]="sampleComponentForm.value.BaselineID" />
-              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+              <control-messages [control]="sampleComponentForm.controls.BaselineID"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ProductID">
@@ -60,7 +60,7 @@
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <input formControlName="GroupID" id="GroupID" [ngModel]="sampleComponentForm.value.GroupID" />
-              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+              <control-messages [control]="sampleComponentForm.controls.GroupID"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.NumAlertID">
@@ -150,7 +150,7 @@
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <input formControlName="InfluxFilter" id="InfluxFilter" [ngModel]="sampleComponentForm.value.InfluxFilter" />
-              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+              <control-messages [control]="sampleComponentForm.controls.InfluxFilter"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.IntervalCheck">
@@ -158,7 +158,7 @@
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <input formControlName="IntervalCheck" id="IntervalCheck" [ngModel]="sampleComponentForm.value.IntervalCheck" />
-              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+              <control-messages [control]="sampleComponentForm.controls.IntervalCheck"></control-messages>
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@
             <label class="control-label col-sm-2" for="Shift">Shift</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
-              <input type="number" formControlName="Shift" id="Shift" [ngModel]="sampleComponentForm.value.Shift" />
+              <input formControlName="Shift" id="Shift" [ngModel]="sampleComponentForm.value.Shift" />
               <control-messages [control]="sampleComponentForm.controls.Shift"></control-messages>
             </div>
           </div>

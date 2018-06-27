@@ -4,6 +4,7 @@ import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
 import { DeviceStatService } from './devicestat.service';
 import { AlertService } from '../alert/alert.service';
+import { ProductService } from '../product/product.service';
 
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
@@ -20,7 +21,7 @@ declare var _:any;
 
 @Component({
   selector: 'devicestat-component',
-  providers: [DeviceStatService,AlertService , ValidationService],
+  providers: [DeviceStatService, AlertService, ProductService, ValidationService],
   templateUrl: './devicestat.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -43,6 +44,7 @@ export class DeviceStatComponent implements OnInit {
   public tableRole : any = TableRole;
   public overrideRoleActions: any = OverrideRoleActions;
   public select_alert : IMultiSelectOption[] = [];
+  public select_product : IMultiSelectOption[] = [];
   private single_select: IMultiSelectSettings = {singleSelect: true};
 
   public selectedArray : any = [];
@@ -60,12 +62,13 @@ export class DeviceStatComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public devicestatService: DeviceStatService, public alertService: AlertService, public exportServiceCfg: ExportServiceCfg, builder: FormBuilder) {
+  constructor(public devicestatService: DeviceStatService, public alertService: AlertService, public productService: ProductService, public exportServiceCfg: ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
+      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : ''],
       Order: [this.sampleComponentForm ? this.sampleComponentForm.value.Order : '', Validators.required],
       DeviceID: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceID : '', Validators.required],
       AlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertID : '', Validators.required],
@@ -73,8 +76,8 @@ export class DeviceStatComponent implements OnInit {
       Exception: [this.sampleComponentForm ? this.sampleComponentForm.value.Exception : '', Validators.required],
       Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaseLine: [this.sampleComponentForm ? this.sampleComponentForm.value.BaseLine : '', Validators.required],
-      FilterTagKey: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagKey : '', Validators.required],
-      FilterTagValue: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagValue : '', Validators.required],
+      FilterTagKey: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagKey : ''],
+      FilterTagValue: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagValue : ''],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -118,7 +121,6 @@ export class DeviceStatComponent implements OnInit {
       break;
     }
   }
-
 
   applyAction(action : any, data? : Array<any>) : void {
     console.log(action);
@@ -179,6 +181,7 @@ export class DeviceStatComponent implements OnInit {
   newItem() {
     //No hidden fields, so create fixed Form
     this.getAlertItem();
+    this.getProductItem();
     this.createStaticForm();
     this.editmode = "create";
   }
@@ -186,6 +189,7 @@ export class DeviceStatComponent implements OnInit {
   editSampleItem(row) {
     let id = row.ID;
     this.getAlertItem();
+    this.getProductItem();
     this.devicestatService.getDeviceStatItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
@@ -316,17 +320,31 @@ export class DeviceStatComponent implements OnInit {
       .subscribe(
       data => {
         this.select_alert = [];
-        this.select_alert = this.createMultiselectArray(data);
+        this.select_alert = this.createMultiselectArray(data, 'ID', 'ID');
       },
       err => console.error(err),
       () => console.log('DONE')
       );
   }
 
-  createMultiselectArray(tempArray) : any {
+  getProductItem() {
+    this.productService.getProductItem(null)
+      .subscribe(
+      data => {
+        this.select_product = [];
+        this.select_product = this.createMultiselectArray(data, 'ID', 'ID');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
+  createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
     let myarray = [];
-    for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'extraData': entry.Description });
+    if(tempArray){
+      for (let entry of tempArray) {
+        myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
+      };
     }
     return myarray;
   }

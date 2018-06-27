@@ -3,9 +3,10 @@ export const DeviceStatComponentConfig: any =
     'name' : 'Device Stats',
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
-      { 'title': 'Order', 'name': 'Order' },
       { 'title': 'DeviceID', 'name': 'DeviceID' },
       { 'title': 'AlertID', 'name': 'AlertID' },
+      { 'title': 'Order', 'name': 'Order' },
+      { 'title': 'ProductID', 'name': 'ProductID' },
       { 'title': 'Exception', 'name': 'Exception' },
       { 'title': 'Active', 'name': 'Active' },
       { 'title': 'BaseLine', 'name': 'BaseLine' },
