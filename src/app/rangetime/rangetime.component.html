@@ -3,7 +3,7 @@
 <ng-container [ngSwitch]="editmode">
   <ng-template ngSwitchCase="list">
     <test-modal #viewModal [titleName]="defaultConfig.name"></test-modal>
-    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Kapacitor instance will affect the following components','Deleting this InfluxDB Server will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
+    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Range Time will affect the following components','Deleting this Range Time will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
     <export-file-modal #exportFileModal [showValidation]="true" [exportType]="defaultConfig['slug']" [textValidation]="'Export'" titleName='Exporting:'></export-file-modal>
