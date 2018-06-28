@@ -17,6 +17,7 @@ export class DeviceStatService {
     }
 
     addDeviceStatItem(dev) {
+        dev.ID = 0 // The ID field of table device_stat_cfg is autoincr, then set to 0 before creating a new item
         return this.http.post('/api/cfg/devicestat',JSON.stringify(dev,this.jsonParser))
         .map( (responseData) => responseData.json());
 
