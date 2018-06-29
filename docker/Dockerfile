@@ -8,7 +8,7 @@ VOLUME ["/opt/resistor/conf", "/opt/resistor/log"]
 EXPOSE 8090
 
 WORKDIR /opt/resistor
-COPY ./config.toml ./conf/
+COPY ./resistor.toml ./conf/
 COPY ./start.sh /
 
 ENTRYPOINT ["/start.sh"]

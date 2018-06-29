@@ -173,7 +173,7 @@ func createDebPackages() {
 		homeDir:                "/usr/share/resistor",
 		binPath:                "/usr/sbin/resistor",
 		configDir:              "/etc/resistor",
-		configFilePath:         "/etc/resistor/config.toml",
+		configFilePath:         "/etc/resistor/resistor.toml",
 		etcDefaultPath:         "/etc/default",
 		etcDefaultFilePath:     "/etc/default/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",
@@ -194,7 +194,7 @@ func createRpmPackages() {
 		homeDir:                "/usr/share/resistor",
 		binPath:                "/usr/sbin/resistor",
 		configDir:              "/etc/resistor",
-		configFilePath:         "/etc/resistor/config.toml",
+		configFilePath:         "/etc/resistor/resitor.toml",
 		etcDefaultPath:         "/etc/sysconfig",
 		etcDefaultFilePath:     "/etc/sysconfig/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",
@@ -222,11 +222,12 @@ func createMinTar() {
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, "/opt/resistor/log"))
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, "/opt/resistor/public"))
-	runPrint("cp", "conf/sample.config.toml", filepath.Join(packageRoot, "/opt/resistor/conf"))
+	runPrint("cp", "conf/sample.resistor.toml", filepath.Join(packageRoot, "/opt/resistor/conf"))
 	runPrint("cp", "bin/resistor", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("cp", "bin/resistor.md5", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("cp", "-a", filepath.Join(workingDir, "public")+"/.", filepath.Join(packageRoot, "/opt/resistor/public"))
-	runPrint("tar", "zcvf", "dist/resistor-"+version+"-"+getGitSha()+".tar.gz", "-C", packageRoot, ".")
+	tarname := fmt.Sprintf("dist/resistor-%s-%s_%s_%s.tar.gz", version, getGitSha(), runtime.GOOS, runtime.GOARCH)
+	runPrint("tar", "zcvf", tarname, "-C", packageRoot, ".")
 	runPrint("rm", "-rf", packageRoot)
 }
 
@@ -254,7 +255,7 @@ func createFpmPackage(options linuxPackageOptions) {
 	// remove bin path
 	runPrint("rm", "-rf", filepath.Join(packageRoot, options.homeDir, "bin"))
 	// copy sample ini file to /etc/resistor
-	runPrint("cp", "conf/sample.config.toml", filepath.Join(packageRoot, options.configFilePath))
+	runPrint("cp", "conf/sample.resistor.toml", filepath.Join(packageRoot, options.configFilePath))
 
 	args := []string{
 		"-s", "dir",
@@ -409,7 +410,8 @@ func setBuildEnv() {
 }
 
 func getGitSha() string {
-	v, err := runError("git", "describe", "--always", "--tags")
+	//git rev-parse --short HEAD
+	v, err := runError("git", "rev-parse", "--short", "HEAD")
 	if err != nil {
 		return "unknown-dev"
 	}
