@@ -2,6 +2,7 @@ package impexp
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -107,6 +108,7 @@ func (e *ExportData) UpdateTmpObject() {
 // Export  exports data
 func (e *ExportData) Export(ObjType string, id string, recursive bool, level int) error {
 
+	log.Debugf("Entering Export with ObjType: %s, id: %s, recursive: %t, level: %d", ObjType, id, recursive, level)
 	switch ObjType {
 	case "rangetimecfg":
 		//contains sensible data
@@ -168,6 +170,22 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 		}
 		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
 		e.Export("productcfg", v.ProductID, recursive, level+1)
+	case "templatecfg":
+		v, err := dbc.GetTemplateCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "templatecfg", ObjectID: id, ObjectCfg: v})
+	case "devicestatcfg":
+		idInt64, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			return err
+		}
+		v, err := dbc.GetDeviceStatCfgByID(idInt64)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "devicestatcfg", ObjectID: id, ObjectCfg: v})
 	default:
 		return fmt.Errorf("Unknown type object type %s ", ObjType)
 	}
