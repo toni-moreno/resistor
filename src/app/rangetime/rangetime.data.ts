@@ -5,7 +5,7 @@ export const RangeTimeComponentConfig: any =
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'MaxHour', 'name': 'MaxHour' },
       { 'title': 'MinHour', 'name': 'MinHour' },
-      { 'title': 'WeeKDays', 'name': 'WeeKDays' },
+      { 'title': 'WeekDays', 'name': 'WeekDays' },
   ],
   'slug' : 'rangetimecfg'
   };
