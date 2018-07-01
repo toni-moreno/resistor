@@ -271,7 +271,8 @@ export class ExportFileModal {
       this.exportType = exportObject.exportType || this.exportType;
       //Sets the FinalArray to export the items, in this case only be 1
       this.finalArray = [{
-        'ObjectID' : this.exportObject.ID,
+        //ensure string on object ID
+        'ObjectID' : this.exportObject.ID.toString(),
         'ObjectTypeID' :  this.exportType,
         'Options' : {
           Recursive: this.recursiveObject
@@ -326,7 +327,7 @@ export class ExportFileModal {
      //Extract the ID from finalArray and loaded Items:
      let exist = true;
      for (let a of this.finalArray) {
-       if (checkItem === a.ObjectID) {
+       if (checkItem == a.ObjectID) {
          exist = false;
        }
      }
@@ -336,7 +337,7 @@ export class ExportFileModal {
    //Common function to find given object property inside an array
    findIndexItem(checkArray, checkItem: any) : any {
      for (let a in checkArray) {
-       if (checkItem === checkArray[a].ObjectID) {
+       if (checkItem == checkArray[a].ObjectID) {
          return a;
        }
      }
@@ -347,7 +348,8 @@ export class ExportFileModal {
      if (selectAll === true) {
        for (let a of this.resultArray) {
          if (this.checkItems(a.ID, this.selectedType)) {
-           this.finalArray.push({ "ObjectID" : a.ID, ObjectTypeID: this.selectedType.Type, "Options" : {'Recursive': false }});
+           //ensure string on object ID
+           this.finalArray.push({ "ObjectID" : a.ID.toString(), ObjectTypeID: this.selectedType.Type, "Options" : {'Recursive': false }});
          }
        }
      } else {
@@ -361,6 +363,8 @@ export class ExportFileModal {
    //Select item to add it to the FinalArray or delete it if its alreay selected
   selectItem(event) {
     if (this.checkItems(event.ObjectID, event.ObjectTypeID)) {
+      //ensure string on object ID
+      event.ObjectID =  event.ObjectID.toString()
       this.finalArray.push(event);
     }
     else {

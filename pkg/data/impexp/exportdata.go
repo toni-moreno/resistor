@@ -161,15 +161,22 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 		if err != nil {
 			return err
 		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
 		if !recursive {
 			break
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
 		for _, val := range v.OutHTTP {
 			e.Export("outhttpcfg", val, recursive, level+1)
 		}
 		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
 		e.Export("productcfg", v.ProductID, recursive, level+1)
+
+		if v.TrigerType != "DEADMAN" {
+			e.Export("rangetimecfg", v.ThCritRangeTimeID, recursive, level+1)
+			e.Export("rangetimecfg", v.ThWarnRangeTimeID, recursive, level+1)
+			e.Export("rangetimecfg", v.ThInfoRangeTimeID, recursive, level+1)
+		}
+
 	case "templatecfg":
 		v, err := dbc.GetTemplateCfgByID(id)
 		if err != nil {
