@@ -61,6 +61,21 @@ func (e *ExportData) ImportCheck() (*ExportData, error) {
 				o.Error = fmt.Sprintf("Duplicated object %s in the database", o.ObjectID)
 				duplicated = append(duplicated, o)
 			}
+		case "devicestatcfg":
+			data := config.DeviceStatCfg{}
+			json.Unmarshal(raw, &data)
+			ers := binding.RawValidate(data)
+			if ers.Len() > 0 {
+				e, _ := json.Marshal(ers)
+				o.Error = string(e)
+				duplicated = append(duplicated, o)
+				break
+			}
+			_, err := dbc.GetKapacitorCfgByID(o.ObjectID)
+			if err == nil {
+				o.Error = fmt.Sprintf("Duplicated object %s in the database", o.ObjectID)
+				duplicated = append(duplicated, o)
+			}
 		case "kapacitorcfg":
 			data := config.KapacitorCfg{}
 			json.Unmarshal(raw, &data)
