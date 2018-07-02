@@ -2,6 +2,7 @@ package impexp
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -107,6 +108,7 @@ func (e *ExportData) UpdateTmpObject() {
 // Export  exports data
 func (e *ExportData) Export(ObjType string, id string, recursive bool, level int) error {
 
+	log.Debugf("Entering Export with ObjType: %s, id: %s, recursive: %t, level: %d", ObjType, id, recursive, level)
 	switch ObjType {
 	case "rangetimecfg":
 		//contains sensible data
@@ -159,15 +161,38 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 		if err != nil {
 			return err
 		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
 		if !recursive {
 			break
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
 		for _, val := range v.OutHTTP {
 			e.Export("outhttpcfg", val, recursive, level+1)
 		}
 		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
 		e.Export("productcfg", v.ProductID, recursive, level+1)
+
+		if v.TrigerType != "DEADMAN" {
+			e.Export("rangetimecfg", v.ThCritRangeTimeID, recursive, level+1)
+			e.Export("rangetimecfg", v.ThWarnRangeTimeID, recursive, level+1)
+			e.Export("rangetimecfg", v.ThInfoRangeTimeID, recursive, level+1)
+		}
+
+	case "templatecfg":
+		v, err := dbc.GetTemplateCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "templatecfg", ObjectID: id, ObjectCfg: v})
+	case "devicestatcfg":
+		idInt64, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			return err
+		}
+		v, err := dbc.GetDeviceStatCfgByID(idInt64)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "devicestatcfg", ObjectID: id, ObjectCfg: v})
 	default:
 		return fmt.Errorf("Unknown type object type %s ", ObjType)
 	}
