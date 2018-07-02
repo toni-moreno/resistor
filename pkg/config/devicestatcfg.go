@@ -48,13 +48,13 @@ func (dbc *DatabaseCfg) GetDeviceStatCfgArray(filter string) ([]*DeviceStatCfg, 
 	var devices []*DeviceStatCfg
 	//Get Only data for selected devices
 	if len(filter) > 0 {
-		if err = dbc.x.Where(filter).Find(&devices); err != nil {
-			log.Warnf("Fail to get DeviceStatCfg  data filteter with %s : %v\n", filter, err)
+		if err = dbc.x.Where(filter).OrderBy("`deviceid`, `alertid`, `order`").Find(&devices); err != nil {
+			log.Warnf("Fail to get DeviceStatCfg data filtered with %s : %v\n", filter, err)
 			return nil, err
 		}
 	} else {
-		if err = dbc.x.Find(&devices); err != nil {
-			log.Warnf("Fail to get influxcfg   data: %v\n", err)
+		if err = dbc.x.OrderBy("`deviceid`, `alertid`, `order`").Find(&devices); err != nil {
+			log.Warnf("Fail to get DeviceStatCfg data filtered with %s : %v\n", filter, err)
 			return nil, err
 		}
 	}
