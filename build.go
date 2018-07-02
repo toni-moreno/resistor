@@ -33,6 +33,7 @@ var (
 	race                  bool   = false
 	workingDir            string
 	serverBinaryName      string = "resistor"
+	udfBinaryName         string = "resInjector"
 )
 
 const minGoVersion = 1.6
@@ -66,12 +67,14 @@ func main() {
 		case "build":
 			pkg := "./pkg/"
 			clean()
-			build(pkg, []string{}, []string{})
+			build(serverBinaryName, pkg, []string{}, []string{})
+			build(udfBinaryName, "./pkg/udf", []string{}, []string{})
 
 		case "build-static":
 			pkg := "./pkg/"
 			clean()
-			build(pkg, []string{}, []string{"-linkmode", "external", "-extldflags", "-static"})
+			build(serverBinaryName, pkg, []string{}, []string{"-linkmode", "external", "-extldflags", "-static"})
+			build(udfBinaryName, "./pkg/udf", []string{}, []string{"-linkmode", "external", "-extldflags", "-static"})
 			//"-linkmode external -extldflags -static"
 		case "test":
 			test("./pkg/...")
@@ -152,8 +155,10 @@ type linuxPackageOptions struct {
 	packageType            string
 	homeDir                string
 	binPath                string
+	binUDFPath             string
 	configDir              string
 	configFilePath         string
+	configUDFPath          string
 	etcDefaultPath         string
 	etcDefaultFilePath     string
 	initdScriptFilePath    string
@@ -172,8 +177,10 @@ func createDebPackages() {
 		packageType:            "deb",
 		homeDir:                "/usr/share/resistor",
 		binPath:                "/usr/sbin/resistor",
+		binUDFPath:             "/usr/sbin/resInjector",
 		configDir:              "/etc/resistor",
 		configFilePath:         "/etc/resistor/resistor.toml",
+		configUDFPath:          "/etc/resistor/resInjector.toml",
 		etcDefaultPath:         "/etc/default",
 		etcDefaultFilePath:     "/etc/default/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",
@@ -193,8 +200,10 @@ func createRpmPackages() {
 		packageType:            "rpm",
 		homeDir:                "/usr/share/resistor",
 		binPath:                "/usr/sbin/resistor",
+		binUDFPath:             "/usr/sbin/resInjector",
 		configDir:              "/etc/resistor",
 		configFilePath:         "/etc/resistor/resitor.toml",
+		configUDFPath:          "/etc/resistor/resInjector.toml",
 		etcDefaultPath:         "/etc/sysconfig",
 		etcDefaultFilePath:     "/etc/sysconfig/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",
@@ -223,8 +232,11 @@ func createMinTar() {
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, "/opt/resistor/log"))
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, "/opt/resistor/public"))
 	runPrint("cp", "conf/sample.resistor.toml", filepath.Join(packageRoot, "/opt/resistor/conf"))
+	runPrint("cp", "conf/sample.resinjector.toml", filepath.Join(packageRoot, "/opt/resistor/conf"))
 	runPrint("cp", "bin/resistor", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("cp", "bin/resistor.md5", filepath.Join(packageRoot, "/opt/resistor/bin"))
+	runPrint("cp", "bin/resInjector", filepath.Join(packageRoot, "/opt/resistor/bin"))
+	runPrint("cp", "bin/resInjector.md5", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("cp", "-a", filepath.Join(workingDir, "public")+"/.", filepath.Join(packageRoot, "/opt/resistor/public"))
 	tarname := fmt.Sprintf("dist/resistor-%s-%s_%s_%s.tar.gz", version, getGitSha(), runtime.GOOS, runtime.GOARCH)
 	runPrint("tar", "zcvf", tarname, "-C", packageRoot, ".")
@@ -244,6 +256,7 @@ func createFpmPackage(options linuxPackageOptions) {
 
 	// copy binary
 	runPrint("cp", "-p", filepath.Join(workingDir, "bin/"+serverBinaryName), filepath.Join(packageRoot, options.binPath))
+	runPrint("cp", "-p", filepath.Join(workingDir, "bin/"+udfBinaryName), filepath.Join(packageRoot, options.binUDFPath))
 	// copy init.d script
 	runPrint("cp", "-p", options.initdScriptSrc, filepath.Join(packageRoot, options.initdScriptFilePath))
 	// copy environment var file
@@ -256,7 +269,7 @@ func createFpmPackage(options linuxPackageOptions) {
 	runPrint("rm", "-rf", filepath.Join(packageRoot, options.homeDir, "bin"))
 	// copy sample ini file to /etc/resistor
 	runPrint("cp", "conf/sample.resistor.toml", filepath.Join(packageRoot, options.configFilePath))
-
+	runPrint("cp", "conf/sample.resinjector.toml", filepath.Join(packageRoot, options.configUDFPath))
 	args := []string{
 		"-s", "dir",
 		"--description", "An HTTP Alert WebHook filter for the InfluxData/Kapacitor system ",
@@ -266,6 +279,7 @@ func createFpmPackage(options linuxPackageOptions) {
 		"--license", "Apache 2.0",
 		"--maintainer", "toni.moreno@gmail.com",
 		"--config-files", options.configFilePath,
+		"--config-files", options.configUDFPath,
 		"--config-files", options.initdScriptFilePath,
 		"--config-files", options.etcDefaultFilePath,
 		"--config-files", options.systemdServiceFilePath,
@@ -333,8 +347,8 @@ func test(pkg string) {
 	runPrint("go", "test", "-short", "-timeout", "60s", pkg)
 }
 
-func build(pkg string, tags []string, flags []string) {
-	binary := "./bin/" + serverBinaryName
+func build(binaryName string, pkg string, tags []string, flags []string) {
+	binary := "./bin/" + binaryName
 	if goos == "windows" {
 		binary += ".exe"
 	}

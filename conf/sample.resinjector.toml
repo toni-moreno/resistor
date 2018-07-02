@@ -1,0 +1,31 @@
+
+############################
+# General Config
+############################
+
+[general]
+
+ logdir = "./log"
+ #NOTE: main process log is now sent to standar ouput
+ # logLevel set de main process log level
+ # valid values: panic,fatal,error,warn,info,debug
+ logLevel = "debug"
+
+############################
+ # DataBase Config ( should be the same than the resistor config file)
+ ############################
+
+[database]
+#type sets the sql backend
+#valid values sqlite3,mysql
+ type = "sqlite3"
+# these parameters are only for mysql (use mysql_setup.sql before)
+# host = 127.0.0.1:3306
+# user = "resistoruser"
+# password = "resistorpass"
+# name sets the database name
+ name = "resistor"
+#sqllogfile sets the name for a file in the log/ directory where sql backend will write all SQL transactions
+#sqllogfile = "sql.log"
+ # debug adds extra verbosity to the SQL log
+ debug = false
