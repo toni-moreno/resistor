@@ -29,3 +29,6 @@
 #sqllogfile = "sql.log"
  # debug adds extra verbosity to the SQL log
  debug = false
+
+ period = "1m"
+
