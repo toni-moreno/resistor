@@ -13,6 +13,7 @@ import (
 	"github.com/toni-moreno/resistor/pkg/config"
 )
 
+//ImportCheck Checks if object to import is duplicated in the database
 func (e *ExportData) ImportCheck() (*ExportData, error) {
 
 	var duplicated []*ExportObject
@@ -71,7 +72,12 @@ func (e *ExportData) ImportCheck() (*ExportData, error) {
 				duplicated = append(duplicated, o)
 				break
 			}
-			_, err := dbc.GetKapacitorCfgByID(o.ObjectID)
+			idInt64, err := strconv.ParseInt(o.ObjectID, 10, 64)
+			if err != nil {
+				o.Error = fmt.Sprintf("error on parsing object ID %s to int64: error: %s ", o.ObjectID, err)
+				return nil, errors.New(o.Error)
+			}
+			_, err = dbc.GetDeviceStatCfgByID(idInt64)
 			if err == nil {
 				o.Error = fmt.Sprintf("Duplicated object %s in the database", o.ObjectID)
 				duplicated = append(duplicated, o)
@@ -151,6 +157,21 @@ func (e *ExportData) ImportCheck() (*ExportData, error) {
 				o.Error = fmt.Sprintf("Duplicated object %s in the database", o.ObjectID)
 				duplicated = append(duplicated, o)
 			}
+		case "templatecfg":
+			data := config.TemplateCfg{}
+			json.Unmarshal(raw, &data)
+			ers := binding.RawValidate(data)
+			if ers.Len() > 0 {
+				e, _ := json.Marshal(ers)
+				o.Error = string(e)
+				duplicated = append(duplicated, o)
+				break
+			}
+			_, err := dbc.GetTemplateCfgByID(o.ObjectID)
+			if err == nil {
+				o.Error = fmt.Sprintf("Duplicated object %s in the database", o.ObjectID)
+				duplicated = append(duplicated, o)
+			}
 		default:
 			return &ExportData{Info: e.Info, Objects: duplicated}, fmt.Errorf("Unknown type object type %s ", o.ObjectTypeID)
 		}
@@ -163,6 +184,7 @@ func (e *ExportData) ImportCheck() (*ExportData, error) {
 	return &ExportData{Info: e.Info, Objects: duplicated}, nil
 }
 
+//Import Imports data from file
 func (e *ExportData) Import(overwrite bool, autorename bool) error {
 
 	var suffix string
@@ -173,7 +195,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 	log.Debugf("suffix: %s", suffix)
 	for i := 0; i < len(e.Objects); i++ {
 		o := e.Objects[i]
-		o.Error = "" //reset error if exist becaouse we
+		o.Error = "" //reset error if exists
 		log.Debugf("Importing object %+v", o)
 		if o.ObjectCfg == nil {
 			o.Error = fmt.Sprintf("Error inconsistent data not ObjectCfg found on Imported data for id: %s", o.ObjectID)
@@ -337,6 +359,55 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 				data.ID = data.ID + suffix
 			}
 			_, err = dbc.AddAlertIDCfg(&data)
+			if err != nil {
+				return err
+			}
+		case "devicestatcfg":
+			log.Debugf("Importing devicestatcfg : %+v", o.ObjectCfg)
+			data := config.DeviceStatCfg{}
+			json.Unmarshal(raw, &data)
+			var err error
+			idInt64, err := strconv.ParseInt(o.ObjectID, 10, 64)
+			if err != nil {
+				return fmt.Errorf("Error on parsing object ID %s to int64: error: %s ", o.ObjectID, err)
+			}
+			_, err = dbc.GetDeviceStatCfgByID(idInt64)
+			if err == nil { //value exist already in the database
+				if overwrite == true {
+					_, err2 := dbc.UpdateDeviceStatCfg(idInt64, &data)
+					if err2 != nil {
+						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
+					}
+					break
+				}
+			}
+			if autorename == true {
+				// A new device stat will be created and ID is autoincrement, then set ID to 0
+				data.ID = 0
+			}
+			_, err = dbc.AddDeviceStatCfg(&data)
+			if err != nil {
+				return err
+			}
+		case "templatecfg":
+			log.Debugf("Importing templatecfg : %+v", o.ObjectCfg)
+			data := config.TemplateCfg{}
+			json.Unmarshal(raw, &data)
+			var err error
+			_, err = dbc.GetTemplateCfgByID(o.ObjectID)
+			if err == nil { //value exist already in the database
+				if overwrite == true {
+					_, err2 := dbc.UpdateTemplateCfg(o.ObjectID, &data)
+					if err2 != nil {
+						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
+					}
+					break
+				}
+			}
+			if autorename == true {
+				data.ID = data.ID + suffix
+			}
+			_, err = dbc.AddTemplateCfg(&data)
 			if err != nil {
 				return err
 			}
