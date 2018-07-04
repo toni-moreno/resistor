@@ -117,6 +117,7 @@ func flags() *flag.FlagSet {
 	f.BoolVar(&getversion, "version", getversion, "display the version")
 	f.StringVar(&configFile, "config", configFile, "config file")
 	f.StringVar(&logDir, "logs", logDir, "log directory")
+	f.StringVar(&dataDir, "data", dataDir, "Data directory")
 	f.StringVar(&pidFile, "pidfile", pidFile, "path to pid file")
 	f.StringVar(&socketFile, "socket", socketFile, "path to create the unix socket")
 	f.Usage = func() {
@@ -139,10 +140,12 @@ func init() {
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	log.Formatter = customFormatter
 	customFormatter.FullTimestamp = true
+	//fmt.Printf("Init Default directories : \n   - Exec: %s\n   - Config: %s\n   -Logs: %s\n -Data: %s\n", appdir, confDir, logDir, dataDir)
 
 	// parse first time to see if config file is being specified
 	f := flags()
 	f.Parse(os.Args[1:])
+	//fmt.Printf("After flags Default directories : \n   - Exec: %s\n   - Config: %s\n   -Logs: %s\n -Data: %s\n", appdir, confDir, logDir, dataDir)
 
 	if getversion {
 		t, _ := strconv.ParseInt(BuildStamp, 10, 64)
@@ -172,13 +175,10 @@ func init() {
 		os.Exit(1)
 	}
 	//cfg := &MainConfig
+	//fmt.Printf("After reading config Default directories : \n   %+v\n", cfg.General)
 
 	if len(cfg.General.LogDir) > 0 {
 		logDir = cfg.General.LogDir
-		os.Mkdir(logDir, 0755)
-		//Log output
-		f, _ := os.OpenFile(logDir+"/resinjector.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
-		log.Out = f
 	}
 	if len(cfg.General.LogLevel) > 0 {
 		l, _ := logrus.ParseLevel(cfg.General.LogLevel)
@@ -191,6 +191,20 @@ func init() {
 		homeDir = cfg.General.HomeDir
 	}
 
+	// parse again to overwrite values received as parameters
+	f = flags()
+	f.Parse(os.Args[1:])
+	//fmt.Printf("Exiting init with directories : \n   - Exec: %s\n   - Config: %s\n   -Logs: %s\n -Data: %s\n", appdir, confDir, logDir, dataDir)
+
+	if len(logDir) > 0 {
+		os.Mkdir(logDir, 0755)
+		//Log output
+		f, _ := os.OpenFile(logDir+"/resinjector.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+		log.Out = f
+	}
+	if len(dataDir) > 0 {
+		os.Mkdir(dataDir, 0755)
+	}
 	//Initialize the DB configuration
 	err = cfg.Database.InitDB()
 	if err != nil {
