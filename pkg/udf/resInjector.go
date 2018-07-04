@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -75,13 +76,61 @@ var (
 	confDir    = filepath.Join(appdir, "conf")
 	dataDir    = confDir
 	configFile = filepath.Join(confDir, "resinjector.toml")
+	socketFile = "/tmp/resInjector.sock"
 	// now load up config settings
 	homeDir string
 	pidFile string
-	//DevDB --pending comment--
-	DevDB map[string][]config.DeviceStatCfg
-	mutex sync.RWMutex
+	//DevDB Map with device stats
+	DevDB      map[string][]config.DeviceStatCfg
+	mutex      sync.RWMutex
+	getversion bool
+	// Version Binary version
+	Version string
+	// Commit Git short commit id on build time
+	Commit string
+	// Branch Git branch on build time
+	Branch string
+	// BuildStamp time stamp on build time
+	BuildStamp string
 )
+
+func writePIDFile() {
+	if pidFile == "" {
+		return
+	}
+
+	// Ensure the required directory structure exists.
+	err := os.MkdirAll(filepath.Dir(pidFile), 0700)
+	if err != nil {
+		log.Fatal(3, "Failed to verify pid directory", err)
+	}
+
+	// Retrieve the PID and write it.
+	pid := strconv.Itoa(os.Getpid())
+	if err := ioutil.WriteFile(pidFile, []byte(pid), 0644); err != nil {
+		log.Fatal(3, "Failed to write pidfile", err)
+	}
+}
+
+func flags() *flag.FlagSet {
+	var f flag.FlagSet
+	f.BoolVar(&getversion, "version", getversion, "display the version")
+	f.StringVar(&configFile, "config", configFile, "config file")
+	f.StringVar(&logDir, "logs", logDir, "log directory")
+	f.StringVar(&pidFile, "pidfile", pidFile, "path to pid file")
+	f.StringVar(&socketFile, "socket", socketFile, "path to create the unix socket")
+	f.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+		f.VisitAll(func(flag *flag.Flag) {
+			format := "%10s: %s\n"
+			fmt.Fprintf(os.Stderr, format, "-"+flag.Name, flag.Usage)
+		})
+		fmt.Fprintf(os.Stderr, "\nAll settings can be set in config file: %s\n", configFile)
+		os.Exit(1)
+
+	}
+	return &f
+}
 
 //init Reads configuration file
 func init() {
@@ -91,11 +140,24 @@ func init() {
 	log.Formatter = customFormatter
 	customFormatter.FullTimestamp = true
 
+	// parse first time to see if config file is being specified
+	f := flags()
+	f.Parse(os.Args[1:])
+
+	if getversion {
+		t, _ := strconv.ParseInt(BuildStamp, 10, 64)
+		fmt.Printf("resinjector v%s (git: %s ) built at [%s]\n", Version, Commit, time.Unix(t, 0).Format("2006-01-02 15:04:05"))
+		os.Exit(0)
+	}
+
+	// now load up config settings
 	if _, err := os.Stat(configFile); err == nil {
 		viper.SetConfigFile(configFile)
 		confDir = filepath.Dir(configFile)
 	} else {
 		viper.SetConfigName("config")
+		viper.AddConfigPath("/etc/resistor/")
+		viper.AddConfigPath("/opt/resistor/conf/")
 		viper.AddConfigPath("./conf/")
 		viper.AddConfigPath(".")
 	}
@@ -130,12 +192,16 @@ func init() {
 	}
 
 	//Initialize the DB configuration
-	cfg.Database.InitDB()
+	err = cfg.Database.InitDB()
+	if err != nil {
+		log.Errorf("Fatal error on InitDB: %s \n", err)
+		os.Exit(1)
+	}
 
 }
 
 //InitDB initialize the DB configuration
-func (dbc *DatabaseCfg) InitDB() {
+func (dbc *DatabaseCfg) InitDB() error {
 	// Create ORM engine and database
 	var err error
 	var dbtype string
@@ -157,7 +223,7 @@ func (dbc *DatabaseCfg) InitDB() {
 
 	default:
 		log.Errorf("unknown db type %s", dbc.Type)
-		return
+		return fmt.Errorf("unknown db type %s", dbc.Type)
 	}
 
 	dbc.x, err = xorm.NewEngine(dbtype, datasource)
@@ -176,6 +242,7 @@ func (dbc *DatabaseCfg) InitDB() {
 	if dbc.Debug == "true" {
 		dbc.x.Logger().SetLevel(core.LOG_DEBUG)
 	}
+	return err
 }
 
 // resInjector
@@ -615,14 +682,11 @@ func timeTrack(start time.Time, name string) {
 	log.Debugf("TIME: %s took %s", name, elapsed)
 }
 
-var socketFile = "/tmp/resInjector.sock"
-var socketPath = flag.String("socket", socketFile, "Where to create the unix socket")
-
 func main() {
-	flag.Parse()
+	writePIDFile()
 	syscall.Umask(0000)
 	// Create unix socket
-	addr, err := net.ResolveUnixAddr("unix", *socketPath)
+	addr, err := net.ResolveUnixAddr("unix", socketFile)
 	if err != nil {
 		log.Fatalf("Error on ResolveUnixAddr: %s", err)
 	}
