@@ -119,10 +119,6 @@ func init() {
 
 	if len(cfg.General.LogDir) > 0 {
 		logDir = cfg.General.LogDir
-		os.Mkdir(logDir, 0755)
-		//Log output
-		f, _ := os.OpenFile(logDir+"/resistor.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
-		log.Out = f
 	}
 	if len(cfg.General.LogLevel) > 0 {
 		l, _ := logrus.ParseLevel(cfg.General.LogLevel)
@@ -134,6 +130,20 @@ func init() {
 	if len(cfg.General.HomeDir) > 0 {
 		homeDir = cfg.General.HomeDir
 	}
+	// parse again to overwrite values received as parameters
+	f = flags()
+	f.Parse(os.Args[1:])
+
+	if len(logDir) > 0 {
+		os.Mkdir(logDir, 0755)
+		//Log output
+		f, _ := os.OpenFile(logDir+"/resistor.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+		log.Out = f
+	}
+	if len(dataDir) > 0 {
+		os.Mkdir(dataDir, 0755)
+	}
+
 	//check if exist public dir in home
 	if _, err := os.Stat(filepath.Join(homeDir, "public")); err != nil {
 		log.Warnf("There is no public (www) directory on [%s] directory", homeDir)
@@ -156,7 +166,7 @@ func init() {
 
 	impexp.SetLogger(log)
 	//
-	log.Infof("Set Default directories : \n   - Exec: %s\n   - Config: %s\n   -Logs: %s\n -Home: %s\n", appdir, confDir, logDir, homeDir)
+	log.Infof("Set Default directories : \n   - Exec: %s\n   - Config: %s\n   -Logs: %s\n -Home: %s\n -Data: %s\n", appdir, confDir, logDir, homeDir, dataDir)
 }
 
 func main() {
