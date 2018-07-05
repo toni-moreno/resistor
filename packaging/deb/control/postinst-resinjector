@@ -25,7 +25,7 @@ case "$1" in
 	    addgroup --system "$RESIST_GROUP" --quiet
 	fi
 	if ! id $RESIST_USER > /dev/null 2>&1 ; then
-	    adduser --system --home /usr/share/resinjector --no-create-home \
+	    adduser --system --home /usr/share/resistor --no-create-home \
 		--ingroup "$RESIST_GROUP" --disabled-password --shell /bin/false \
 		"$RESIST_USER"
 	fi
