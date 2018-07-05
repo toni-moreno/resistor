@@ -12,6 +12,6 @@ MAX_OPEN_FILES=10000
 
 CONF_DIR=/etc/resistor
 
-CONF_FILE=/etc/resistor/config.toml
+CONF_FILE=/etc/resistor/resistor.toml
 
 RESTART_ON_UPGRADE=false

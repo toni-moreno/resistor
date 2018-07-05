@@ -12,6 +12,8 @@ MAX_OPEN_FILES=10000
 
 CONF_DIR=/etc/resistor
 
-CONF_FILE=/etc/resistor/resistor.toml
+CONF_FILE=/etc/resistor/resinjector.toml
 
 RESTART_ON_UPGRADE=false
+
+SOCK_FILE=/tmp/resInjector.sock

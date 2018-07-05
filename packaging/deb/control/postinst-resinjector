@@ -1,0 +1,71 @@
+#!/bin/sh
+
+set -e
+
+[ -f /etc/default/resinjector ] && . /etc/default/resinjector
+
+startresinjector() {
+  if [ -x /bin/systemctl ]; then
+    /bin/systemctl daemon-reload
+    /bin/systemctl restart resinjector
+	elif [ -x "/etc/init.d/resinjector" ]; then
+		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+			invoke-rc.d resinjector restart || true
+		else
+			/etc/init.d/resinjector restart || true
+		fi
+	fi
+}
+
+case "$1" in
+	configure)
+	[ -z "$RESIST_USER" ] && RESIST_USER="resist"
+	[ -z "$RESIST_GROUP" ] && RESIST_GROUP="resist"
+	if ! getent group "$RESIST_GROUP" > /dev/null 2>&1 ; then
+	    addgroup --system "$RESIST_GROUP" --quiet
+	fi
+	if ! id $RESIST_USER > /dev/null 2>&1 ; then
+	    adduser --system --home /usr/share/resinjector --no-create-home \
+		--ingroup "$RESIST_GROUP" --disabled-password --shell /bin/false \
+		"$RESIST_USER"
+	fi
+
+  if [ -x /opt/resinjector/ ]; then
+    echo "### Upgrading Notice ### "
+    echo "-- New resinjector install home is /usr/share/resinjector"
+    #echo "-- Please move sqlite3 database to /var/lib/resistor/"
+    echo "-- Notice: service name && binary changed to resinjector"
+  fi
+
+	# Set user permissions on /var/log/resistor, /var/lib/resistor
+	mkdir -p /var/log/resistor /var/lib/resistor
+	chown -R $RESIST_USER:$RESIST_GROUP /var/log/resistor /var/lib/resistor
+	chmod 755 /var/log/resistor /var/lib/resistor
+
+	# configuration files should not be modifiable by resinjector user, as this can be a security issue
+	chown -Rh root:$RESIST_GROUP /etc/resistor/*
+	chmod 755 /etc/resistor
+	find /etc/resistor -type f -exec chmod 640 {} ';'
+	find /etc/resistor -type d -exec chmod 755 {} ';'
+
+	# if $2 is set, this is an upgrade
+	if ( [ -n $2 ] && [ "$RESTART_ON_UPGRADE" = "true" ] ) ; then
+		startresinjector
+	# this is a fresh installation
+	elif [ -z $2 ] ; then
+        if [ -x /bin/systemctl ] ; then
+            echo "### NOT starting on installation, please execute the following statements to configure resinjector to start automatically using systemd"
+            echo " sudo /bin/systemctl daemon-reload"
+            echo " sudo /bin/systemctl enable resinjector"
+            echo "### You can start resinjector by executing"
+            echo " sudo /bin/systemctl start resinjector"
+
+        elif [ -x /usr/sbin/update-rc.d ] ; then
+            echo "### NOT starting resinjector by default on bootup, please execute"
+            echo " sudo update-rc.d resinjector defaults 95 10"
+            echo "### In order to start resinjector, execute"
+            echo " sudo service resinjector start"
+        fi
+	fi
+	;;
+esac

@@ -1,18 +1,18 @@
 #! /usr/bin/env bash
 
 # chkconfig: 2345 80 05
-# description: resistor web server & backend
-# processname: resistor
-# config: /etc/resistor/config.toml
-# pidfile: /var/run/resistor.pid
+# description: resinjector web server & backend
+# processname: resinjector
+# config: /etc/resinjector/config.toml
+# pidfile: /var/run/resinjector.pid
 
 ### BEGIN INIT INFO
-# Provides:          resistor
+# Provides:          resinjector
 # Required-Start:    $all
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start resistor at boot time
+# Short-Description: Start resinjector at boot time
 ### END INIT INFO
 
 #  tested on
@@ -20,18 +20,18 @@
 #  3. Centos with initscripts package installed
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
-NAME=resistor
-DESC="resistor Agent"
+NAME=resinjector
+DESC="resinjectorUDF for Kapacitor"
 DEFAULT=/etc/default/$NAME
 
 RESIST_USER=resist
 RESIST_GROUP=resist
-RESIST_HOME=/usr/share/resistor
-CONF_DIR=/etc/resistor
+RESIST_HOME=/usr/share/resinjector
+CONF_DIR=/etc/resinjector
 WORK_DIR=$RESIST_HOME
-DATA_DIR=/var/lib/resistor
-LOG_DIR=/var/log/resistor
-CONF_FILE=$CONF_DIR/resistor.toml
+DATA_DIR=/var/lib/resinjector
+LOG_DIR=/var/log/resinjector
+CONF_FILE=$CONF_DIR/resinjector.toml
 MAX_OPEN_FILES=10000
 PID_FILE=/var/run/$NAME.pid
 DAEMON=/usr/sbin/$NAME
@@ -60,14 +60,14 @@ if [ -f "$DEFAULT" ]; then
 	. "$DEFAULT"
 fi
 
-DAEMON_OPTS="--pidfile=${PID_FILE} --config=${CONF_FILE}  --logs=${LOG_DIR} --home=${RESIST_HOME} --data=${DATA_DIR} "
+DAEMON_OPTS="--pidfile=${PID_FILE} --config=${CONF_FILE}  --data=${DATA_DIR} --logs=${LOG_DIR} --socket=${SOCK_FILE} "
 
 case "$1" in
   start)
 
 	log_daemon_msg "Starting $DESC"
 
-	pid=`pidofproc -p $PID_FILE resistor`
+	pid=`pidofproc -p $PID_FILE resinjector`
 	if [ -n "$pid" ] ; then
 		log_begin_msg "Already running."
 		log_end_msg 0
@@ -131,7 +131,7 @@ case "$1" in
 	log_end_msg 0
 	;;
   status)
-	status_of_proc -p $PID_FILE resistor resistor && exit 0 || exit $?
+	status_of_proc -p $PID_FILE resinjector resinjector && exit 0 || exit $?
     ;;
   restart|force-reload)
 	if [ -f "$PID_FILE" ]; then

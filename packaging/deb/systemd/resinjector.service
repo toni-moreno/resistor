@@ -1,22 +1,22 @@
 [Unit]
-Description=Resistor Agent
+Description=Resistor UDF Injector for Kapacitor 
 Documentation=http://github.com/toni-moreno/resistor
 Wants=network-online.target
 After=network-online.target
 
 [Service]
-EnvironmentFile=/etc/default/resistor
+EnvironmentFile=/etc/default/resinjector
 User=resist
 Group=resist
 Type=simple
 Restart=on-failure
 WorkingDirectory=/usr/share/resistor
-ExecStart=/usr/sbin/resistor                    \
+ExecStart=/usr/sbin/resinjector                       \
                             --pidfile=${PID_FILE}     \
                             --config=${CONF_FILE}     \
+                            --data=${DATA_DIR}        \
                             --logs=${LOG_DIR}         \
-                            --home=${RESIST_HOME}     \
-                            --data=${DATA_DIR}
+                            --socket=${SOCK_FILE} 
 LimitNOFILE=10000
 TimeoutStopSec=20
 UMask=0027
