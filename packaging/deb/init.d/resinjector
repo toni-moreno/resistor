@@ -3,7 +3,7 @@
 # chkconfig: 2345 80 05
 # description: resinjector web server & backend
 # processname: resinjector
-# config: /etc/resinjector/config.toml
+# config: /etc/resistor/resinjector.toml
 # pidfile: /var/run/resinjector.pid
 
 ### BEGIN INIT INFO
@@ -26,11 +26,11 @@ DEFAULT=/etc/default/$NAME
 
 RESIST_USER=resist
 RESIST_GROUP=resist
-RESIST_HOME=/usr/share/resinjector
-CONF_DIR=/etc/resinjector
+RESIST_HOME=/usr/share/resistor
+CONF_DIR=/etc/resistor
 WORK_DIR=$RESIST_HOME
-DATA_DIR=/var/lib/resinjector
-LOG_DIR=/var/log/resinjector
+DATA_DIR=/var/lib/resistor
+LOG_DIR=/var/log/resistor
 CONF_FILE=$CONF_DIR/resinjector.toml
 MAX_OPEN_FILES=10000
 PID_FILE=/var/run/$NAME.pid

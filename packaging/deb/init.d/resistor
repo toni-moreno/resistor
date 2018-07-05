@@ -3,7 +3,7 @@
 # chkconfig: 2345 80 05
 # description: resistor web server & backend
 # processname: resistor
-# config: /etc/resistor/config.toml
+# config: /etc/resistor/resistor.toml
 # pidfile: /var/run/resistor.pid
 
 ### BEGIN INIT INFO
