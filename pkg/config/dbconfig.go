@@ -7,11 +7,11 @@ import "time"
 // DeviceStatCfg current stats by device
 type DeviceStatCfg struct {
 	ID             int64  `xorm:"'id' pk autoincr"`
-	Order          int64  `xorm:"order"`
+	OrderID        int64  `xorm:"orderid"`
 	DeviceID       string `xorm:"deviceid" binding:"Required"`
 	AlertID        string `xorm:"alertid" binding:"Required"`
 	ProductID      string `xorm:"productid" binding:"Required"`
-	Exception      int64  `xorm:"exception"`
+	ExceptionID    int64  `xorm:"exceptionid"`
 	Active         bool   `xorm:"active"`
 	BaseLine       string `xorm:"baseline"`
 	FilterTagKey   string `xorm:"filterTagKey"`

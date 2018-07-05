@@ -55,7 +55,7 @@ type DatabaseCfg struct {
 //DeviceMonStat --pending comment--
 type DeviceMonStat struct {
 	AlertID        string
-	Exception      int64
+	ExceptionID    int64
 	Active         bool
 	BaseLine       string
 	FilterTagKey   string
@@ -445,9 +445,9 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 			// (r.Exception > 0) !!!???  ==>> changed to (r.Exception >= 0)
 			// Pass only DB rules with Active = true ???
 			//tmpbool := r.Active && (r.Exception > 0) && strings.Contains(r.BaseLine, m.line)
-			tmpbool := r.Active && (r.Exception >= 0) && strings.Contains(r.BaseLine, m.line)
+			tmpbool := r.Active && (r.ExceptionID >= 0) && strings.Contains(r.BaseLine, m.line)
 
-			log.Debugf("Active: %t | Exception : %d | LINE: %s (%s) | RESULT :%t", r.Active, r.Exception, r.BaseLine, m.line, tmpbool)
+			log.Debugf("Active: %t | ExceptionID : %d | LINE: %s (%s) | RESULT :%t", r.Active, r.ExceptionID, r.BaseLine, m.line, tmpbool)
 			log.Debugf("CRIT : %t", critok)
 			log.Debugf("WARN : %t", warnok)
 			log.Debugf("INFO : %t", infook)
@@ -469,7 +469,7 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 				} else {
 					p.Tags["check_info"] = "0"
 				}
-				p.Tags["mon_exc"] = strconv.FormatInt(r.Exception, 10)
+				p.Tags["mon_exc"] = strconv.FormatInt(r.ExceptionID, 10)
 
 			} else {
 				//inject data as Fields
@@ -484,7 +484,7 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 				if p.FieldsInt == nil {
 					p.FieldsInt = make(map[string]int64)
 				}
-				p.FieldsInt["mon_exc"] = r.Exception
+				p.FieldsInt["mon_exc"] = r.ExceptionID
 			}
 
 			log.Debugf("Applying DATA for device %s | AlertID: %s, (Filter: %s/%s ):  [crit: %t| warn: %t| info : %t | exc: %d]",
@@ -495,7 +495,7 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 				tmpbool && critok,
 				tmpbool && warnok,
 				tmpbool && infook,
-				r.Exception)
+				r.ExceptionID)
 		} else {
 			log.Debugf("AlertId %s received from kapacitor does not match AlertId %s from rules.", m.alertId, r.AlertID)
 		}
@@ -659,7 +659,7 @@ func reloadDbData() error {
 
 	var err error
 	var devices []*config.DeviceStatCfg
-	if err = cfg.Database.x.Where("`active` = 1").OrderBy("`deviceid`, `alertid`, `order`").Find(&devices); err != nil {
+	if err = cfg.Database.x.Where("`active` = 1").OrderBy("`deviceid`, `alertid`, `orderid`").Find(&devices); err != nil {
 		log.Warnf("Getting devices from DB failed with error: %+v.", err)
 	}
 	DevDB = make(map[string][]config.DeviceStatCfg)

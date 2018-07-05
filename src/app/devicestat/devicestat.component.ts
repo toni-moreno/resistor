@@ -69,11 +69,11 @@ export class DeviceStatComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : ''],
-      Order: [this.sampleComponentForm ? this.sampleComponentForm.value.Order : '', Validators.required],
+      OrderID: [this.sampleComponentForm ? this.sampleComponentForm.value.OrderID : '', Validators.required],
       DeviceID: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceID : '', Validators.required],
       AlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertID : '', Validators.required],
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
-      Exception: [this.sampleComponentForm ? this.sampleComponentForm.value.Exception : '', Validators.required],
+      ExceptionID: [this.sampleComponentForm ? this.sampleComponentForm.value.ExceptionID : '', Validators.required],
       Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaseLine: [this.sampleComponentForm ? this.sampleComponentForm.value.BaseLine : '', Validators.required],
       FilterTagKey: [this.sampleComponentForm ? this.sampleComponentForm.value.FilterTagKey : ''],

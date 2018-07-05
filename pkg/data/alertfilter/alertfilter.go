@@ -11,11 +11,11 @@ import (
 /* DeviceStatCfg current stats by device
 type DeviceStatCfg struct {
 	ID             int64  `xorm:"'id' pk autoincr"`
-	Order          int64  `xorm:"order"`
+	OrderID          int64  `xorm:"orderid"`
 	DeviceID       string `xorm:"deviceid" binding:"Required"`
 	AlertID        string `xorm:"alertid" binding:"Required"`
 	ProductID      string `xorm:"productid" binding:"Required"`
-	Exception      int64  `xorm:"exception"`
+	ExceptionID      int64  `xorm:"exceptionid"`
 	Active         bool   `xorm:"active"`
 	BaseLine       string `xorm:"baseline"`
 	FilterTagKey   string `xorm:"filterTagKey"`
@@ -23,7 +23,7 @@ type DeviceStatCfg struct {
 	Description    string `xorm:"description"`
 }
 
-[Device] - > [Product] -> [BaseLine] ->[AlertID ] -> [ id, order - Exc - Active FilterTagKey monFilterTagValue ]
+[Device] - > [Product] -> [BaseLine] ->[AlertID ] -> [ id, orderid - Excid - Active FilterTagKey monFilterTagValue ]
 
 type MonStat struct {
 	monExc            int64
@@ -61,9 +61,9 @@ func SetLogger(l *logrus.Logger) {
 // AlertStat kk
 type AlertStat struct {
 	ID             int64
-	Order          int64
+	OrderID        int64
 	Active         bool
-	Exception      int64
+	ExceptionID    int64
 	FilterTagKey   string
 	FilterTagValue string
 }
@@ -82,7 +82,7 @@ func ReloadStats() error {
 		return err
 	}
 
-	//[Device] - > [Product] -> [BaseLine] ->[AlertID ] -> [ id, order - Exc - Active FilterTagKey monFilterTagValue ]
+	//[Device] - > [Product] -> [BaseLine] ->[AlertID ] -> [ id, orderid - Excid - Active FilterTagKey monFilterTagValue ]
 
 	//Generating the MAP
 	for _, v := range dbmap {
@@ -95,9 +95,9 @@ func ReloadStats() error {
 					if _, ok := DevStatsDB[v.DeviceID][v.ProductID][v.BaseLine][v.AlertID]; ok {
 						newalert := &AlertStat{
 							ID:             v.ID,
-							Order:          v.Order,
+							OrderID:        v.OrderID,
 							Active:         v.Active,
-							Exception:      v.Exception,
+							ExceptionID:    v.ExceptionID,
 							FilterTagKey:   v.FilterTagKey,
 							FilterTagValue: v.FilterTagValue,
 						}
