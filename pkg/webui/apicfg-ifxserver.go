@@ -48,6 +48,9 @@ func ping(cfg *config.IfxServerCfg) (client.Client, time.Duration, string, error
 		return cli, 0, "", err
 	}
 	elapsed, message, err := cli.Ping(time.Duration(5) * time.Second)
+	if err == nil {
+		_, err = InfluxQuery(cli, "show databases", "")
+	}
 	return cli, elapsed, message, err
 }
 
@@ -57,12 +60,12 @@ func InfluxQuery(cli client.Client, query string, db string) ([]string, error) {
 	q := client.NewQuery(query, db, "s")
 	response, err := cli.Query(q)
 	if err != nil {
-		log.Errorf("IMPORT RESULT  ERROR :%+s", err)
+		log.Errorf("Query RESULT ERROR: %+s", err)
 		return nil, err
 	}
 	if response.Error() != nil {
-		log.Errorf("IMPORT RESULT  ERROR :%+s", response.Error())
-		return nil, fmt.Errorf("IMPORT RESULT  ERROR :%+s", response.Error())
+		log.Errorf("Query RESULT ERROR: %+s", response.Error())
+		return nil, fmt.Errorf("Query RESULT ERROR: %+s", response.Error())
 	}
 	var retarray []string
 	for _, v1 := range response.Results {
