@@ -3,6 +3,7 @@ package webui
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/go-macaron/binding"
@@ -658,6 +659,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["ID_INSTRUCCION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.OperationID}
 	//External Services Settings
 	//OutHTTP
+	vars["OUT_HTTP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: strings.Join(dev.OutHTTP, ",")}
 	//KapacitorID
 	//Data Origin Settings
 	vars["INFLUX_BD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getIfxDBNameByID(dev.InfluxDB)}

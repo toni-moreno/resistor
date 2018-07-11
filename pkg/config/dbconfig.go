@@ -131,11 +131,10 @@ type TemplateCfg struct {
 
 // OutHTTPCfg Alert Destination HTTP based backends config
 type OutHTTPCfg struct {
-	ID          string   `xorm:"'id' unique" binding:"Required"`
-	URL         string   `xorm:"url" binding:"Required"`
-	Headers     []string `xorm:"headers"`
-	AlertTpl    string   `xorm:"alert_tpl"`
-	Description string   `xorm:"description"`
+	ID          string `xorm:"'id' unique" binding:"Required"`
+	Type        string `xorm:"type"`
+	JSONConfig  string `xorm:"json_config"`
+	Description string `xorm:"description"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"

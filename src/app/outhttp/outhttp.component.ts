@@ -58,9 +58,8 @@ export class OutHTTPComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      URL: [this.sampleComponentForm ? this.sampleComponentForm.value.URL : '', Validators.required],
-      Headers: [this.sampleComponentForm ? this.sampleComponentForm.value.Headers : '', Validators.required],
-      AlertTpl: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertTpl : '', Validators.required],
+      Type: [this.sampleComponentForm ? this.sampleComponentForm.value.Type : '', Validators.required],
+      JSONConfig: [this.sampleComponentForm ? this.sampleComponentForm.value.JSONConfig : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
