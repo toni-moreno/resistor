@@ -30,7 +30,7 @@
       </ng-container>
       <div class="form-fixed-height">
         <div class="well well-sm">
-          <span class="editsection">Connection Settings</span>
+          <span class="editsection">Core Settings</span>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="ID">ID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of HTTP Alerting Backend server"></i>
@@ -39,44 +39,33 @@
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
-
           <div class="form-group">
-            <label class="control-label col-sm-2" for="URL">URL</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for HTTP Alerting Backend"></i>
+            <label class="control-label col-sm-2" for="Type">Type</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Type for HTTP Alerting Backend"></i>
             <div class="col-sm-9">
-              <input formControlName="URL" id="URL" [ngModel]="sampleComponentForm.value.URL" />
-              <control-messages [control]="sampleComponentForm.controls.URL"></control-messages>
+              <select formControlName="Type" id="Type" [ngModel]="sampleComponentForm.value.Type">
+                <option value="logging" selected="selected">logging</option>
+                <option value="httppost">httppost</option>
+                <option value="slack">slack</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.Type"></control-messages>
             </div>
           </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="Headers">Headers</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Headers required for the alerting backend"></i>
-            <div class="col-sm-9">
-              <input formControlName="Headers" id="Headers" [ngModel]="sampleComponentForm.value.Headers" />
-              <control-messages [control]="sampleComponentForm.controls.Headers"></control-messages>
-            </div>
-          </div>
-        </div>
-        <div class="well well-sm">
-          <span class="editsection">Core Settings</span>
           <div class="form-group" style="margin-top: 25px">
-            <label class="control-label col-sm-2" for="Headers">AlertTpl</label>
+            <label class="control-label col-sm-2" for="JSONConfig">JSONConfig</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Alert Template"></i>
             <div class="col-sm-9">
-              <textarea class="form-control" style="width: 50%" rows="2" formControlName="AlertTpl" id="AlertTpl" [ngModel]="sampleComponentForm.value.AlertTpl"> </textarea>
-              <control-messages [control]="sampleComponentForm.controls.AlertTpl"></control-messages>
+              <textarea class="form-control" style="width: 50%" rows="5" formControlName="JSONConfig" id="JSONConfig" [ngModel]="sampleComponentForm.value.JSONConfig"> </textarea>
+              <control-messages [control]="sampleComponentForm.controls.JSONConfig"></control-messages>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="well well-sm">
-        <span class="editsection">Extra Settings</span>
-        <div class="form-group" style="margin-top: 25px">
-          <label class="control-label col-sm-2" for="Description">Description</label>
-          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the HTTP Alerting Backend"></i>
-          <div class="col-sm-9">
-            <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
-            <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+          <div class="form-group" style="margin-top: 25px">
+            <label class="control-label col-sm-2" for="Description">Description</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the HTTP Alerting Backend"></i>
+            <div class="col-sm-9">
+              <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
+              <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+            </div>
           </div>
         </div>
       </div>
