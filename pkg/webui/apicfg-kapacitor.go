@@ -3,6 +3,7 @@ package webui
 import (
 	"fmt"
 	"math"
+	"net"
 	"strings"
 	"time"
 
@@ -600,48 +601,53 @@ func getKapaCfgIDArray(devcfgarray []*config.KapacitorCfg) []string {
 }
 
 // getTemplateID Gets TemplateID from AlertIDCfg
-// example: "UMBRAL_2EX_CC_UA_FMOVAVG"
-// TrigerTypeTranslated + _2EX_ + CritDirection + _ + ThresholdTypeTranslated + _F + StatFunc
+// example: "THRESHOLD_2EX_AC_TH_FMOVAVG"
+// TrigerType + _2EX_ + CritDirection + _ + ThresholdTypeTranslated + _F + StatFunc
 func getTemplateID(dev config.AlertIDCfg) string {
 	sRet := "DEADMAN"
 	if dev.TrigerType != "DEADMAN" {
-		sTriggerType := translateTriggerType(dev.TrigerType)
-		sThresholdType := translateThresholdType(dev.TrigerType, dev.ThresholdType)
+		sTriggerType := dev.TrigerType
+		sThresholdType := translateThresholdType(dev.TrigerType, dev.ThresholdType, dev.TrendSign)
 		sRet = fmt.Sprintf("%s_2EX_%s_%s_F%s", sTriggerType, dev.CritDirection, sThresholdType, dev.StatFunc)
 	}
 	log.Debugf("getTemplateID. %s.", sRet)
 	return sRet
 }
 
-// translateTriggerType Translates TriggerType
-func translateTriggerType(sTriggerType string) string {
-	sRet := sTriggerType
-	switch sTriggerType {
-	case "THRESHOLD":
-		sRet = "UMBRAL"
-	case "TREND":
-		sRet = "TENDENCIA"
-	default:
-		sRet = "DEADMAN"
-	}
-	log.Debugf("translateTriggerType. TriggerType: %s. Returns: %s.", sTriggerType, sRet)
-	return sRet
-}
-
 // translateThresholdType Translates ThresholdType
-func translateThresholdType(sTriggerType string, sThresholdType string) string {
+func translateThresholdType(sTriggerType string, sThresholdType string, sTrendSign string) string {
 	sRet := sThresholdType
 	if sThresholdType == "relative" {
 		// only for TREND
-		sRet = "TR"
+		sRet = "TRP"
+		if sTrendSign == "negative" {
+			sRet = "TRN"
+		}
 	} else { // absolute
 		if sTriggerType == "TREND" {
-			sRet = "TA"
+			sRet = "TAP"
+			if sTrendSign == "negative" {
+				sRet = "TAN"
+			}
 		} else {
-			sRet = "UA"
+			sRet = "TH"
 		}
 	}
-	log.Debugf("translateThresholdType. TriggerType: %s, ThresholdType: %s. Returns: %s.", sTriggerType, sThresholdType, sRet)
+	log.Debugf("translateThresholdType. TriggerType: %s, ThresholdType: %s, TrendSign: %s. Returns: %s.", sTriggerType, sThresholdType, sTrendSign, sRet)
+	return sRet
+}
+
+func getOwnIP() string {
+	sRet := "7.116.100.107"
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Errorf("getOwnIP. Error dialing udp: %+v.", err)
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	log.Debugf("getOwnIP. localAddr: %+v.", localAddr)
+	sRet = localAddr.IP.String()
+	log.Debugf("getOwnIP. %s", sRet)
 	return sRet
 }
 
@@ -650,13 +656,15 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	//Getting JSON vars from user input
 	vars := make(kapacitorClient.Vars)
 
+	vars["RESISTOR_IP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getOwnIP()}
+	vars["RESISTOR_PORT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: "8090"}
 	//Core Settings
 	vars["ID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ID}
-	vars["ID_LINIA"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.BaselineID}
-	vars["ID_PRODUCTO"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ProductID}
-	vars["ID_GRUPO"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GroupID}
-	vars["ID_NUMALERTA"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.NumAlertID}
-	vars["ID_INSTRUCCION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.OperationID}
+	vars["ID_LINE"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.BaselineID}
+	vars["ID_PRODUCT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ProductID}
+	vars["ID_GROUP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GroupID}
+	vars["ID_NUMALERT"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.NumAlertID}
+	vars["ID_INSTRUCTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.OperationID}
 	//External Services Settings
 	//OutHTTP
 	vars["OUT_HTTP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: strings.Join(dev.OutHTTP, ",")}
@@ -673,9 +681,9 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	if err != nil {
 		log.Warningf("Error parsing duration from interval check %s. 0 will be assigned. Error: %s", dev.IntervalCheck, err)
 	}
-	vars["INTERVALO_CHECK"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dIntervalCheck}
+	vars["INTERVAL_CHECK"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dIntervalCheck}
 	//Alert Settings
-	vars["TIPO_TRIGUER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.TrigerType}
+	//vars["TIPO_TRIGUER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.TrigerType}
 	if dev.TrigerType != "DEADMAN" {
 		vars["STAT_FUN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.StatFunc}
 		vars["CRIT_DIRECTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.CritDirection}
@@ -695,7 +703,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 			min, max, weekdays = getRangeTimeInfo(dev.ThCritRangeTimeID)
 			vars["TH_CRIT_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
 			vars["TH_CRIT_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
-			vars["DIA_SEMANA_CRIT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
+			vars["DAY_WEEK_CRIT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
 		}
 		vars["TH_WARN_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnDef}
 		vars["TH_WARN_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThWarnEx1}
@@ -704,7 +712,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 			min, max, weekdays = getRangeTimeInfo(dev.ThWarnRangeTimeID)
 			vars["TH_WARN_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
 			vars["TH_WARN_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
-			vars["DIA_SEMANA_WARN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
+			vars["DAY_WEEK_WARN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
 		}
 		vars["TH_INFO_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoDef}
 		vars["TH_INFO_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThInfoEx1}
@@ -713,7 +721,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 			min, max, weekdays = getRangeTimeInfo(dev.ThInfoRangeTimeID)
 			vars["TH_INFO_MIN_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: min}
 			vars["TH_INFO_MAX_HOUR"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: max}
-			vars["DIA_SEMANA_INFO"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
+			vars["DAY_WEEK_INFO"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: weekdays}
 		}
 	}
 	//Extra Settings
@@ -729,16 +737,6 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["ALERT_EXTRA_TEXT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
 	//vars["FIELD_DEFAULT"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: ""}
 	/*
-		//envio_mail there is no field on form
-		vars["envio_mail"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: "raul.solorzano.navarro.sa@everis.com"}
-		vars["details"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-		vars["durationField"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-		vars["idTag"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-		vars["levelTag"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-		vars["messageField"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-		vars["pocEntorno"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
-		vars["influx_agrup"] = kapacitorClient.Var{Type: kapacitorClient.VarList, Value: ""}
-		vars["every"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: ""}
 		vars["MOV_AVG_POINTS"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: ""}
 	*/
 

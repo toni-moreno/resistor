@@ -142,8 +142,8 @@ func DeleteTemplate(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete template with id: %s.", id)
 	//ensure this template is not used by any resistor alert
-	sTriggerType, sCritDirection, sThresholdType, sStatFunc := getTemplateIDParts(id)
-	idalertsarray, err := GetAlertIDCfgByTemplate(sTriggerType, sCritDirection, sThresholdType, sStatFunc)
+	sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc := getTemplateIDParts(id)
+	idalertsarray, err := GetAlertIDCfgByTemplate(sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc)
 	if err != nil {
 		log.Warningf("Error getting alerts related to this template %s. Error: %s", id, err)
 		ctx.JSON(404, err.Error())
@@ -231,41 +231,38 @@ func GetTemplateAffectOnDel(ctx *Context) {
 }
 
 // getTemplateIDParts Gets TemplateID parts from TemplateID
-// example: from: "UMBRAL_2EX_CC_UA_FMOVAVG" --> result: "THRESHOLD", "CC", "absolute", "MOVAVG"
-// TrigerTypeTranslated + CritDirection + ThresholdTypeTranslated + StatFunc
-func getTemplateIDParts(sTemplateID string) (string, string, string, string) {
-	sTriggerType, sCritDirection, sThresholdType, sStatFunc := "DEADMAN", "", "", ""
+// example: from: "THRESHOLD_2EX_AC_TAP_FMOVAVG" --> result: "THRESHOLD", "AC", "absolute", "positive", "MOVAVG"
+// TrigerType + CritDirection + ThresholdTypeTranslated + StatFunc
+func getTemplateIDParts(sTemplateID string) (string, string, string, string, string) {
+	sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc := "DEADMAN", "", "", "", ""
 	if sTemplateID != "DEADMAN" {
 		partsarray := strings.Split(sTemplateID, "_")
 		if len(partsarray) == 5 {
-			sTriggerType = translate2eng(partsarray[0])
+			sTriggerType = partsarray[0]
 			sCritDirection = partsarray[2]
-			sThresholdType = translate2long(partsarray[3][1:])
+			sThresholdType, sTrendSign = getTrendDetails(partsarray[3][1:])
 			sStatFunc = partsarray[4][1:]
 		}
 	}
-	log.Debugf("getTemplateIDParts. %s, %s, %s, %s, %s.", sTemplateID, sTriggerType, sCritDirection, sThresholdType, sStatFunc)
-	return sTriggerType, sCritDirection, sThresholdType, sStatFunc
+	log.Debugf("getTemplateIDParts. %s, %s, %s, %s, %s, %s.", sTemplateID, sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc)
+	return sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc
 }
 
-// translate2eng Translates to english
-// UMBRAL to THRESHOLD
-// TENDENCIA to TREND
-func translate2eng(sTriggerType string) string {
-	sRet := "THRESHOLD"
-	if sTriggerType == "TENDENCIA" {
-		sRet = "TREND"
-	}
-	return sRet
-}
-
-// translate2long Translates to long value
+// getTrendDetails Gets trend details
 // A to absolute
 // R to relative
-func translate2long(sInput string) string {
-	sRet := "absolute"
-	if sInput == "R" {
-		sRet = "relative"
+// P to positive
+// N to negative
+func getTrendDetails(sInput string) (string, string) {
+	sAbsRel := "absolute"
+	sTrendSign := ""
+	if strings.Index(sInput, "R") > -1 {
+		sAbsRel = "relative"
 	}
-	return sRet
+	if strings.Index(sInput, "P") > -1 {
+		sTrendSign = "positive"
+	} else if strings.Index(sInput, "N") > -1 {
+		sTrendSign = "negative"
+	}
+	return sAbsRel, sTrendSign
 }

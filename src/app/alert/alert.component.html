@@ -33,15 +33,18 @@
           <span class="editsection">Core Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.ID">
             <label class="control-label col-sm-2" for="ID">ID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of the alert. Autocalculated from below fields"></i>
             <div class="col-sm-9">
-              <input formControlName="ID" id="ID" disabled [(ngModel)]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.GroupID+'-'+sampleComponentForm.value.NumAlertID" />
-              <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
+                <input formControlName="ID" id="ID" disabled [(ngModel)]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.GroupID+'-'+sampleComponentForm.value.NumAlertID" />
+              <!--
+            <input formControlName="ID" id="ID" disabled [(ngModel)]="getAlertID(sampleComponentForm.value.BaselineID, sampleComponentForm.value.ProductID, sampleComponentForm.value.GroupID, sampleComponentForm.value.NumAlertID)" />
+            -->
+            <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.BaselineID">
             <label class="control-label col-sm-2" for="BaselineID">BaselineID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the line (LB for Base line and LE for Extended line)"></i>
             <div class="col-sm-9">
               <input formControlName="BaselineID" id="BaselineID" [ngModel]="sampleComponentForm.value.BaselineID" />
               <control-messages [control]="sampleComponentForm.controls.BaselineID"></control-messages>
@@ -49,7 +52,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ProductID">
             <label class="control-label col-sm-2" for="ProductID">ProductID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the product"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
@@ -57,7 +60,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.GroupID">
             <label class="control-label col-sm-2" for="GroupID">GroupID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the product group"></i>
             <div class="col-sm-9">
               <input formControlName="GroupID" id="GroupID" [ngModel]="sampleComponentForm.value.GroupID" />
               <control-messages [control]="sampleComponentForm.controls.GroupID"></control-messages>
@@ -65,7 +68,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.NumAlertID">
             <label class="control-label col-sm-2" for="NumAlertID">NumAlertID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Number of alert"></i>
             <div class="col-sm-9">
               <input type="number" formControlName="NumAlertID" id="NumAlertID" [ngModel]="sampleComponentForm.value.NumAlertID" />
               <control-messages [control]="sampleComponentForm.controls.NumAlertID"></control-messages>
@@ -73,7 +76,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.OperationID">
             <label class="control-label col-sm-2" for="OperationID">OperationID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the instruction for the operator"></i>
             <div class="col-sm-9">
               <input formControlName="OperationID" id="OperationID" [ngModel]="sampleComponentForm.value.OperationID" />
               <control-messages [control]="sampleComponentForm.controls.OperationID"></control-messages>
@@ -85,7 +88,7 @@
           <span class="editsection">External Services Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.OutHTTP">
             <label class="control-label col-sm-2" for="OutHTTP">OutHTTP</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="List of EndPoints where the alert will be sent"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown [options]="select_outhttp" formControlName="OutHTTP" [texts]="myTexts" [ngModel]="sampleComponentForm.value.OutHTTP"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.OutHTTP"></control-messages>
@@ -94,7 +97,7 @@
 
           <div class="form-group" *ngIf="sampleComponentForm.controls.KapacitorID">
             <label class="control-label col-sm-2" for="KapacitorID">KapacitorID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the kapacitor server where the alert will be created"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown [options]="select_kapacitor" formControlName="KapacitorID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.KapacitorID"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.KapacitorID"></control-messages>
@@ -114,7 +117,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxRP && sampleComponentForm.value.InfluxDB">
             <label class="control-label col-sm-2" for="InfluxRP">InfluxRP</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Retention policy of InfluxDB server"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="select_ifxrp && select_ifxdb.length > 0" [options]="select_ifxrp" formControlName="InfluxRP" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxRP"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.InfluxRP"></control-messages>
@@ -122,7 +125,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxMeasurement && sampleComponentForm.value.InfluxRP">
             <label class="control-label col-sm-2" for="InfluxMeasurement">InfluxMeasurement</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Measurement with the data to check"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="select_ifxms && select_ifxdb.length > 0" [options]="select_ifxms" formControlName="InfluxMeasurement" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxMeasurement" (ngModelChange)="pickMeasItem($event)"></ss-multiselect-dropdown>
               <span *ngIf="!select_ifxms">No Fields found</span>
@@ -131,7 +134,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.Field && sampleComponentForm.value.InfluxMeasurement">
             <label class="control-label col-sm-2" for="Field">Field</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field  with the data to check"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="select_ifxfs" [options]="select_ifxfs" formControlName="Field" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Field"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
@@ -166,7 +169,7 @@
         <div class="well well-sm">
           <span class="editsection">Alert Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.TrigerType">
-            <label class="control-label col-sm-2" for="TrigerType">TrigerType</label>
+            <label class="control-label col-sm-2" for="TrigerType">TriggerType</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <select formControlName="TrigerType" id="TrigerType" (click)="setDynamicFields(sampleComponentForm.value.TrigerType)" [ngModel]="sampleComponentForm.value.TrigerType">
@@ -210,7 +213,7 @@
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <select formControlName="CritDirection" id="CritDirection" [ngModel]="sampleComponentForm.value.CritDirection">
-                <option value="CC" selected="selected">ASC Level</option>
+                <option value="AC" selected="selected">ASC Level</option>
                 <option value="DC">DESC Level</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.CritDirection"></control-messages>
@@ -225,6 +228,17 @@
                 <option value="relative">Relative</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.ThresholdType"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.TrendSign">
+            <label class="control-label col-sm-2" for="TrendSign">TrendSign</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-9">
+              <select formControlName="TrendSign" id="TrendSign" [ngModel]="sampleComponentForm.value.TrendSign">
+                <option value="positive" selected="selected">Positive</option>
+                <option value="negative">Negative</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.TrendSign"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritDef">

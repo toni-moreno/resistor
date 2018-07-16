@@ -20,6 +20,7 @@ export const AlertComponentConfig: any =
       { 'title': 'CritDirection', 'name': 'CritDirection' },
       { 'title': 'Shift', 'name': 'Shift' },
       { 'title': 'ThresholdType', 'name': 'ThresholdType' },
+      { 'title': 'TrendSign', 'name': 'TrendSign' },
       { 'title': 'ThCritDef', 'name': 'ThCritDef' },
       { 'title': 'ThCritEx1', 'name': 'ThCritEx1' },
       { 'title': 'ThCritEx2', 'name': 'ThCritEx2' },

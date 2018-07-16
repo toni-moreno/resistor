@@ -33,15 +33,15 @@
           <span class="editsection">Core Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.ID">
             <label class="control-label col-sm-2" for="ID">ID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of template. Example: TREND_2EX_CC_TRP_FMEAN"></i>
             <div class="col-sm-9">
               <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.TrigerType">
-            <label class="control-label col-sm-2" for="TrigerType">TrigerType</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <label class="control-label col-sm-2" for="TrigerType">TriggerType</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Trigger Type"></i>
             <div class="col-sm-9">
               <select formControlName="TrigerType" id="TrigerType" (click)="setDynamicFields(sampleComponentForm.value.TrigerType)" [ngModel]="sampleComponentForm.value.TrigerType">
                 <option value="THRESHOLD" selected="selected">Threshold</option>
@@ -53,7 +53,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
             <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Function to apply"></i>
             <div class="col-sm-9">
               <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
                 <option value="NONE" selected="selected">NONE</option>
@@ -73,10 +73,10 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
             <label class="control-label col-sm-2" for="CritDirection">CritDirection</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Direction of criticality"></i>
             <div class="col-sm-9">
               <select formControlName="CritDirection" id="CritDirection" [ngModel]="sampleComponentForm.value.CritDirection">
-                <option value="CC" selected="selected">ASC Level</option>
+                <option value="AC" selected="selected">ASC Level</option>
                 <option value="DC">DESC Level</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.CritDirection"></control-messages>
@@ -84,7 +84,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ThresholdType">
             <label class="control-label col-sm-2" for="ThresholdType">ThresholdType</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Relative for difference in percentage"></i>
             <div class="col-sm-9">
               <select formControlName="ThresholdType" id="ThresholdType" [ngModel]="sampleComponentForm.value.ThresholdType">
                 <option value="absolute" selected="selected">Absolute</option>
@@ -93,9 +93,20 @@
               <control-messages [control]="sampleComponentForm.controls.ThresholdType"></control-messages>
             </div>
           </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.TrendSign">
+            <label class="control-label col-sm-2" for="TrendSign">TrendSign</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Sign of the difference between current value and past value"></i>
+            <div class="col-sm-9">
+              <select formControlName="TrendSign" id="TrendSign" [ngModel]="sampleComponentForm.value.TrendSign">
+                <option value="positive" selected="selected">Positive</option>
+                <option value="negative">Negative</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.TrendSign"></control-messages>
+            </div>
+          </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.TplData">
             <label class="control-label col-sm-2" for="TplData">TplData</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Code of the template"></i>
             <div class="col-sm-9">
               <textarea class="form-control" style="width: 50%" rows="2" formControlName="TplData" id="TplData" [ngModel]="sampleComponentForm.value.TplData"> </textarea>
               <control-messages [control]="sampleComponentForm.controls.TplData"></control-messages>
@@ -106,7 +117,7 @@
           <span class="editsection">Extra Settings</span>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="Description">Description</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the template"></i>
             <div class="col-sm-9">
               <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
               <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
