@@ -68,7 +68,7 @@
             <label class="control-label col-sm-2" for="ProductID">ProductID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID"></ss-multiselect-dropdown>
+              <input formControlName="ProductID" id="ProductID" [ngModel]="sampleComponentForm.value.ProductID" />
               <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
             </div>
           </div>
