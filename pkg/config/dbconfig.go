@@ -123,6 +123,7 @@ type TemplateCfg struct {
 	StatFunc                string    `xorm:"statfunc"`
 	CritDirection           string    `xorm:"critdirection"`
 	ThresholdType           string    `xorm:"thresholdtype"` //Absolute/Relative
+	TrendSign               string    `xorm:"trendsign"`     //Positive/Negative
 	TplData                 string    `xorm:"tpldata"`
 	Description             string    `xorm:"description"`
 	Modified                time.Time `xorm:"modified"`
@@ -176,6 +177,7 @@ type AlertIDCfg struct {
 	CritDirection     string `xorm:"critdirection"`
 	Shift             string `xorm:"shift"`
 	ThresholdType     string `xorm:"thresholdtype"` //Absolute/Relative
+	TrendSign         string `xorm:"trendsign"`     //Positive/Negative
 	//thresholds
 	//CRITICAL
 	ThCritDef         float64 `xorm:"th_crit_def"`

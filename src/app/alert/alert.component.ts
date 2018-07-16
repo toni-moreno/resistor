@@ -142,7 +142,7 @@ export class AlertComponent implements OnInit {
       case 'THRESHOLD':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
@@ -159,8 +159,9 @@ export class AlertComponent implements OnInit {
       case 'TREND':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.compose([Validators.required, ValidationService.durationValidator]) });
+      controlArray.push({'ID': 'TrendSign', 'defVal' : 'positive', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
@@ -179,7 +180,7 @@ export class AlertComponent implements OnInit {
       default: //Default mode is THRESHOLD
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'CC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
@@ -544,6 +545,10 @@ export class AlertComponent implements OnInit {
       };
     }
     return myarray;
+  }
+
+  getAlertID(lineid : string, productid : string, groupid : string, numalertid : number) : string {
+    return lineid + "-" + productid + "-" + groupid + "-" + ("000"+numalertid.toString()).slice(-3)
   }
 
 }
