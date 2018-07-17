@@ -231,7 +231,7 @@ func GetTemplateAffectOnDel(ctx *Context) {
 }
 
 // getTemplateIDParts Gets TemplateID parts from TemplateID
-// example: from: "THRESHOLD_2EX_AC_TAP_FMOVAVG" --> result: "THRESHOLD", "AC", "absolute", "positive", "MOVAVG"
+// example: from: "TREND_2EX_AC_ATP_FMOVAVG" --> result: "TREND", "AC", "absolute", "positive", "MOVAVG"
 // TrigerType + CritDirection + ThresholdTypeTranslated + StatFunc
 func getTemplateIDParts(sTemplateID string) (string, string, string, string, string) {
 	sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc := "DEADMAN", "", "", "", ""
@@ -240,7 +240,7 @@ func getTemplateIDParts(sTemplateID string) (string, string, string, string, str
 		if len(partsarray) == 5 {
 			sTriggerType = partsarray[0]
 			sCritDirection = partsarray[2]
-			sThresholdType, sTrendSign = getTrendDetails(partsarray[3][1:])
+			sThresholdType, sTrendSign = getTrendDetails(partsarray[3])
 			sStatFunc = partsarray[4][1:]
 		}
 	}
@@ -254,14 +254,20 @@ func getTemplateIDParts(sTemplateID string) (string, string, string, string, str
 // P to positive
 // N to negative
 func getTrendDetails(sInput string) (string, string) {
-	sAbsRel := "absolute"
+	sAbsRel := ""
 	sTrendSign := ""
-	if strings.Index(sInput, "R") > -1 {
+	if sInput == "TH" || strings.Index(sInput, "A") == 0 {
+		sAbsRel = "absolute"
+	} else if strings.Index(sInput, "R") == 0 {
 		sAbsRel = "relative"
+	} else {
+		//Threshold and Trend templates must have absolute or relative
+		//Set notfound in order to make possible the deletion
+		sAbsRel = "notfound"
 	}
-	if strings.Index(sInput, "P") > -1 {
+	if strings.Index(sInput, "P") == 2 {
 		sTrendSign = "positive"
-	} else if strings.Index(sInput, "N") > -1 {
+	} else if strings.Index(sInput, "N") == 2 {
 		sTrendSign = "negative"
 	}
 	return sAbsRel, sTrendSign

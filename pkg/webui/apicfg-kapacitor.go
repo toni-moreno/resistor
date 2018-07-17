@@ -619,15 +619,15 @@ func translateThresholdType(sTriggerType string, sThresholdType string, sTrendSi
 	sRet := sThresholdType
 	if sThresholdType == "relative" {
 		// only for TREND
-		sRet = "TRP"
+		sRet = "RTP"
 		if sTrendSign == "negative" {
-			sRet = "TRN"
+			sRet = "RTN"
 		}
 	} else { // absolute
 		if sTriggerType == "TREND" {
-			sRet = "TAP"
+			sRet = "ATP"
 			if sTrendSign == "negative" {
-				sRet = "TAN"
+				sRet = "ATN"
 			}
 		} else {
 			sRet = "TH"
