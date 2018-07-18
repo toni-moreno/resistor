@@ -52,16 +52,6 @@ type DatabaseCfg struct {
 	Period     time.Duration `toml:"period"`
 }
 
-//DeviceMonStat --pending comment--
-type DeviceMonStat struct {
-	AlertID        string
-	ExceptionID    int64
-	Active         bool
-	BaseLine       string
-	FilterTagKey   string
-	FilterTagValue string
-}
-
 //Config --pending comment--
 type Config struct {
 	General  GeneralConfig
@@ -166,12 +156,12 @@ func init() {
 	}
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Errorf("Fatal error config file: %s \n", err)
+		log.Warnf("Fatal error config file: %s \n", err)
 		os.Exit(1)
 	}
 	err = viper.Unmarshal(&cfg)
 	if err != nil {
-		log.Errorf("Fatal error config file: %s \n", err)
+		log.Warnf("Fatal error config file: %s \n", err)
 		os.Exit(1)
 	}
 	//cfg := &MainConfig
@@ -208,7 +198,7 @@ func init() {
 	//Initialize the DB configuration
 	err = cfg.Database.InitDB()
 	if err != nil {
-		log.Errorf("Fatal error on InitDB: %s \n", err)
+		log.Warnf("Fatal error on InitDB: %s \n", err)
 		os.Exit(1)
 	}
 
@@ -236,20 +226,20 @@ func (dbc *DatabaseCfg) InitDB() error {
 		datasource = fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8", dbc.User, dbc.Password, protocol, dbc.Host, dbc.Name)
 
 	default:
-		log.Errorf("unknown db type %s", dbc.Type)
-		return fmt.Errorf("unknown db type %s", dbc.Type)
+		log.Warnf("unknown db type %s", dbc.Type)
+		return fmt.Warnf("unknown db type %s", dbc.Type)
 	}
 
 	dbc.x, err = xorm.NewEngine(dbtype, datasource)
 	if err != nil {
-		log.Fatalf("Fail to create engine: %v\n", err)
+		log.Warnf("Fail to create engine: %v\n", err)
 	}
 
 	if len(dbc.SQLLogFile) != 0 {
 		dbc.x.ShowSQL(true)
 		f, err := os.Create(logDir + "/" + dbc.SQLLogFile)
 		if err != nil {
-			log.Errorf("Fail to create log file: %s.", err)
+			log.Warnf("Fail to create log file: %s.", err)
 		}
 		dbc.x.SetLogger(xorm.NewSimpleLogger(f))
 	}
@@ -262,6 +252,7 @@ func (dbc *DatabaseCfg) InitDB() error {
 // resInjector
 //     @resInjector()
 //        .alertId(ID)
+//        .productID(ID_PRODUCT)
 //        .searchByTag(DEVICEID_TAG)
 //        .setLine(Line)
 //        .timeCrit(weekdays,hourmin,hourmax) => check_crit (true/false)
@@ -277,6 +268,7 @@ func (dbc *DatabaseCfg) InitDB() error {
 type resInjectorHandler struct {
 	agent       *agent.Agent
 	alertId     string
+	productID   string
 	searchByTag string
 	injectAsTag bool
 	critHmin    int
@@ -302,6 +294,7 @@ func (*resInjectorHandler) Info() (*agent.InfoResponse, error) {
 		Provides: agent.EdgeType_STREAM,
 		Options: map[string]*agent.OptionInfo{
 			"alertId":     {ValueTypes: []agent.ValueType{agent.ValueType_STRING}},
+			"productID":   {ValueTypes: []agent.ValueType{agent.ValueType_STRING}},
 			"searchByTag": {ValueTypes: []agent.ValueType{agent.ValueType_STRING}},
 			"setLine":     {ValueTypes: []agent.ValueType{agent.ValueType_STRING}},
 			"timeCrit":    {ValueTypes: []agent.ValueType{agent.ValueType_STRING, agent.ValueType_INT, agent.ValueType_INT}},
@@ -318,6 +311,7 @@ func (*resInjectorHandler) Info() (*agent.InfoResponse, error) {
 // alertId string
 // searchByTag string
 // default values if options are not provided
+// m.productID = ""
 // m.critHmax = 23
 // m.warnHmax = 23
 // m.infoHmax = 23
@@ -345,12 +339,15 @@ func (m *resInjectorHandler) Init(r *agent.InitRequest) (*agent.InitResponse, er
 	m.warnWeekDay = "0123456" //all days
 	m.infoWeekDay = "0123456" //all days
 	m.line = "LB"
+	m.productID = ""
 
 	for _, opt := range r.Options {
 		log.Infof("Init options: %+v", opt)
 		switch opt.Name {
 		case "alertId":
 			m.alertId = opt.Values[0].Value.(*agent.OptionValue_StringValue).StringValue
+		case "productID":
+			m.productID = opt.Values[0].Value.(*agent.OptionValue_StringValue).StringValue
 		case "searchByTag":
 			m.searchByTag = opt.Values[0].Value.(*agent.OptionValue_StringValue).StringValue
 		case "injectAsTag":
@@ -376,12 +373,12 @@ func (m *resInjectorHandler) Init(r *agent.InitRequest) (*agent.InitResponse, er
 	if m.alertId == "" {
 		init.Success = false
 		init.Error += " must supply an AlertId"
-		log.Errorf("Error on init: %s", init.Error)
+		log.Warnf("Error on init: %s", init.Error)
 	}
 	if m.searchByTag == "" {
 		init.Success = false
 		init.Error += " must supply SearchByTag"
-		log.Errorf("Error on init: %s", init.Error)
+		log.Warnf("Error on init: %s", init.Error)
 	}
 	//if not set injectAsTag will be false by default
 
@@ -413,12 +410,25 @@ func (*resInjectorHandler) BeginBatch(begin *agent.BeginBatch) error {
 // 			check_info = true/false
 func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceStatCfg, p *agent.Point, critok bool, warnok bool, infook bool) {
 	defer timeTrack(time.Now(), "ApplyRules")
-	log.Debugf("Entering ApplyRules with: deviceid: %s. AlertId: %s. rules: %+v. point: %+v.", deviceid, m.alertId, rules, p)
+	log.Debugf("Entering ApplyRules with: deviceid: %s. AlertId: %s. ProductID: %s. rules: %+v. point: %+v.", deviceid, m.alertId, m.productID, rules, p)
 	for i, r := range rules {
 		log.Debugf("Rule number %d: %+v.", i, r)
 		ruleAlertID := regexp.MustCompile(r.AlertID)
 		if ruleAlertID.MatchString(m.alertId) {
 			log.Debugf("AlertId %s received from kapacitor matches AlertId %s from rules.", m.alertId, r.AlertID)
+
+			//ProductID
+			if len(m.productID) > 0 {
+				ruleProductID := regexp.MustCompile(r.ProductID)
+				if ruleProductID.MatchString(m.productID) {
+					log.Debugf("ProductID %s received from kapacitor matches ProductID %s from rules.", m.productID, r.ProductID)
+				} else {
+					//next iteration => this point should not be applied
+					log.Debugf("ProductID %s received from kapacitor does not match ProductID %s from rules.", m.productID, r.ProductID)
+					continue
+				}
+			}
+
 			//check if any other tag to apply a filter match
 			if len(r.FilterTagKey) > 0 && len(r.FilterTagValue) > 0 {
 				log.Debugf("a new filter (%s=%s) exists. Checking...", r.FilterTagKey, r.FilterTagValue)
@@ -435,16 +445,13 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 					}
 				} else {
 					//tag doesn't exist
-					log.Warnf("There is not expected tag %s in this AlertID %s in this point.", r.FilterTagKey)
+					log.Warnf("There is not expected tag %s in this AlertID %s in this point.", r.FilterTagKey, m.alertId)
 					continue
 				}
 				//in this point filter tag is matching so we will continue with tag injection
 			}
 
-			//"mon_activo" == TRUE AND "mon_exc" >= 0 AND strContains("mon_linea",ID_LINIA), 1, 0)
-			// (r.Exception > 0) !!!???  ==>> changed to (r.Exception >= 0)
-			// Pass only DB rules with Active = true ???
-			//tmpbool := r.Active && (r.Exception > 0) && strings.Contains(r.BaseLine, m.line)
+			//if r.Exception=-1, then tmpbool=false, then kapacitor will not send alert
 			tmpbool := r.Active && (r.ExceptionID >= 0) && strings.Contains(r.BaseLine, m.line)
 
 			log.Debugf("Active: %t | ExceptionID : %d | LINE: %s (%s) | RESULT :%t", r.Active, r.ExceptionID, r.BaseLine, m.line, tmpbool)
@@ -470,7 +477,12 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 					p.Tags["check_info"] = "0"
 				}
 				p.Tags["mon_exc"] = strconv.FormatInt(r.ExceptionID, 10)
-
+				log.Infof("Point received with data: %+v.\nCalling parameters: %+v.\nRule applied: %+v.\nInjected values: [check_crit: %s, check_warn: %s, check_info : %s, mon_exc: %s].",
+					p, m, r,
+					p.Tags["check_crit"],
+					p.Tags["check_warn"],
+					p.Tags["check_info"],
+					p.Tags["mon_exc"])
 			} else {
 				//inject data as Fields
 
@@ -485,17 +497,25 @@ func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceSt
 					p.FieldsInt = make(map[string]int64)
 				}
 				p.FieldsInt["mon_exc"] = r.ExceptionID
+				log.Infof("Point received with data: %+v.\nCalling parameters: %+v.\nRule applied: %+v.\nInjected values: [check_crit: %t, check_warn: %t, check_info : %t, mon_exc: %d].",
+					p, m, r,
+					p.FieldsBool["check_crit"],
+					p.FieldsBool["check_warn"],
+					p.FieldsBool["check_info"],
+					p.FieldsInt["mon_exc"])
 			}
 
-			log.Debugf("Applying DATA for device %s | AlertID: %s, (Filter: %s/%s ):  [crit: %t| warn: %t| info : %t | exc: %d]",
+			log.Debugf("Applying DATA for device: %s,  AlertID: %s, ProductID: %s, (Filter: %s/%s ):  [crit: %t| warn: %t| info : %t | exc: %d]",
 				deviceid,
 				r.AlertID,
+				r.ProductID,
 				r.FilterTagKey,
 				r.FilterTagValue,
 				tmpbool && critok,
 				tmpbool && warnok,
 				tmpbool && infook,
 				r.ExceptionID)
+
 		} else {
 			log.Debugf("AlertId %s received from kapacitor does not match AlertId %s from rules.", m.alertId, r.AlertID)
 		}
@@ -586,7 +606,7 @@ func (m *resInjectorHandler) Point(p *agent.Point) error {
 	var ok bool
 
 	if deviceid, ok = p.Tags[m.searchByTag]; !ok {
-		return fmt.Errorf("Tag %s doesn't exist in point", m.searchByTag)
+		return fmt.Warnf("Tag %s doesn't exist in point", m.searchByTag)
 	}
 	//check if exist on the db
 	mutex.RLock()
@@ -671,20 +691,20 @@ func reloadDbData() error {
 }
 
 func startRefreshProc() {
-	log.Printf("Init refresh Proc ...")
+	log.Debugf("Init refresh Proc ...")
 	t := time.NewTicker(cfg.Database.Period)
 	for {
-		log.Info("Beginning refresh proc again...")
+		log.Debugf("Beginning refresh proc again...")
 		err := reloadDbData()
 		if err != nil {
-			log.Errorf("Error on reload DB data : %s", err)
+			log.Warnf("Error on reload DB data : %s", err)
 		}
 
 	LOOP:
 		for {
 			select {
 			case <-t.C:
-				log.Printf("tick received...")
+				log.Debugf("tick received...")
 				break LOOP
 			}
 		}
@@ -702,14 +722,14 @@ func main() {
 	// Create unix socket
 	addr, err := net.ResolveUnixAddr("unix", socketFile)
 	if err != nil {
-		log.Fatalf("Error on ResolveUnixAddr: %s", err)
+		log.Warnf("Error on ResolveUnixAddr: %s", err)
 	}
 	// Remove the old socket before creating a new one
 	os.Remove(socketFile)
 
 	l, err := net.ListenUnix("unix", addr)
 	if err != nil {
-		log.Fatalf("Error on ListenUnix: %s", err)
+		log.Warnf("Error on ListenUnix: %s", err)
 	}
 
 	//begin data reload.
@@ -724,7 +744,7 @@ func main() {
 	log.Infof("Server listening on %s", addr.String())
 	err = s.Serve()
 	if err != nil {
-		log.Fatalf("Error on s.Serve(): %s", err)
+		log.Warnf("Error on s.Serve(): %s", err)
 	}
 	log.Info("Server stopped")
 }
