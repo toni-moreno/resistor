@@ -547,8 +547,4 @@ export class AlertComponent implements OnInit {
     return myarray;
   }
 
-  getAlertID(lineid : string, productid : string, groupid : string, numalertid : number) : string {
-    return lineid + "-" + productid + "-" + groupid + "-" + ("000"+numalertid.toString()).slice(-3)
-  }
-
 }
