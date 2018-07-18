@@ -227,7 +227,7 @@ func (dbc *DatabaseCfg) InitDB() error {
 
 	default:
 		log.Warnf("unknown db type %s", dbc.Type)
-		return fmt.Warnf("unknown db type %s", dbc.Type)
+		return fmt.Errorf("unknown db type %s", dbc.Type)
 	}
 
 	dbc.x, err = xorm.NewEngine(dbtype, datasource)
@@ -606,7 +606,7 @@ func (m *resInjectorHandler) Point(p *agent.Point) error {
 	var ok bool
 
 	if deviceid, ok = p.Tags[m.searchByTag]; !ok {
-		return fmt.Warnf("Tag %s doesn't exist in point", m.searchByTag)
+		return fmt.Errorf("Tag %s doesn't exist in point", m.searchByTag)
 	}
 	//check if exist on the db
 	mutex.RLock()
