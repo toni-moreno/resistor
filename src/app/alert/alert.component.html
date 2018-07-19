@@ -343,7 +343,7 @@
           <span class="editsection">Extra Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.GrafanaServer">
             <label class="control-label col-sm-2" for="GrafanaServer">GrafanaServer</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Grafana server URL"></i>
             <div class="col-sm-9">
               <input formControlName="GrafanaServer" id="GrafanaServer" [ngModel]="sampleComponentForm.value.GrafanaServer" />
               <control-messages [control]="sampleComponentForm.controls.GrafanaServer"></control-messages>
@@ -351,7 +351,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.GrafanaDashLabel">
             <label class="control-label col-sm-2" for="GrafanaDashLabel">GrafanaDashLabel</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Grafana dashboard label"></i>
             <div class="col-sm-9">
               <input formControlName="GrafanaDashLabel" id="GrafanaDashLabel" [ngModel]="sampleComponentForm.value.GrafanaDashLabel" />
               <control-messages [control]="sampleComponentForm.controls.GrafanaDashLabel"></control-messages>
@@ -359,7 +359,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.GrafanaDashPanelID">
             <label class="control-label col-sm-2" for="GrafanaDashPanelID">GrafanaDashPanelID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Grafana dashboard panel ID"></i>
             <div class="col-sm-9">
               <input formControlName="GrafanaDashPanelID" id="GrafanaDashPanelID" [ngModel]="sampleComponentForm.value.GrafanaDashPanelID" />
               <control-messages [control]="sampleComponentForm.controls.GrafanaDashPanelID"></control-messages>
@@ -367,7 +367,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDTag">
             <label class="control-label col-sm-2" for="DeviceIDTag">DeviceIDTag</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to identify the device"></i>
             <div class="col-sm-9">
               <input formControlName="DeviceIDTag" id="DeviceIDTag" [ngModel]="sampleComponentForm.value.DeviceIDTag" />
               <control-messages [control]="sampleComponentForm.controls.DeviceIDTag"></control-messages>
@@ -375,7 +375,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDLabel">
             <label class="control-label col-sm-2" for="DeviceIDLabel">DeviceIDLabel</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Label for the Tag to identify the device"></i>
             <div class="col-sm-9">
               <input formControlName="DeviceIDLabel" id="DeviceIDLabel" [ngModel]="sampleComponentForm.value.DeviceIDLabel" />
               <control-messages [control]="sampleComponentForm.controls.DeviceIDLabel"></control-messages>
@@ -383,7 +383,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraTag">
             <label class="control-label col-sm-2" for="ExtraTag">ExtraTag</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag with extra information"></i>
             <div class="col-sm-9">
               <input formControlName="ExtraTag" id="ExtraTag" [ngModel]="sampleComponentForm.value.ExtraTag" />
               <control-messages [control]="sampleComponentForm.controls.ExtraTag"></control-messages>
@@ -391,15 +391,23 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraLabel">
             <label class="control-label col-sm-2" for="ExtraLabel">ExtraLabel</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Label for the Tag with extra information"></i>
             <div class="col-sm-9">
               <input formControlName="ExtraLabel" id="ExtraLabel" [ngModel]="sampleComponentForm.value.ExtraLabel" />
               <control-messages [control]="sampleComponentForm.controls.ExtraLabel"></control-messages>
             </div>
           </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.AlertExtraText">
+            <label class="control-label col-sm-2" for="AlertExtraText">AlertExtraText</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Extra text that will be sent to the operator"></i>
+            <div class="col-sm-9">
+              <input formControlName="AlertExtraText" id="AlertExtraText" [ngModel]="sampleComponentForm.value.AlertExtraText" />
+              <control-messages [control]="sampleComponentForm.controls.AlertExtraText"></control-messages>
+            </div>
+          </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="Description">Description</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the alert"></i>
             <div class="col-sm-9">
               <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
               <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>

@@ -108,6 +108,7 @@ export class AlertComponent implements OnInit {
       DeviceIDLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDLabel : ''],
       ExtraTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTag : ''],
       ExtraLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraLabel : ''],
+      AlertExtraText: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertExtraText : ''],
       KapacitorID: [this.sampleComponentForm ? this.sampleComponentForm.value.KapacitorID : '', Validators.required],
       OutHTTP: [this.sampleComponentForm ? this.sampleComponentForm.value.OutHTTP : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
