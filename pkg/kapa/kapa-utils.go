@@ -628,7 +628,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["EXTRA_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraLabel}
 
 	//ALERT_EXTRA_TEXT corresponds to Description field on form???
-	vars["ALERT_EXTRA_TEXT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: ""}
+	vars["ALERT_EXTRA_TEXT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.AlertExtraText}
 	//vars["FIELD_DEFAULT"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: ""}
 	/*
 		vars["MOV_AVG_POINTS"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: ""}
