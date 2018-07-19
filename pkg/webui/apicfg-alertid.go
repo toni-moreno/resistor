@@ -7,6 +7,7 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/kapa"
 	"gopkg.in/macaron.v1"
 )
 
@@ -37,7 +38,7 @@ func GetAlertID(ctx *Context) {
 		log.Errorf("Error on get Devices :%+s", err)
 		return
 	}
-	_ = GetKapaTasks(devcfgarray)
+	_ = kapa.GetKapaTasks(devcfgarray)
 	ctx.JSON(200, &devcfgarray)
 	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
 }
@@ -45,7 +46,7 @@ func GetAlertID(ctx *Context) {
 // AddAlertID Inserts new alert into the internal DB and into the kapacitor servers
 func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	DeployTask(dev)
+	kapa.DeployKapaTask(dev)
 	log.Printf("ADDING alert %+v", dev)
 	affected, err := agent.MainConfig.Database.AddAlertIDCfg(&dev)
 	if err != nil {
@@ -60,7 +61,7 @@ func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 // UpdateAlertID Updates alert into the internal DB and into the kapacitor servers
 func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	DeployTask(dev)
+	kapa.DeployKapaTask(dev)
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, &dev)
@@ -76,12 +77,12 @@ func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 // DeployAlertID Deploys the task related to this alert into the kapacitor server and returns the result in context
 func DeployAlertID(ctx *Context, dev config.AlertIDCfg) {
 	if len(dev.ServersWOLastDeployment) > 0 {
-		sKapaSrvsNotOK := DeployTask(dev)
-		if len(sKapaSrvsNotOK) > 0 {
-			log.Warningf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
+		sKapaSrvsNotOK, err := kapa.DeployKapaTask(dev)
+		if err != nil {
+			ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers: %+s", err))
+		} else if len(sKapaSrvsNotOK) > 0 {
 			ctx.JSON(404, fmt.Sprintf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID))
 		} else {
-			log.Infof("Task %s deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
 			ctx.JSON(200, fmt.Sprintf("Task %s deployed for kapacitor server %s.", dev.ID, dev.KapacitorID))
 		}
 	} else {
@@ -90,32 +91,16 @@ func DeployAlertID(ctx *Context, dev config.AlertIDCfg) {
 	}
 }
 
-// DeployTask Deploys the task related to this alert into the kapacitor server
-func DeployTask(dev config.AlertIDCfg) []string {
-	log.Debugf("Trying to deploy the task: %s.", dev.ID)
-	sKapaSrvsNotOK := make([]string, 0)
-	kapaserversarray, err := GetKapaServers(dev.KapacitorID)
-	if err != nil {
-		log.Warningf("Error getting kapacitor servers: %+s", err)
-	} else {
-		_, _, sKapaSrvsNotOK = SetKapaTask(dev, kapaserversarray)
-		if len(sKapaSrvsNotOK) > 0 {
-			log.Warningf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
-		}
-	}
-	return sKapaSrvsNotOK
-}
-
 //DeleteAlertID removes alert from
 func DeleteAlertID(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete: %+v", id)
 	sKapaSrvsNotOK := make([]string, 0)
-	kapaserversarray, err := GetKapaServers("")
+	kapaserversarray, err := kapa.GetKapaServers("")
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = DeleteKapaTask(id, kapaserversarray)
+		_, _, sKapaSrvsNotOK = kapa.DeleteKapaTask(id, kapaserversarray)
 	}
 	if len(sKapaSrvsNotOK) == 0 {
 		affected, err := agent.MainConfig.Database.DelAlertIDCfg(id)
@@ -141,7 +126,7 @@ func GetAlertIDCfgByID(ctx *Context) {
 		log.Warningf("Error getting alert with id: %s. Error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
-		_, _, sKapaSrvsNotOK := GetKapaTask(&dev)
+		_, _, sKapaSrvsNotOK := kapa.GetKapaTask(&dev)
 		dev.ServersWOLastDeployment = sKapaSrvsNotOK
 		ctx.JSON(200, &dev)
 	}

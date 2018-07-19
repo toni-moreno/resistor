@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	//	"github.com/go-macaron/binding"
-	//	"github.com/toni-moreno/resistor/pkg/config"
 	"strconv"
 	"time"
 
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/kapa"
 )
 
 //ImportCheck Checks if object to import is duplicated in the database
@@ -348,6 +347,8 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			_, err = dbc.GetAlertIDCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
 				if overwrite == true {
+					data.Modified = time.Now().UTC()
+					kapa.DeployKapaTask(data)
 					_, err2 := dbc.UpdateAlertIDCfg(o.ObjectID, &data)
 					if err2 != nil {
 						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
@@ -358,6 +359,8 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			if autorename == true {
 				data.ID = data.ID + suffix
 			}
+			data.Modified = time.Now().UTC()
+			kapa.DeployKapaTask(data)
 			_, err = dbc.AddAlertIDCfg(&data)
 			if err != nil {
 				return err
@@ -397,6 +400,8 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			_, err = dbc.GetTemplateCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
 				if overwrite == true {
+					data.Modified = time.Now().UTC()
+					kapa.DeployKapaTemplate(data)
 					_, err2 := dbc.UpdateTemplateCfg(o.ObjectID, &data)
 					if err2 != nil {
 						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
@@ -407,6 +412,8 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			if autorename == true {
 				data.ID = data.ID + suffix
 			}
+			data.Modified = time.Now().UTC()
+			kapa.DeployKapaTemplate(data)
 			_, err = dbc.AddTemplateCfg(&data)
 			if err != nil {
 				return err

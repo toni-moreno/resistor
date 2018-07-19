@@ -2,6 +2,7 @@ package webui
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/session"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/kapa"
 	"gopkg.in/macaron.v1"
 )
 
@@ -210,6 +212,8 @@ func myLoginHandler(ctx *Context, user UserLogin) {
 		ctx.SignedInUser = user.UserName
 		ctx.IsSignedIn = true
 		ctx.Session.Set(SessKeyUserID, user.UserName)
+		kapa.SetLogger(log)
+		kapa.SetPort(strconv.Itoa(confHTTP.Port))
 		log.Println("Admin login OK")
 		ctx.JSON(200, cookie)
 	} else {
