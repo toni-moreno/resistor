@@ -8,6 +8,7 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/kapa"
 	"gopkg.in/macaron.v1"
 )
 
@@ -38,11 +39,11 @@ func GetTemplate(ctx *Context) {
 		log.Errorf("Error on get templates: %+s", err)
 		return
 	}
-	kapaserversarray, err := GetKapaServers("")
+	kapaserversarray, err := kapa.GetKapaServers("")
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_ = GetKapaTemplates(devcfgarray, kapaserversarray)
+		_ = kapa.GetKapaTemplates(devcfgarray, kapaserversarray)
 	}
 	ctx.JSON(200, &devcfgarray)
 	log.Debugf("Getting templates %+v", &devcfgarray)
@@ -66,11 +67,11 @@ func GetTemplates(templateid string) ([]*config.TemplateCfg, error) {
 func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
-	kapaserversarray, err := GetKapaServers("")
+	kapaserversarray, err := kapa.GetKapaServers("")
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
+		_, _, sKapaSrvsNotOK = kapa.SetKapaTemplate(dev, kapaserversarray)
 	}
 	if len(sKapaSrvsNotOK) > 0 {
 		log.Warningf("Error on inserting for template %s. Not inserted for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
@@ -90,11 +91,11 @@ func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
-	kapaserversarray, err := GetKapaServers("")
+	kapaserversarray, err := kapa.GetKapaServers("")
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
+		_, _, sKapaSrvsNotOK = kapa.SetKapaTemplate(dev, kapaserversarray)
 	}
 	if len(sKapaSrvsNotOK) > 0 {
 		log.Warningf("Error on updating for template %s. Not updated for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
@@ -111,24 +112,16 @@ func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 	}
 }
 
-// DeployTemplate Deploys template into the kapacitor servers
+// DeployTemplate Deploys template into the kapacitor servers and returns the result in context
 func DeployTemplate(ctx *Context, dev config.TemplateCfg) {
 	if len(dev.ServersWOLastDeployment) > 0 {
-		dev.Modified = time.Now().UTC()
-		sKapaSrvsNotOK := make([]string, 0)
-		kapaserversarray, err := GetKapaServersFromArray(dev.ServersWOLastDeployment)
+		sKapaSrvsNotOK, err := kapa.DeployKapaTemplate(dev)
 		if err != nil {
-			log.Warningf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err)
 			ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err))
+		} else if len(sKapaSrvsNotOK) > 0 {
+			ctx.JSON(404, fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK))
 		} else {
-			_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
-			if len(sKapaSrvsNotOK) > 0 {
-				log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK)
-				ctx.JSON(404, fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK))
-			} else {
-				log.Infof("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment)
-				ctx.JSON(200, fmt.Sprintf("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment))
-			}
+			ctx.JSON(200, fmt.Sprintf("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment))
 		}
 	} else {
 		log.Debugf("Template %s is deployed with the last version on all kapacitor servers.", dev.ID)
@@ -154,13 +147,13 @@ func DeleteTemplate(ctx *Context) {
 		} else {
 			//Get all kapacitor servers
 			sKapaSrvsNotOK := make([]string, 0)
-			kapaserversarray, err := GetKapaServers("")
+			kapaserversarray, err := kapa.GetKapaServers("")
 			if err != nil {
 				log.Warningf("Error getting kapacitor servers: %+s", err)
 				ctx.JSON(404, err.Error())
 			} else {
 				//Try to delete template from all kapacitor servers
-				_, _, sKapaSrvsNotOK = DeleteKapaTemplate(id, kapaserversarray)
+				_, _, sKapaSrvsNotOK = kapa.DeleteKapaTemplate(id, kapaserversarray)
 				if len(sKapaSrvsNotOK) == 0 {
 					//Try to delete template from resistor database
 					affected, err := agent.MainConfig.Database.DelTemplateCfg(id)
@@ -187,35 +180,15 @@ func GetTemplateCfgByID(ctx *Context) {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
-		kapaserversarray, err := GetKapaServers("")
+		kapaserversarray, err := kapa.GetKapaServers("")
 		if err != nil {
 			log.Warningf("Error getting kapacitor servers: %+s", err)
 		} else {
-			_, _, sKapaSrvsNotOK := GetKapaTemplate(&dev, kapaserversarray)
+			_, _, sKapaSrvsNotOK := kapa.GetKapaTemplate(&dev, kapaserversarray)
 			dev.ServersWOLastDeployment = sKapaSrvsNotOK
 		}
 		ctx.JSON(200, &dev)
 	}
-}
-
-//GetResTemplateCfgByID Gets the TemplateCfg information stored on resistor database
-//including the kapacitor servers without last deployment
-func GetResTemplateCfgByID(id string) (config.TemplateCfg, error) {
-	log.Debugf("GetResTemplateCfgByID. Trying to get template with id: %s.", id)
-	dev, err := agent.MainConfig.Database.GetTemplateCfgByID(id)
-	if err != nil {
-		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
-	} else {
-		kapaserversarray, err := GetKapaServers("")
-		if err != nil {
-			log.Warningf("Error getting kapacitor servers: %+s", err)
-		} else {
-			_, _, sKapaSrvsNotOK := GetKapaTemplate(&dev, kapaserversarray)
-			dev.ServersWOLastDeployment = sKapaSrvsNotOK
-			log.Debugf("GetResTemplateCfgByID. Template with id: %s has not the last version deployed on: %+v.", id, sKapaSrvsNotOK)
-		}
-	}
-	return dev, err
 }
 
 //GetTemplateAffectOnDel --pending--
