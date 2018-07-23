@@ -94,7 +94,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 			Expires: func() string { return "max-age=0" },
 		}))
 
-	//Cookie should be unique for each snmpcollector instance ,
+	//Cookie should be unique for each resistor instance ,
 	//if cockie_id is not set it takes the instanceID value to generate a unique array with as a md5sum
 
 	cookie = confHTTP.CookieID
@@ -137,7 +137,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 		// Funcs is a slice of FuncMaps to apply to the template upon compilation. Default is [].
 		/*Funcs: []template.FuncMap{map[string]interface{}{
 			"AppName": func() string {
-				return "snmpcollector"
+				return "resistor"
 			},
 			"AppVer": func() string {
 				return "0.5.1"
@@ -188,6 +188,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	//Config
 
 	NewAPICfgAlertID(m)      //Alert Admin
+	NewAPICfgAlertEvent(m)   //Alert Events
 	NewAPICfgProduct(m)      //Product Admin
 	NewAPICfgProductGroup(m) //Product Group Admin
 	NewAPICfgTemplate(m)     //Alert Template

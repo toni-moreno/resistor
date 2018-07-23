@@ -116,6 +116,9 @@ func (dbc *DatabaseCfg) InitDB() {
 	if err = dbc.x.Sync(new(AlertIDCfg)); err != nil {
 		log.Fatalf("Fail to sync database AlertIDCfg: %v\n", err)
 	}
+	if err = dbc.x.Sync(new(AlertEventCfg)); err != nil {
+		log.Fatalf("Fail to sync database AlertEventCfg: %v\n", err)
+	}
 }
 
 //LoadDbConfig get data from database
@@ -125,31 +128,35 @@ func (dbc *DatabaseCfg) LoadDbConfig(cfg *DBConfig) {
 	//Load Kapacitor engines map
 	cfg.Kapacitor, err = dbc.GetKapacitorCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get Kapacitor Engines URL :%v", err)
+		log.Warningf("Some errors on get Kapacitor servers map :%v", err)
 	}
 	cfg.OutHTTP, err = dbc.GetOutHTTPCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get Out HTTP map  :%v", err)
+		log.Warningf("Some errors on get Out HTTP map :%v", err)
 	}
 	cfg.RangeTime, err = dbc.GetRangeTimeCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get RangeTimes :%v", err)
+		log.Warningf("Some errors on get RangeTimes map :%v", err)
 	}
 	cfg.Product, err = dbc.GetProductCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get Products map  :%v", err)
+		log.Warningf("Some errors on get Products map :%v", err)
 	}
 	cfg.AlertID, err = dbc.GetAlertIDCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get AlertID map  :%v", err)
+		log.Warningf("Some errors on get AlertID map :%v", err)
 	}
 	cfg.DeviceStat, err = dbc.GetDeviceStatCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get DeviceStats map  :%v", err)
+		log.Warningf("Some errors on get DeviceStats map :%v", err)
 	}
 	cfg.Template, err = dbc.GetTemplateCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get DeviceStats map  :%v", err)
+		log.Warningf("Some errors on get Templates map :%v", err)
+	}
+	cfg.AlertEvent, err = dbc.GetAlertEventCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get AlertEvents map :%v", err)
 	}
 
 	dbc.resetChanges()

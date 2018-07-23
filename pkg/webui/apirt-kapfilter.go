@@ -51,6 +51,10 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	for _, serie := range al.Data.Series {
 		log.Debugf("ALERT Serie: %+v", serie)
 	}
+
+	alertevent := makeAlertEvent(al)
+	AddAlertEvent(alertevent)
+
 	strouthttp := ctx.Params(":outhttp")
 	log.Debugf("outhttp: %s", strouthttp)
 	if len(strouthttp) > 0 {
@@ -69,6 +73,29 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	//alertfilter.ProcessAlert(al)
 
 	ctx.JSON(200, "DONE")
+}
+
+func makeAlertEvent(al alert.Data) (dev config.AlertEventCfg) {
+	alertevent := config.AlertEventCfg{}
+	alertevent.UID = 0
+	alertevent.ID = al.ID
+	alertevent.Message = al.Message
+	alertevent.Details = al.Details
+	alertevent.Time = al.Time
+	alertevent.Duration = al.Duration
+	alertevent.Level = al.Level.String()
+	return alertevent
+}
+
+// AddAlertEvent Inserts new alert event into the internal DB
+func AddAlertEvent(dev config.AlertEventCfg) {
+	log.Printf("ADDING alert event %+v", dev)
+	affected, err := agent.MainConfig.Database.AddAlertEventCfg(&dev)
+	if err != nil {
+		log.Warningf("Error on insert for alert event %s , affected : %+v , error: %s", dev.ID, affected, err)
+	} else {
+		log.Infof("Alert event %s successfully inserted", dev.ID)
+	}
 }
 
 func sendData(al alert.Data, outhttp config.OutHTTPCfg) error {

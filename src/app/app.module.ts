@@ -64,6 +64,7 @@ import { ProductGroupComponent } from './productgroup/productgroup.component';
 import { TemplateComponent } from './template/template.component';
 import { OutHTTPComponent } from './outhttp/outhttp.component';
 import { AlertComponent } from './alert/alert.component';
+import { AlertEventComponent } from './alertevent/alertevent.component';
 import { DeviceStatComponent } from './devicestat/devicestat.component';
 
 
@@ -92,6 +93,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     TemplateComponent,
     OutHTTPComponent,
     AlertComponent,
+    AlertEventComponent,
     DeviceStatComponent,
     NavbarComponent,
     SideMenuComponent,
@@ -136,6 +138,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
       TemplateComponent,
       OutHTTPComponent,
       AlertComponent,
+      AlertEventComponent,
       DeviceStatComponent
     ]
 })

@@ -205,10 +205,11 @@ type AlertIDCfg struct {
 	DeviceIDLabel      string `xorm:"deviceid_label"`
 	ExtraTag           string `xorm:"extra_tag"`
 	ExtraLabel         string `xorm:"extra_label"`
+	AlertExtraText     string `xorm:"alert_extra_text"`
 	//Where to deploy this rule
 	KapacitorID string `xorm:"kapacitorid" binding:"Required"`
 
-	OutHTTP                 []string  `xorm:"-"` //relation between alertIDcfgs
+	OutHTTP                 []string  `xorm:"-"` //relation with outhttpcfgs
 	Modified                time.Time `xorm:"modified"`
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 }
@@ -218,6 +219,25 @@ func (AlertIDCfg) TableName() string {
 	return "alert_id_cfg"
 }
 
+// AlertEventCfg is a structure that contains relevant data about an alert event.
+// The structure is intended to be JSON encoded, providing a consistent data format.
+type AlertEventCfg struct {
+	UID           int64         `xorm:"'uid' pk autoincr"`
+	ID            string        `xorm:"id"`
+	Message       string        `xorm:"message"`
+	Details       string        `xorm:"details"`
+	Time          time.Time     `xorm:"eventtime"`
+	Duration      time.Duration `xorm:"duration"`
+	Level         string        `xorm:"level"`
+	PreviousLevel string        `xorm:"previousLevel"`
+	//Data     models.Result `xorm:"data"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (AlertEventCfg) TableName() string {
+	return "alert_event_cfg"
+}
+
 // DBConfig read from DB
 type DBConfig struct {
 	DeviceStat map[int64]*DeviceStatCfg
@@ -225,6 +245,7 @@ type DBConfig struct {
 	Product    map[string]*ProductCfg
 	Kapacitor  map[string]*KapacitorCfg
 	AlertID    map[string]*AlertIDCfg
+	AlertEvent map[int64]*AlertEventCfg
 	Template   map[string]*TemplateCfg
 	OutHTTP    map[string]*OutHTTPCfg
 }
