@@ -2,14 +2,15 @@ package output
 
 import (
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/influxdata/influxdb/client/v2"
-	"github.com/toni-moreno/resistor/pkg/config"
 	"math/rand"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/influxdata/influxdb/client/v2"
+	"github.com/toni-moreno/resistor/pkg/config"
 )
 
 var (
@@ -193,7 +194,7 @@ func (db *InfluxDB) Init() {
 	}
 
 	if len(db.cfg.UserAgent) == 0 {
-		db.cfg.UserAgent = "snmpCollector-" + db.cfg.ID
+		db.cfg.UserAgent = "resistor-" + db.cfg.ID
 	}
 
 	log.Infof("Initializing influxdb with id = [ %s ]", db.cfg.ID)

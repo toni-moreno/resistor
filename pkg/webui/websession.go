@@ -38,7 +38,7 @@ func prepareOptions(opt *session.Options) *session.Options {
 		opt.ProviderConfig = "data/sessions"
 	}
 	if len(opt.CookieName) == 0 {
-		opt.CookieName = "snmpcollector-session"
+		opt.CookieName = "resistor-session"
 	}
 	if len(opt.CookiePath) == 0 {
 		opt.CookiePath = "/"

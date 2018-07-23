@@ -9,6 +9,7 @@ import { ProductGroupComponent } from '../productgroup/productgroup.component';
 import { TemplateComponent } from '../template/template.component';
 import { OutHTTPComponent } from '../outhttp/outhttp.component';
 import { AlertComponent } from '../alert/alert.component';
+import { AlertEventComponent } from '../alertevent/alertevent.component';
 import { DeviceStatComponent } from '../devicestat/devicestat.component'
 import { NavbarComponent } from './navbar/navbar.component'
 import { SideMenuComponent } from './sidemenu/sidemenu.component'
@@ -39,6 +40,7 @@ export const HomeComponentConfig: any =
   export var MenuItems : Array<any> = [
     {'groupName' : 'Runtime', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
       [
+        {'title': 'Alert Events', 'selector' : 'alertevent-component', 'type': 'component', 'data': AlertEventComponent},
         {'title': 'Agent status', 'selector' : 'runtime', 'data': null}
       ]
     },
