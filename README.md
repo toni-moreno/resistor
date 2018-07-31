@@ -47,12 +47,11 @@ npm run build:pro #will build fronted and backend
 npm run postbuild #will build fronted and backend
 ```
 
-### Running first time
-To execute without any configuration you need a minimal config.toml file on the conf directory.
+### Creating rpm and deb packages
+You  will need previously installed the fpm/rpm and deb packaging tools
 
 ```bash
-cp conf/sample.resistor.toml conf/resistor.toml
-./bin/resistor
+go run build.go latest
 ```
 
 ### Recompile backend on source change (only for developers)
@@ -64,15 +63,39 @@ npm start
 ```
 will init a change autodetect webserver with angular-cli (ng serve) and also a autodetect and recompile process with bra for the backend
 
+## Running first time
+To execute without any configuration you need a minimal config.toml file on the conf directory.
 
-#### Online config
+### main resistor tool
+
+```bash
+cp conf/sample.resistor.toml conf/resistor.toml
+./bin/resistor
+```
+
+### resistor Injector
+```bash
+cp conf/sample.resinjector.toml conf/resinjector.toml
+./bin/resinjector
+```
+
+## First Setup Guide 
 
 Now you wil be able to configure metrics/measuremnets and devices from the builting web server at  http://localhost:8090 or http://localhost:4200 if working in development mode (npm start)
 
-### Offline configuration.
 
-You will be able also insert data directly on the sqlite db that resistor has been created at first execution on config/resistor.db examples on example_config.sql
+Resistor depends on InfluxDB and Kapacitor Tools. Be sure you have InfluxDB and Kapacitor Installed.
+When first executed , you will want.
 
-```
-cat conf/example_config.sql |sqlite3 conf/resistor.db
-```
+1. Add all your InfluxDB instances.
+2. Add all your Kapacitor instances.
+3. Build a product/measurment/fields/tags catalog.(with these 2 steps)
+* import all your influx catalog first
+* Organize measurements by product then.
+4. Import The base Templates.
+
+When done you will be ready to create basic alerts for all your products.
+
+### Template naming standars
+
+(pending)
