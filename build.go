@@ -117,10 +117,16 @@ func makeLatestDistCopies() {
 	if linuxPackageIteration != "" {
 		rpmIteration = "-" + linuxPackageIteration
 	}
-
+	//resistor
 	runError("cp", "dist/resistor_"+version+"_amd64.deb", "dist/resistor_latest_amd64.deb")
 	runError("cp", "dist/resistor-"+linuxPackageVersion+rpmIteration+".x86_64.rpm", "dist/resistor-latest-1.x86_64.rpm")
 	runError("cp", "dist/resistor-"+version+".linux-x64.tar.gz", "dist/resistor-latest.linux-x64.tar.gz")
+	//resinjector
+	runError("cp", "dist/resinjector_"+version+"_amd64.deb", "dist/resinjector_latest_amd64.deb")
+	runError("cp", "dist/resinjector-"+linuxPackageVersion+rpmIteration+".x86_64.rpm", "dist/resinjector-latest-1.x86_64.rpm")
+	runError("cp", "dist/resinjector-"+version+".linux-x64.tar.gz", "dist/resinjector-latest.linux-x64.tar.gz")
+}
+
 }
 
 func readVersionFromPackageJson() {
@@ -232,7 +238,7 @@ func createRpmPackages() {
 		binPath:                "/usr/sbin/resistor",
 		configDir:              "/etc/resistor",
 		configFileSample:       "conf/sample.resistor.toml",
-		configFilePath:         "/etc/resistor/resitor.toml",
+		configFilePath:         "/etc/resistor/resistor.toml",
 		etcDefaultPath:         "/etc/sysconfig",
 		etcDefaultFilePath:     "/etc/sysconfig/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",

@@ -6,7 +6,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// Context for macaron sessions on resitor
+// Context for macaron sessions on resistor
 type Context struct {
 	*macaron.Context
 	SignedInUser string

@@ -6,7 +6,7 @@ Resistor is a complement to the InfluxData Kapactor tool https://github.com/infl
 
 * Easy alert management: it can  deploy alerts based on basic templates.
 
-* It has and resitor_udf with habilty to inject some tags / fields over datapoints depending on the value for another tag ( by example the deviceid)
+* It has and resistor_udf with habilty to inject some tags / fields over datapoints depending on the value for another tag ( by example the deviceid)
 
 
 If you wish to compile from source code you can follow the next steps

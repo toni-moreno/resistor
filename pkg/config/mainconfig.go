@@ -57,7 +57,7 @@ type InfluxCfg struct {
 	UserAgent string `toml:"useragent"`
 }
 
-// Config All resitor configuration
+// Config All resistor configuration
 type Config struct {
 	General  GeneralConfig
 	Database DatabaseCfg

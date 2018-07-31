@@ -1,7 +1,7 @@
 Read before posting:
 
 - Please search here on GitHub for similar issues before creating a new issue.
-- Please review Documentation https://github.com/toni-moreno/resitor/wiki before creating a new issue.
+- Please review Documentation https://github.com/toni-moreno/resistor/wiki before creating a new issue.
 
 Please prefix your title with [Bug] or [Feature request].
 
