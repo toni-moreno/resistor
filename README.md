@@ -88,10 +88,16 @@ Resistor depends on InfluxDB and Kapacitor Tools. Be sure you have InfluxDB and 
 When first executed , you will want.
 
 1. Add all your InfluxDB instances.
-2. Add all your Kapacitor instances.
+2. Add all your Kapacitor instances. And configure them with the resInjetor UDF, you can do that by adding this config to the [udf .functions] config section at all your /etc/kapacitor/kapacitor.conf files.
+```toml
+    [udf.functions.resInjector]
+           socket = "/tmp/resInjector.sock"
+           timeout = "10s"
+
+```
 3. Build a product/measurment/fields/tags catalog.(with these 2 steps)
 * import all your influx catalog first
-* Organize measurements by product then.
+* Organize measurements by product and product by product_groups then.
 4. Import The base Templates.
 
 When done you will be ready to create basic alerts for all your products.
