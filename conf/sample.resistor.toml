@@ -90,7 +90,7 @@
 
 [http]
  #port where webserver will listen waiting for connections
- port   = 8090
+ port   = 6090
  #Admin credentials to access to the Resistor agent
  adminuser = "adm1"
  adminpassword = "adm1pass"
