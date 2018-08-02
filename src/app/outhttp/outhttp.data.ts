@@ -1,6 +1,6 @@
 export const OutHTTPComponentConfig: any =
   {
-    'name' : 'OutHTTP',
+    'name' : 'Alerting Endpoints',
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Type', 'name': 'Type' },

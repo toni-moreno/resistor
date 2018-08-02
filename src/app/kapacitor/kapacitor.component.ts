@@ -71,7 +71,7 @@ export class KapacitorComponent implements OnInit {
       .subscribe(
       data => {
         this.isRequesting = false;
-        this.componentList = data
+        this.componentList = data;
         this.data = data;
         this.editmode = "list";
       },
@@ -99,7 +99,8 @@ export class KapacitorComponent implements OnInit {
       break;
       case 'test-connection':
         this.testSampleItemConnection(action.event);
-      case 'tableaction':
+        break;
+        case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
     }

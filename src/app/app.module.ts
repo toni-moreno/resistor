@@ -55,6 +55,7 @@ import { SpinnerComponent } from './common/spinner';
 import { TableListComponent } from './common/table-list.component';
 
 import { KapacitorComponent } from './kapacitor/kapacitor.component';
+import { KapacitorTasksComponent } from './kapacitortasks/kapacitortasks.component';
 import { RangeTimeComponent } from './rangetime/rangetime.component';
 import { IfxServerComponent } from './ifxserver/ifxserver.component';
 import { IfxDBComponent } from './ifxdb/ifxdb.component';
@@ -84,6 +85,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     HomeComponent,
     LoginComponent,
     KapacitorComponent,
+    KapacitorTasksComponent,
     RangeTimeComponent,
     IfxServerComponent,
     IfxDBComponent,
@@ -129,6 +131,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
   entryComponents: [
       BlockUIComponent,
       KapacitorComponent,
+      KapacitorTasksComponent,
       RangeTimeComponent,
       IfxServerComponent,
       IfxDBComponent,

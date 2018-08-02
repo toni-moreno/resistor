@@ -83,9 +83,28 @@ export class NgTableComponent {
         return output
       }
     }
+    if  (transform === "ns2s") {
+      html = html / 1.e9;
+      transform = "elapsedseconds";
+    }
     if  (transform === "elapsedseconds") {
       let test = new ElapsedSecondsPipe().transform(html,'3');
       html = test.toString();
+    }
+    if  (transform === "imgwtooltip") {
+      if (html) return '<i class="glyphicon glyphicon-remove text-danger" title="'+html+'"></i>';
+      else return html;
+    }
+    if  (transform === "color") {
+      let color: string = "green";
+      if (html === "INFO") {
+        color = "blue";
+      } else if (html === "WARNING") {
+        color = "orange";
+      } else if (html === "CRITICAL") {
+        color = "red";
+      } 
+      html = "<span style='color:"+color+";font-weight:bold'>"+html+"</span>";
     }
     if (typeof html === 'object') {
       var test: any = '<ul class="list-unstyled">';
@@ -110,8 +129,8 @@ export class NgTableComponent {
       test += "</ul>"
       return test;
     } else if (typeof html === 'boolean') {
-      if (html) return '<i class="glyphicon glyphicon-ok"></i>'
-      else return '<i class="glyphicon glyphicon-remove"></i>'
+      if (html) return '<i class="glyphicon glyphicon-ok text-success"></i>'
+      else return '<i class="glyphicon glyphicon-remove text-danger"></i>'
     }
     else {
       return this.sanitizer.bypassSecurityTrustHtml(html);

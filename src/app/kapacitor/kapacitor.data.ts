@@ -13,5 +13,5 @@ export const KapacitorComponentConfig: any =
     {'name':'view', 'type':'icon', 'icon' : 'glyphicon glyphicon-eye-open text-success', 'tooltip': 'View item'},
     {'name':'test-connection', 'type':'icon', 'icon' : 'glyphicon glyphicon-flash text-info', 'tooltip': 'Test connection'},
     {'name':'edit', 'type':'icon', 'icon' : 'glyphicon glyphicon-edit text-warning', 'tooltip': 'Edit item'},
-    {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'}
+    {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'}
   ]
