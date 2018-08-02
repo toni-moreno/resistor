@@ -25,8 +25,7 @@ import { ModalDirective } from 'ngx-bootstrap';
                 <div  *ngFor="let entry of myObject | objectParser">
                   <dl class="dl-horizontal" *ngIf="entry.value !='' && entry.value != null">
                     <dt>{{entry.key}} <label *ngIf="isArray(entry.value)" class="label label-primary" style="display: inline-table; margin:0px">{{ entry.value.length}}</label></dt>
-                    <dd *ngIf="!isArray(entry.value)">
-                      {{entry.value}}
+                    <dd *ngIf="!isArray(entry.value)" [innerHtml]="(entry.value)">
                     </dd>
                     <div *ngIf="isArray(entry.value)" style="margin-bottom:10px">
                       <div *ngFor="let val of entry.value; let i = index">

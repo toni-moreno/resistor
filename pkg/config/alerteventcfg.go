@@ -44,13 +44,13 @@ func (dbc *DatabaseCfg) GetAlertEventCfgArray(filter string) ([]*AlertEventCfg, 
 	var devices []*AlertEventCfg
 	//Get Only data for selected devices
 	if len(filter) > 0 {
-		if err = dbc.x.Where(filter).Find(&devices); err != nil {
-			log.Warnf("Fail to get AlertEventCfg  data filteter with %s : %v\n", filter, err)
+		if err = dbc.x.Where(filter).Desc("uid").Find(&devices); err != nil {
+			log.Warnf("Fail to get AlertEventCfg data filtered with %s : %v\n", filter, err)
 			return nil, err
 		}
 	} else {
-		if err = dbc.x.Find(&devices); err != nil {
-			log.Warnf("Fail to get influxcfg   data: %v\n", err)
+		if err = dbc.x.Desc("uid").Find(&devices); err != nil {
+			log.Warnf("Fail to get AlertEventCfg data: %v\n", err)
 			return nil, err
 		}
 	}

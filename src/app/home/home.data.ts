@@ -3,6 +3,7 @@ import { IfxServerComponent } from '../ifxserver/ifxserver.component';
 import { IfxDBComponent } from '../ifxdb/ifxdb.component';
 import { IfxMeasurementComponent } from '../ifxmeasurement/ifxmeasurement.component';
 import { KapacitorComponent } from '../kapacitor/kapacitor.component';
+import { KapacitorTasksComponent } from '../kapacitortasks/kapacitortasks.component';
 import { RangeTimeComponent } from '../rangetime/rangetime.component';
 import { ProductComponent } from '../product/product.component';
 import { ProductGroupComponent } from '../productgroup/productgroup.component';
@@ -41,6 +42,7 @@ export const HomeComponentConfig: any =
     {'groupName' : 'Runtime', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
       [
         {'title': 'Alert Events', 'selector' : 'alertevent-component', 'type': 'component', 'data': AlertEventComponent},
+        {'title': 'Kapacitor Tasks', 'selector' : 'kapacitortasks-component', 'type': 'component', 'data': KapacitorTasksComponent},
         {'title': 'Agent status', 'selector' : 'runtime', 'data': null}
       ]
     },
@@ -54,7 +56,7 @@ export const HomeComponentConfig: any =
     [
       {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'type': 'component', 'data': IfxServerComponent},
       {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'type': 'component', 'data': KapacitorComponent},
-      {'title': 'HTTP Alerting Backends', 'selector' : 'outhttp-component', 'type': 'component', 'data': OutHTTPComponent},
+      {'title': 'Alerting Endpoints', 'selector' : 'outhttp-component', 'type': 'component', 'data': OutHTTPComponent},
     ]
     }, 
     {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
@@ -75,4 +77,4 @@ export const HomeComponentConfig: any =
     },
   ];
 
-  export const DefaultItem: any = KapacitorComponent;
+  export const DefaultItem: any = AlertEventComponent;

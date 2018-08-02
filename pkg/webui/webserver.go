@@ -178,6 +178,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewAPIRtAgent(m)
 	NewAPIRtKapFilter(m) //Webservice for alert filtering
 	NewAPIRtKapProxy(m)  //Kapacitor proxy
+	NewAPIRtKapacitor(m) //Kapacitor tasks
 	//Catalog
 	NewAPICfgIfxServer(m) //Influx Servers
 	NewAPICfgIfxDB(m)     //Influx Databases
