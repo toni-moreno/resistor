@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -125,7 +123,6 @@ func makeLatestDistCopies() {
 	runError("cp", "dist/resinjector_"+version+"_amd64.deb", "dist/resinjector_latest_amd64.deb")
 	runError("cp", "dist/resinjector-"+linuxPackageVersion+rpmIteration+".x86_64.rpm", "dist/resinjector-latest-1.x86_64.rpm")
 	runError("cp", "dist/resinjector-"+version+".linux-x64.tar.gz", "dist/resinjector-latest.linux-x64.tar.gz")
-}
 
 }
 
