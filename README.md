@@ -81,7 +81,7 @@ cp conf/sample.resinjector.toml conf/resinjector.toml
 
 ## First Setup Guide 
 
-Now you wil be able to configure metrics/measuremnets and devices from the builting web server at  http://localhost:8090 or http://localhost:4200 if working in development mode (npm start)
+Now you wil be able to configure metrics/measuremnets and devices from the builting web server at  http://localhost:6090 or http://localhost:4200 if working in development mode (npm start)
 
 
 Resistor depends on InfluxDB and Kapacitor Tools. Be sure you have InfluxDB and Kapacitor Installed.

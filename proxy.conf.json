@@ -1,14 +1,14 @@
 {
   "/login": {
-    "target": "http://localhost:8090",
+    "target": "http://localhost:6090",
     "secure": false
   },
   "/logout": {
-    "target": "http://localhost:8090",
+    "target": "http://localhost:6090",
     "secure": false
   },
   "/api": {
-    "target": "http://localhost:8090",
+    "target": "http://localhost:6090",
     "secure": false
   }
 }
