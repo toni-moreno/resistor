@@ -552,7 +552,7 @@ func (m *resInjectorHandler) SetDefault(p *agent.Point) {
 	// 		check_crit = true/false
 	//      check_warn = true/false
 	// 		check_info = true/false
-
+	defer timeTrack(time.Now(), "SetDefault")
 	log.Debugf("Entering SetDefault with injectAsTag=%v and Point: %+v", m.injectAsTag, p)
 	if m.injectAsTag {
 		if _, ok := p.Tags["mon_exc"]; !ok {
@@ -596,6 +596,7 @@ func (m *resInjectorHandler) SetDefault(p *agent.Point) {
 //Point Sends back the received point if it pass filter rules specified on injectdb
 func (m *resInjectorHandler) Point(p *agent.Point) error {
 	// Send back the point we just received
+	defer timeTrack(time.Now(), "Point")
 	log.Debugf("Receiving POINT with data: %+v", p)
 	critok, warnok, infook, err := m.CheckTime(p)
 	if err != nil {
@@ -713,7 +714,7 @@ func startRefreshProc() {
 
 func timeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
-	log.Debugf("TIME: %s took %s", name, elapsed)
+	log.Infof("TIMELOG: %s took %s", name, elapsed)
 }
 
 func main() {
