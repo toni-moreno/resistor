@@ -11,7 +11,13 @@ export class AlertService {
     }
 
     jsonParser(key,value) {
-        return value
+        if ( key == 'Active' || key == 'IsCustomExpression' ) {
+            return ( value === "true" || value === true);
+        }
+        if ( key == 'ExtraData' && (value == null || value.length == 0)) {
+            return 0;
+        }
+        return value;
     }
 
     addAlertItem(dev) {

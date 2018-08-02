@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 
@@ -417,6 +418,11 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			DBRPs[0].RetentionPolicy = dev.InfluxRP
 
 			taskType := kapacitorClient.StreamTask
+			taskStatus := kapacitorClient.Enabled
+			if dev.Active == false {
+				log.Debugf("Disabling kapacitor task")
+				taskStatus = kapacitorClient.Disabled
+			}
 
 			//Getting JSON vars from user input
 			vars := setKapaTaskVars(dev)
@@ -428,7 +434,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			// Create or update task into Kapacitor server
 			for i := 0; i < len(devcfgarray); i++ {
 				kapaServerCfg := devcfgarray[i]
-				log.Debugf("Kapacitor Server ID, URL: %+s, %s", kapaServerCfg.ID, kapaServerCfg.URL)
+				log.Debugf("Kapacitor Server ID: %+s, URL: %+s", kapaServerCfg.ID, kapaServerCfg.URL)
 				kapaClient, _, _, err := GetKapaClient(*kapaServerCfg)
 				if err != nil {
 					log.Errorf("Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
@@ -448,7 +454,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							Type:       taskType,
 							DBRPs:      DBRPs,
 							Vars:       vars,
-							Status:     kapacitorClient.Enabled,
+							Status:     taskStatus,
 							//TICKscript: dev.TplData,
 						})
 						if err != nil {
@@ -465,7 +471,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							Type:       taskType,
 							DBRPs:      DBRPs,
 							Vars:       vars,
-							Status:     kapacitorClient.Enabled,
+							Status:     taskStatus,
 							//TICKscript: dev.TplData,
 						})
 						if err != nil {
@@ -567,10 +573,12 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["INFLUX_BD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getIfxDBNameByID(dev.InfluxDB)}
 	vars["INFLUX_RP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxRP}
 	vars["INFLUX_MEAS"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxMeasurement}
-	vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.Field}
+	vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: strconv.Quote(dev.Field)}
+	vars["FIELD_DESC"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.FieldDesc}
 	//TagDescription
-	//Don't use InfluxFilter
-	//vars["INFLUX_FILTER"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.InfluxFilter}
+	if len(dev.InfluxFilter) > 0 {
+		vars["INFLUX_FILTER"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.InfluxFilter}
+	}
 	dIntervalCheck, err := time.ParseDuration(dev.IntervalCheck)
 	if err != nil {
 		log.Warningf("Error parsing duration from interval check %s. 0 will be assigned. Error: %s", dev.IntervalCheck, err)
@@ -580,6 +588,11 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	//vars["TIPO_TRIGUER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.TrigerType}
 	if dev.TrigerType != "DEADMAN" {
 		vars["STAT_FUN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.StatFunc}
+		if dev.StatFunc == "MOVINGAVERAGE" {
+			vars["EXTRA_DATA"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.ExtraData}
+		} else if dev.StatFunc == "PERCENTILE" {
+			vars["EXTRA_DATA"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ExtraData}
+		}
 		vars["CRIT_DIRECTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.CritDirection}
 		if dev.TrigerType == "TREND" {
 			dShift, err := time.ParseDuration(dev.Shift)
@@ -588,7 +601,6 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 			}
 			vars["SHIFT"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dShift}
 		}
-		//ThresholdType NOT USED !!!
 		vars["TH_CRIT_DEF"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritDef}
 		vars["TH_CRIT_EX1"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx1}
 		vars["TH_CRIT_EX2"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ThCritEx2}
@@ -627,7 +639,6 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["EXTRA_TAG"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraTag}
 	vars["EXTRA_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraLabel}
 
-	//ALERT_EXTRA_TEXT corresponds to Description field on form???
 	vars["ALERT_EXTRA_TEXT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.AlertExtraText}
 	//vars["FIELD_DEFAULT"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: ""}
 	/*
