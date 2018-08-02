@@ -5,7 +5,7 @@ ADD ./resistor-last.tar.gz /
 
 VOLUME ["/opt/resistor/conf", "/opt/resistor/log"]
 
-EXPOSE 8090
+EXPOSE 6090
 
 WORKDIR /opt/resistor
 COPY ./resistor.toml ./conf/
