@@ -87,6 +87,7 @@ export class AlertComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
+      Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaselineID: [this.sampleComponentForm ? this.sampleComponentForm.value.BaselineID : '', Validators.required],
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
       GroupID: [this.sampleComponentForm ? this.sampleComponentForm.value.GroupID : '', Validators.required],
@@ -96,21 +97,23 @@ export class AlertComponent implements OnInit {
       InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : null, Validators.required],
       InfluxMeasurement: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxMeasurement : null, Validators.required],
       TagDescription: [this.sampleComponentForm ? this.sampleComponentForm.value.TagDescription : ''],
-      //Don't use InfluxFilter
-      //InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : '', Validators.required],
+      InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : ''],
       IntervalCheck: [this.sampleComponentForm ? this.sampleComponentForm.value.IntervalCheck : '', Validators.compose([Validators.required, ValidationService.durationValidator])],
       OperationID: [this.sampleComponentForm ? this.sampleComponentForm.value.OperationID : ''],
-      Field: [this.sampleComponentForm ? this.sampleComponentForm.value.Field : '', Validators.required],
+      IsCustomExpression: [this.sampleComponentForm ? this.sampleComponentForm.value.IsCustomExpression : false, Validators.required],
+      Field: [this.sampleComponentForm ? this.sampleComponentForm.value.Field : ''],
+      FieldDesc: [this.sampleComponentForm ? this.sampleComponentForm.value.FieldDesc : ''],
       GrafanaServer: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaServer : ''],
       GrafanaDashLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashLabel : ''],
       GrafanaDashPanelID: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashPanelID : ''],
       DeviceIDTag: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDTag : '', Validators.required],
+      DeviceIDTagRO: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDTagRO : ''],
       DeviceIDLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDLabel : ''],
       ExtraTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTag : ''],
       ExtraLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraLabel : ''],
       AlertExtraText: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertExtraText : ''],
       KapacitorID: [this.sampleComponentForm ? this.sampleComponentForm.value.KapacitorID : '', Validators.required],
-      OutHTTP: [this.sampleComponentForm ? this.sampleComponentForm.value.OutHTTP : '', Validators.required],
+      OutHTTP: [this.sampleComponentForm ? this.sampleComponentForm.value.OutHTTP : ''],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -143,6 +146,7 @@ export class AlertComponent implements OnInit {
       case 'THRESHOLD':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
@@ -160,6 +164,7 @@ export class AlertComponent implements OnInit {
       case 'TREND':
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.compose([Validators.required, ValidationService.durationValidator]) });
       controlArray.push({'ID': 'TrendSign', 'defVal' : 'positive', 'Validators' : Validators.required });
@@ -177,10 +182,11 @@ export class AlertComponent implements OnInit {
       controlArray.push({'ID': 'ThInfoRangeTimeID', 'defVal' : '', 'Validators' : Validators.required });
       break;
       case 'DEADMAN':
-      break
+      break;
       default: //Default mode is THRESHOLD
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });

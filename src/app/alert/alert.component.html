@@ -35,16 +35,19 @@
             <label class="control-label col-sm-2" for="ID">ID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of the alert. Autocalculated from below fields"></i>
             <div class="col-sm-9">
-              <input formControlName="ID" id="ID" disabled [ngModel]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.GroupID+'-'+(sampleComponentForm.value.NumAlertID | leadingZeroes)" />
+              <input formControlName="ID" id="ID" disabled style="border:0px;" [ngModel]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.GroupID+'-'+(sampleComponentForm.value.NumAlertID | leadingZeroes)" />
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.BaselineID">
-            <label class="control-label col-sm-2" for="BaselineID">BaselineID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the line (LB for Base line and LE for Extended line)"></i>
+          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.Active">
+            <label class="control-label col-sm-2" for="Active">Active</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if the alert is active or not"></i>
             <div class="col-sm-9">
-              <input formControlName="BaselineID" id="BaselineID" [ngModel]="sampleComponentForm.value.BaselineID" />
-              <control-messages [control]="sampleComponentForm.controls.BaselineID"></control-messages>
+              <select formControlName="Active" id="Active" [ngModel]="sampleComponentForm.value.Active">
+                <option value="true" selected="selected">True</option>
+                <option value="false">False</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.Active"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ProductID">
@@ -53,6 +56,14 @@
             <div class="col-sm-9">
               <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.BaselineID">
+            <label class="control-label col-sm-2" for="BaselineID">BaselineID</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the line (LB for Base line and LE for Extended line)"></i>
+            <div class="col-sm-9">
+              <input formControlName="BaselineID" id="BaselineID" [ngModel]="sampleComponentForm.value.BaselineID" />
+              <control-messages [control]="sampleComponentForm.controls.BaselineID"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.GroupID">
@@ -84,7 +95,7 @@
         <div class="well well-sm">
           <span class="editsection">External Services Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.OutHTTP">
-            <label class="control-label col-sm-2" for="OutHTTP">OutHTTP</label>
+            <label class="control-label col-sm-2" for="OutHTTP">Alerting Endpoints</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="List of EndPoints where the alert will be sent"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown [options]="select_outhttp" formControlName="OutHTTP" [texts]="myTexts" [ngModel]="sampleComponentForm.value.OutHTTP"></ss-multiselect-dropdown>
@@ -129,25 +140,52 @@
               <control-messages [control]="sampleComponentForm.controls.InfluxMeasurement"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.Field && sampleComponentForm.value.InfluxMeasurement">
+          <div class="form-group" *ngIf="sampleComponentForm.controls.IsCustomExpression && sampleComponentForm.value.InfluxMeasurement">
+            <label class="control-label col-sm-2" for="IsCustomExpression">IsCustomExpression</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if the data to check is a custom expression or a measurement field"></i>
+            <div class="col-sm-9">
+              <select formControlName="IsCustomExpression" id="IsCustomExpression" [ngModel]="sampleComponentForm.value.IsCustomExpression">
+                <option value="true">True</option>
+                <option value="false" selected="selected">False</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.IsCustomExpression"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Field && sampleComponentForm.value.InfluxMeasurement && (sampleComponentForm.value.IsCustomExpression=='false'||!sampleComponentForm.value.IsCustomExpression)">
             <label class="control-label col-sm-2" for="Field">Field</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field  with the data to check"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field with the data to check"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="select_ifxfs" [options]="select_ifxfs" formControlName="Field" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Field"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.TagDescription">
-            <label class="control-label col-sm-2" for="TagDescription">TagDescription</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Field && sampleComponentForm.controls.IsCustomExpression.value=='true'">
+            <label class="control-label col-sm-2" for="Field">Custom Expression</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field with the custom expression to check"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown *ngIf="select_ifxts" [options]="select_ifxts" formControlName="TagDescription" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.TagDescription"></ss-multiselect-dropdown>
-              <control-messages [control]="sampleComponentForm.controls.TagDescription"></control-messages>
+              <input formControlName="Field" id="Field" [ngModel]="sampleComponentForm.value.Field" />
+              <control-messages [control]="sampleComponentForm.controls.Field"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.FieldDesc && sampleComponentForm.controls.IsCustomExpression.value=='true'">
+            <label class="control-label col-sm-2" for="FieldDesc">FieldDesc</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field description to show on alert details"></i>
+            <div class="col-sm-9">
+              <input formControlName="FieldDesc" id="FieldDesc" [ngModel]="sampleComponentForm.value.FieldDesc" />
+              <control-messages [control]="sampleComponentForm.controls.FieldDesc"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDTag">
+            <label class="control-label col-sm-2" for="DeviceIDTag">DeviceIDTag</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to identify the device"></i>
+            <div class="col-sm-9">
+              <input formControlName="DeviceIDTag" id="DeviceIDTag" [ngModel]="sampleComponentForm.value.DeviceIDTag" />
+              <control-messages [control]="sampleComponentForm.controls.DeviceIDTag"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxFilter">
             <label class="control-label col-sm-2" for="InfluxFilter">InfluxFilter</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Lambda expression to filter data from Influx"></i>
             <div class="col-sm-9">
               <input formControlName="InfluxFilter" id="InfluxFilter" [ngModel]="sampleComponentForm.value.InfluxFilter" />
               <control-messages [control]="sampleComponentForm.controls.InfluxFilter"></control-messages>
@@ -196,13 +234,21 @@
                 <option value="MEAN">MEAN</option>
                 <option value="MEDIAN">MEDIAN</option>
                 <option value="MIN">MIN</option>
-                <option value="MOVAVG">MOVAVG</option>
+                <option value="MOVINGAVERAGE">MOVINGAVERAGE</option>
                 <option value="PERCENTILE">PERCENTILE</option>
                 <option value="SPREAD">SPREAD</option>
                 <option value="STDDEV">STDDEV</option>
                 <option value="SUM">SUM</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraData && (sampleComponentForm.controls.StatFunc.value=='MOVINGAVERAGE'||sampleComponentForm.controls.StatFunc.value=='PERCENTILE')">
+            <label class="control-label col-sm-2" for="ExtraData">ExtraData</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Extra data for the selected function"></i>
+            <div class="col-sm-9">
+              <input type="number" formControlName="ExtraData" id="ExtraData" [ngModel]="sampleComponentForm.value.ExtraData" />
+              <control-messages [control]="sampleComponentForm.controls.ExtraData"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
@@ -217,7 +263,7 @@
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ThresholdType">
-            <label class="control-label col-sm-2" for="ThresholdType">ThresholdType</label>
+            <label class="control-label col-sm-2" for="ThresholdType">TrendType</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
               <select formControlName="ThresholdType" id="ThresholdType" [ngModel]="sampleComponentForm.value.ThresholdType">
@@ -238,30 +284,7 @@
               <control-messages [control]="sampleComponentForm.controls.TrendSign"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritDef">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThCritDef">ThCritDef</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThCritDef" id="ThCritDef" [ngModel]="sampleComponentForm.value.ThCritDef" />
-              <control-messages [control]="sampleComponentForm.controls.ThCritDef"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritEx1">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThCritEx1">ThCritEx1</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThCritEx1" id="ThCritEx1" [ngModel]="sampleComponentForm.value.ThCritEx1" />
-              <control-messages [control]="sampleComponentForm.controls.ThCritEx1"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritEx2">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThCritEx2">ThCritEx2</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThCritEx2" id="ThCritEx2" [ngModel]="sampleComponentForm.value.ThCritEx2" />
-              <control-messages [control]="sampleComponentForm.controls.ThCritEx2"></control-messages>
-            </div>
-          </div>
+
           <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritRangeTimeID">
             <label class="control-label col-md-offset-1 col-sm-2" for="ThCritRangeTimeID">ThCritRangeTimeID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
@@ -270,64 +293,12 @@
               <control-messages [control]="sampleComponentForm.controls.ThCritRangeTimeID"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnDef">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnDef">ThWarnDef</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThWarnDef" id="ThWarnDef" [ngModel]="sampleComponentForm.value.ThWarnDef" />
-              <control-messages [control]="sampleComponentForm.controls.ThWarnDef"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnEx1">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnEx1">ThWarnEx1</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThWarnEx1" id="ThWarnEx1" [ngModel]="sampleComponentForm.value.ThWarnEx1" />
-              <control-messages [control]="sampleComponentForm.controls.ThWarnEx1"></control-messages>
-            </div>
-          </div>
-
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnEx2">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnEx2">ThWarnEx2</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThWarnEx2" id="ThWarnEx2" [ngModel]="sampleComponentForm.value.ThWarnEx2" />
-              <control-messages [control]="sampleComponentForm.controls.ThWarnEx2"></control-messages>
-            </div>
-          </div>
-
           <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnRangeTimeID">
             <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnRangeTimeID">ThWarnRangeTimeID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-8">
               <ss-multiselect-dropdown [options]="select_rangetime" formControlName="ThWarnRangeTimeID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ThWarnRangeTimeID"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.ThWarnRangeTimeID"></control-messages>
-            </div>
-          </div>
-
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoDef">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThInfoDef">ThInfoDef</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThInfoDef" id="ThInfoDef" [ngModel]="sampleComponentForm.value.ThInfoDef" />
-              <control-messages [control]="sampleComponentForm.controls.ThInfoDef"></control-messages>
-            </div>
-          </div>
-
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoEx1">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThInfoEx1">ThInfoEx1</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThInfoEx1" id="ThInfoEx1" [ngModel]="sampleComponentForm.value.ThInfoEx1" />
-              <control-messages [control]="sampleComponentForm.controls.ThInfoEx1"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoEx2">
-            <label class="control-label col-md-offset-1 col-sm-2" for="ThInfoEx2">ThInfoEx2</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
-            <div class="col-sm-8">
-              <input type="number" formControlName="ThInfoEx2" id="ThInfoEx2" [ngModel]="sampleComponentForm.value.ThInfoEx2" />
-              <control-messages [control]="sampleComponentForm.controls.ThInfoEx2"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoRangeTimeID">
@@ -338,9 +309,84 @@
               <control-messages [control]="sampleComponentForm.controls.ThInfoRangeTimeID"></control-messages>
             </div>
           </div>
+
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritDef">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThCritDef">ThCritDef</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThCritDef" id="ThCritDef" [ngModel]="sampleComponentForm.value.ThCritDef" />
+              <control-messages [control]="sampleComponentForm.controls.ThCritDef"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnDef">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnDef">ThWarnDef</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThWarnDef" id="ThWarnDef" [ngModel]="sampleComponentForm.value.ThWarnDef" />
+              <control-messages [control]="sampleComponentForm.controls.ThWarnDef"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoDef">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThInfoDef">ThInfoDef</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThInfoDef" id="ThInfoDef" [ngModel]="sampleComponentForm.value.ThInfoDef" />
+              <control-messages [control]="sampleComponentForm.controls.ThInfoDef"></control-messages>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritEx1">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThCritEx1">ThCritEx1</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThCritEx1" id="ThCritEx1" [ngModel]="sampleComponentForm.value.ThCritEx1" />
+              <control-messages [control]="sampleComponentForm.controls.ThCritEx1"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnEx1">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnEx1">ThWarnEx1</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThWarnEx1" id="ThWarnEx1" [ngModel]="sampleComponentForm.value.ThWarnEx1" />
+              <control-messages [control]="sampleComponentForm.controls.ThWarnEx1"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoEx1">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThInfoEx1">ThInfoEx1</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThInfoEx1" id="ThInfoEx1" [ngModel]="sampleComponentForm.value.ThInfoEx1" />
+              <control-messages [control]="sampleComponentForm.controls.ThInfoEx1"></control-messages>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThCritEx2">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThCritEx2">ThCritEx2</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThCritEx2" id="ThCritEx2" [ngModel]="sampleComponentForm.value.ThCritEx2" />
+              <control-messages [control]="sampleComponentForm.controls.ThCritEx2"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThWarnEx2">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThWarnEx2">ThWarnEx2</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThWarnEx2" id="ThWarnEx2" [ngModel]="sampleComponentForm.value.ThWarnEx2" />
+              <control-messages [control]="sampleComponentForm.controls.ThWarnEx2"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ThInfoEx2">
+            <label class="control-label col-md-offset-1 col-sm-2" for="ThInfoEx2">ThInfoEx2</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <div class="col-sm-8">
+              <input type="number" formControlName="ThInfoEx2" id="ThInfoEx2" [ngModel]="sampleComponentForm.value.ThInfoEx2" />
+              <control-messages [control]="sampleComponentForm.controls.ThInfoEx2"></control-messages>
+            </div>
+          </div>
         </div>
         <div class="well well-sm">
-          <span class="editsection">Extra Settings</span>
+          <span class="editsection">Grafana Settings</span>
           <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.GrafanaServer">
             <label class="control-label col-sm-2" for="GrafanaServer">GrafanaServer</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Grafana server URL"></i>
@@ -365,14 +411,6 @@
               <control-messages [control]="sampleComponentForm.controls.GrafanaDashPanelID"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDTag">
-            <label class="control-label col-sm-2" for="DeviceIDTag">DeviceIDTag</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to identify the device"></i>
-            <div class="col-sm-9">
-              <input formControlName="DeviceIDTag" id="DeviceIDTag" [ngModel]="sampleComponentForm.value.DeviceIDTag" />
-              <control-messages [control]="sampleComponentForm.controls.DeviceIDTag"></control-messages>
-            </div>
-          </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDLabel">
             <label class="control-label col-sm-2" for="DeviceIDLabel">DeviceIDLabel</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Label for the Tag to identify the device"></i>
@@ -381,12 +419,12 @@
               <control-messages [control]="sampleComponentForm.controls.DeviceIDLabel"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraTag">
-            <label class="control-label col-sm-2" for="ExtraTag">ExtraTag</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag with extra information"></i>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDTagRO">
+            <label class="control-label col-sm-2" for="DeviceIDTagRO">DeviceIDTag</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to identify the device"></i>
             <div class="col-sm-9">
-              <input formControlName="ExtraTag" id="ExtraTag" [ngModel]="sampleComponentForm.value.ExtraTag" />
-              <control-messages [control]="sampleComponentForm.controls.ExtraTag"></control-messages>
+              <input formControlName="DeviceIDTagRO" id="DeviceIDTagRO" disabled style="border:0px;" [ngModel]="sampleComponentForm.value.DeviceIDTag" />
+              <control-messages [control]="sampleComponentForm.controls.DeviceIDTagRO"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraLabel">
@@ -397,6 +435,17 @@
               <control-messages [control]="sampleComponentForm.controls.ExtraLabel"></control-messages>
             </div>
           </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraTag">
+            <label class="control-label col-sm-2" for="ExtraTag">ExtraTag</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag with extra information"></i>
+            <div class="col-sm-9">
+              <input formControlName="ExtraTag" id="ExtraTag" [ngModel]="sampleComponentForm.value.ExtraTag" />
+              <control-messages [control]="sampleComponentForm.controls.ExtraTag"></control-messages>
+            </div>
+          </div>
+        </div>
+        <div class="well well-sm">
+          <span class="editsection">Extra Settings</span>
           <div class="form-group" *ngIf="sampleComponentForm.controls.AlertExtraText">
             <label class="control-label col-sm-2" for="AlertExtraText">AlertExtraText</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Extra text that will be sent to the operator"></i>
