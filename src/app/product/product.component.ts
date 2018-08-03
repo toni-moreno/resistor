@@ -3,6 +3,7 @@ import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
 import { ProductService } from './product.service';
+import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service';
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 import { ExportFileModal } from '../common/dataservice/export-file-modal';
@@ -13,11 +14,13 @@ import { Observable } from 'rxjs/Rx';
 import { TableListComponent } from '../common/table-list.component';
 import { ProductComponentConfig, TableRole, OverrideRoleActions } from './product.data';
 
+import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from '../common/multiselect-dropdown';
+
 declare var _:any;
 
 @Component({
   selector: 'product-component',
-  providers: [ProductService, ValidationService],
+  providers: [ProductService, IfxMeasurementService, ValidationService],
   templateUrl: './product.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -40,6 +43,18 @@ export class ProductComponent implements OnInit {
   public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
+  public ifxms_list : any = [];
+  public picked_ifxms: any = null;
+
+  public select_ifxms : IMultiSelectOption[] = [];
+  public select_ifxpts : IMultiSelectOption[] = [];
+  public select_ifxcts : IMultiSelectOption[] = [];
+  public select_ifxets : IMultiSelectOption[] = [];
+
+  private single_select: IMultiSelectSettings = {
+      singleSelect: true,
+  };
+
   public data : Array<any>;
   public isRequesting : boolean;
 
@@ -51,7 +66,7 @@ export class ProductComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public productService: ProductService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public productService: ProductService, public exportServiceCfg : ExportServiceCfg, public ifxMeasurementService : IfxMeasurementService, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -59,8 +74,11 @@ export class ProductComponent implements OnInit {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       BaseLines: [this.sampleComponentForm ? this.sampleComponentForm.value.BaseLines : '', Validators.required],
-      IDTagName: [this.sampleComponentForm ? this.sampleComponentForm.value.IDTagName : '', Validators.required],
+      ProductTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductTag : '', Validators.required],
       CommonTags: [this.sampleComponentForm ? this.sampleComponentForm.value.CommonTags : '', null],
+      ExtraTags: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTags : '', null],
+      Measurements: [this.sampleComponentForm ? this.sampleComponentForm.value.Measurements : '', null],
+      AlertGroups: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertGroups : '', null],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -71,7 +89,7 @@ export class ProductComponent implements OnInit {
       .subscribe(
       data => {
         this.isRequesting = false;
-        this.componentList = data
+        this.componentList = data;
         this.data = data;
         this.editmode = "list";
       },
@@ -83,7 +101,7 @@ export class ProductComponent implements OnInit {
   customActions(action : any) {
     switch (action.option) {
       case 'new' :
-        this.newItem()
+        this.newItem();
       break;
       case 'export' :
         this.exportItem(action.event);
@@ -112,11 +130,12 @@ export class ProductComponent implements OnInit {
           break;
        }
        case "ChangeProperty": {
-          this.updateAllSelectedItems(this.selectedArray,action.field,action.value)
+          this.updateAllSelectedItems(this.selectedArray,action.field,action.value);
           break;
        }
        case "AppendProperty": {
          this.updateAllSelectedItems(this.selectedArray,action.field,action.value,true);
+         break;
        }
        default: {
           break;
@@ -137,7 +156,7 @@ export class ProductComponent implements OnInit {
     this.counterItems = 0;
     this.isRequesting = true;
     for (let i in myArray) {
-      console.log("Removing ",myArray[i].ID)
+      console.log("Removing ",myArray[i].ID);
       this.deleteSampleItem(myArray[i].ID,true);
       obsArray.push(this.deleteSampleItem(myArray[i].ID,true));
     }
@@ -157,18 +176,20 @@ export class ProductComponent implements OnInit {
       );
   }
   newItem() {
+    this.getIfxMeasurementNamesArray();
     //No hidden fields, so create fixed Form
     this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
+    this.getIfxMeasurementNamesArray();
     let id = row.ID;
     this.productService.getProductItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
-        this.oldID = data.ID
+        this.oldID = data.ID;
         this.createStaticForm();
         this.editmode = "modify";
       },
@@ -223,7 +244,7 @@ export class ProductComponent implements OnInit {
       for (let component of mySelectedArray) {
         //check if there is some new object to append
         let newEntries = _.differenceWith(value,component[field],_.isEqual);
-        tmpArray = newEntries.concat(component[field])
+        tmpArray = newEntries.concat(component[field]);
         component[field] = tmpArray;
         obsArray.push(this.updateSampleItem(true,component));
       }
@@ -269,6 +290,71 @@ export class ProductComponent implements OnInit {
                 },
                 err => console.error(err),
               );
+  }
+
+  getIfxMeasurementNamesArray() {
+    this.ifxMeasurementService.getIfxMeasurementNamesArray(null)
+      .subscribe(
+      data => {
+        this.ifxms_list = data;
+        this.select_ifxms = [];
+        this.select_ifxms = this.createMultiselectArray(data, 'Name', 'Name', 'ID');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
+  pickMeasItem(ifxms_picked) {
+    /*
+    PENDING TASK
+    Remove old selected tags when an old measurement is unselected
+    */
+    //Only reset values when default values are loaded
+    console.log('ifxms_picked:'+ifxms_picked);
+    console.log('this.sampleComponentForm.value.Measurements:'+this.sampleComponentForm.value.Measurements);
+    if (ifxms_picked !== this.sampleComponentForm.value.Measurements){
+      this.sampleComponentForm.controls.ProductTag.setValue(null);
+      this.sampleComponentForm.controls.CommonTags.setValue(null);
+      this.sampleComponentForm.controls.ExtraTags.setValue(null);
+    }
+
+    if (ifxms_picked) {
+      if (ifxms_picked.length > 0) {
+        this.ifxMeasurementService.getIfxMeasurementTagsArray(ifxms_picked)
+        .subscribe(
+          data => {
+            console.log(data);
+            this.select_ifxpts = [];
+            this.select_ifxcts = [];
+            this.select_ifxets = [];
+            this.select_ifxpts = this.createMultiselectArray(data);
+            this.select_ifxcts = this.createMultiselectArray(data);
+            this.select_ifxets = this.createMultiselectArray(data);
+          },
+          err => console.error(err),
+          () => console.log('DONE')
+        );
+      } else {
+        //Empty Tag Controls
+        this.sampleComponentForm.controls.ProductTag.setValue(null);
+        this.sampleComponentForm.controls.CommonTags.setValue(null);
+        this.sampleComponentForm.controls.ExtraTags.setValue(null);
+        this.select_ifxpts = [];
+        this.select_ifxcts = [];
+        this.select_ifxets = [];
+      }
+    }
+  }
+
+  createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
+    let myarray = [];
+    if(tempArray){
+      for (let entry of tempArray) {
+        myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
+      };
+    }
+    return myarray;
   }
 
 }

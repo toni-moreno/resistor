@@ -42,7 +42,21 @@ export class IfxMeasurementService {
         return this.http.get('/api/cfg/ifxmeasurement/'+id)
         .map( (responseData) =>
             responseData.json()
-    )};
+    )}
+
+    getIfxMeasurementNamesArray(filter : string) {
+        console.log("filter: ",filter);
+        return this.http.get('/api/cfg/ifxmeasurement/getnames/')
+        .map( (responseData) =>
+            responseData.json()
+    )}
+
+    getIfxMeasurementTagsArray(filter : string) {
+        console.log("filter: ",filter);
+        return this.http.get('/api/cfg/ifxmeasurement/gettags/'+filter)
+        .map( (responseData) =>
+            responseData.json()
+    )}
 
     checkOnDeleteIfxMeasurementItem(id : string){
       return this.http.get('/api/cfg/ifxmeasurement/checkondel/'+id)

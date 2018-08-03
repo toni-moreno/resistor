@@ -48,31 +48,59 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="control-label col-sm-2" for="IDTagName">ID Tag Name</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag which measurements for this product uses to identify the device (neede to define online device filters) "></i>
+            <label class="control-label col-sm-2" for="AlertGroups">AlertGroups</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Alert Groups for this product (comma-separated)"></i>
             <div class="col-sm-9">
-              <input formControlName="IDTagName" id="IDTagName" [ngModel]="sampleComponentForm.value.IDTagName" />
-              <control-messages [control]="sampleComponentForm.controls.IDTagName"></control-messages>
+              <input formControlName="AlertGroups" id="AlertGroups" [ngModel]="sampleComponentForm.value.AlertGroups" />
+              <control-messages [control]="sampleComponentForm.controls.AlertGroups"></control-messages>
+            </div>
+          </div>
+        </div>
+        <div class="well well-sm">
+          <span class="editsection">Measurement Settings</span>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Measurements">
+            <label class="control-label col-sm-2" for="Measurements">Measurements</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Measurements for this product"></i>
+            <div class="col-sm-9">
+              <ss-multiselect-dropdown *ngIf="select_ifxms" [options]="select_ifxms" formControlName="Measurements" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Measurements" (ngModelChange)="pickMeasItem($event)"></ss-multiselect-dropdown>
+              <span *ngIf="!select_ifxms">No Fields found</span>
+              <control-messages [control]="sampleComponentForm.controls.Measurements"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="ProductTag">ProductTag</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag which measurements for this product uses to identify the device (needed to define online device filters) "></i>
+            <div class="col-sm-9">
+              <ss-multiselect-dropdown *ngIf="select_ifxpts" [options]="select_ifxpts" formControlName="ProductTag" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductTag"></ss-multiselect-dropdown>
+              <control-messages [control]="sampleComponentForm.controls.ProductTag"></control-messages>
             </div>
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="CommonTags">CommonTags</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Common Tags for this product (comma-separated)"></i>
             <div class="col-sm-9">
-              <input formControlName="CommonTags" id="CommonTags" [ngModel]="sampleComponentForm.value.CommonTags" />
+              <ss-multiselect-dropdown *ngIf="select_ifxcts" [options]="select_ifxcts" formControlName="CommonTags" [texts]="myTexts" [ngModel]="sampleComponentForm.value.CommonTags"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.CommonTags"></control-messages>
             </div>
           </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="ExtraTags">ExtraTags</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Extra Tags for this product (comma-separated)"></i>
+            <div class="col-sm-9">
+              <ss-multiselect-dropdown *ngIf="select_ifxets" [options]="select_ifxets" formControlName="ExtraTags" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ExtraTags"></ss-multiselect-dropdown>
+              <control-messages [control]="sampleComponentForm.controls.ExtraTags"></control-messages>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="well well-sm">
-        <span class="editsection">Extra Settings</span>
-        <div class="form-group" style="margin-top: 25px">
-          <label class="control-label col-sm-2" for="Description">Description</label>
-          <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the Product ID"></i>
-          <div class="col-sm-9">
-            <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
-            <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+        <div class="well well-sm">
+          <span class="editsection">Extra Settings</span>
+          <div class="form-group" style="margin-top: 25px">
+            <label class="control-label col-sm-2" for="Description">Description</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the Product ID"></i>
+            <div class="col-sm-9">
+              <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
+              <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
+            </div>
           </div>
         </div>
       </div>

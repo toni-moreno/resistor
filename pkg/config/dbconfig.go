@@ -72,17 +72,20 @@ func (IfxDBMeasRel) TableName() string {
 
 // ProductCfg Product Catalog Config type
 type ProductCfg struct {
-	ID          string   `xorm:"'id' unique" binding:"Required"`
-	IDTagName   string   `xorm:"idtagname" binding:"Required"` //Set the
-	CommonTags  []string `xorm:"commontags"`
-	BaseLines   []string `xorm:"baselines"`
-	Description string   `xorm:"description"`
+	ID           string   `xorm:"'id' unique" binding:"Required"`
+	ProductTag   string   `xorm:"producttag" binding:"Required"`
+	CommonTags   []string `xorm:"commontags"`
+	ExtraTags    []string `xorm:"extratags"`
+	BaseLines    []string `xorm:"baselines"`
+	Measurements []string `xorm:"measurements"`
+	AlertGroups  []string `xorm:"alertgroups"`
+	Description  string   `xorm:"description"`
 }
 
 // ProductGroupCfg Product Group Catalog Config type
 type ProductGroupCfg struct {
 	ID          string   `xorm:"'id' unique" binding:"Required"`
-	Products    []string `xorm:"commontags"`
+	Products    []string `xorm:"products"`
 	Description string   `xorm:"description"`
 }
 

@@ -21,22 +21,36 @@ func NewAPICfgIfxMeasurement(m *macaron.Macaron) error {
 		m.Put("/:id", reqSignedIn, bind(config.IfxMeasurementCfg{}), UpdateIfxMeasurement)
 		m.Delete("/:id", reqSignedIn, DeleteIfxMeasurement)
 		m.Get("/:id", reqSignedIn, GetIfxMeasurementCfgByID)
+		m.Get("/getnames/", reqSignedIn, GetIfxMeasurementCfgDistinctNamesArray)
+		m.Get("/gettags/:filter", reqSignedIn, GetIfxMeasurementTagsArray)
 		m.Get("/checkondel/:id", reqSignedIn, GetIfxMeasurementAffectOnDel)
 	})
 
 	return nil
 }
 
-// GetIfxMeasurement Return snmpdevice list to frontend
+// GetIfxMeasurement Return IfxMeasurement list to frontend
 func GetIfxMeasurement(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetIfxMeasurementCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get IfxMeasurements :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting IfxMeasurements %+v", &devcfgarray)
+}
+
+// GetIfxMeasurementCfgDistinctNamesArray Return IfxMeasurement list with different names to frontend
+func GetIfxMeasurementCfgDistinctNamesArray(ctx *Context) {
+	devcfgarray, err := agent.MainConfig.Database.GetIfxMeasurementCfgDistinctNamesArray("")
+	if err != nil {
+		ctx.JSON(404, err.Error())
+		log.Errorf("Error on get IfxMeasurements :%+s", err)
+		return
+	}
+	ctx.JSON(200, &devcfgarray)
+	log.Debugf("Getting IfxMeasurements %+v", &devcfgarray)
 }
 
 // AddIfxMeasurement Insert new snmpdevice to de internal BBDD --pending--
@@ -84,6 +98,7 @@ func DeleteIfxMeasurement(ctx *Context) {
 //GetIfxMeasurementCfgByID --pending--
 func GetIfxMeasurementCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
+	log.Debugf("Getting Influx Measurements with id: '%s'.", id)
 	nid, err := strconv.ParseInt(id, 10, 64)
 	dev, err := agent.MainConfig.Database.GetIfxMeasurementCfgByID(nid)
 	if err != nil {
@@ -92,6 +107,22 @@ func GetIfxMeasurementCfgByID(ctx *Context) {
 	} else {
 		ctx.JSON(200, &dev)
 	}
+}
+
+/*GetIfxMeasurementTagsArray Gets the array of tags for the measurements passed in filter */
+/*The filter contains a list of measurement names*/
+/*then with these measurement names a list of tags is obtained*/
+func GetIfxMeasurementTagsArray(ctx *Context) {
+	filter := ctx.Params(":filter")
+	log.Debugf("Getting Influx Measurement Tags with filter: '%s'.", filter)
+	tagsarray, err := agent.MainConfig.Database.GetIfxMeasurementTagsArray(filter)
+	if err != nil {
+		ctx.JSON(404, err.Error())
+		log.Errorf("Error getting tags: %+s", err)
+		return
+	}
+	log.Debugf("Getting Influx Measurement Tags with filter: '%s'. Returning size: %d", filter, len(tagsarray))
+	ctx.JSON(200, &tagsarray)
 }
 
 //GetIfxMeasurementAffectOnDel --pending--
