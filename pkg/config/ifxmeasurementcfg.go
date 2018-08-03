@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 /***************************
@@ -10,6 +11,8 @@ import (
 	-GetIfxMeasurementCfgCfgByID(struct)
 	-GetIfxMeasurementCfgMap (map - for interna config use
 	-GetIfxMeasurementCfgArray(Array - for web ui use )
+	-GetIfxMeasurementCfgDistinctNamesArray
+	-GetIfxMeasurementTagsArray
 	-AddIfxMeasurementCfg
 	-DelIfxMeasurementCfg
 	-UpdateIfxMeasurementCfg
@@ -49,7 +52,7 @@ func (dbc *DatabaseCfg) GetIfxMeasurementCfgArray(filter string) ([]*IfxMeasurem
 	//Get Only data for selected devices
 	if len(filter) > 0 {
 		if err = dbc.x.Where(filter).Find(&devices); err != nil {
-			log.Warnf("Fail to get IfxMeasurementCfg  data filteter with %s : %v\n", filter, err)
+			log.Warnf("Fail to get IfxMeasurementCfg data filtered with %s : %v\n", filter, err)
 			return nil, err
 		}
 	} else {
@@ -59,6 +62,43 @@ func (dbc *DatabaseCfg) GetIfxMeasurementCfgArray(filter string) ([]*IfxMeasurem
 		}
 	}
 	return devices, nil
+}
+
+/*GetIfxMeasurementCfgDistinctNamesArray generate an array of IfxMeasurementCfg with distinct names */
+func (dbc *DatabaseCfg) GetIfxMeasurementCfgDistinctNamesArray(filter string) ([]*IfxMeasurementCfg, error) {
+	var err error
+	var msmts []*IfxMeasurementCfg
+	if err = dbc.x.Distinct("name").Where(filter).Find(&msmts); err != nil {
+		log.Warnf("Failed to get IfxMeasurementCfg data filtered with %s : %v\n", filter, err)
+		return nil, err
+	}
+	return msmts, nil
+}
+
+/*GetIfxMeasurementTagsArray Gets the array of tags for the measurements passed in filter */
+/*The filter contains a list of measurement names*/
+/*then with these measurement names a list of tags is obtained*/
+func (dbc *DatabaseCfg) GetIfxMeasurementTagsArray(filter string) ([]string, error) {
+	var err error
+	var tags []string
+	var msmts []*IfxMeasurementCfg
+	var namesfilter string
+	namesfilter = "`name` IN ('" + strings.Replace(filter, ",", "','", -1) + "')"
+	//Get the list of measurement tags
+	if err = dbc.x.Where(namesfilter).Find(&msmts); err != nil {
+		log.Warnf("Failed to get IfxMeasurementCfg data filtered with (%s). Error: %v", filter, err)
+		return nil, err
+	}
+	for _, msmt := range msmts {
+		for _, tag := range msmt.Tags {
+			//Don't add duplicates
+			if !strings.Contains(","+strings.Join(tags, ",")+",", ","+tag+",") {
+				tags = append(tags, tag)
+			}
+		}
+	}
+	log.Infof("Got Measurement Tags Successfully: %+v", tags)
+	return tags, nil
 }
 
 /*AddIfxMeasurementCfg for adding new devices*/

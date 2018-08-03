@@ -6,7 +6,7 @@ export const TemplateComponentConfig: any =
       { 'title': 'TriggerType', 'name': 'TrigerType' },
       { 'title': 'StatFunc', 'name': 'StatFunc' },
       { 'title': 'CritDirection', 'name': 'CritDirection' },
-      { 'title': 'ThresholdType', 'name': 'ThresholdType' },
+      { 'title': 'TrendType', 'name': 'ThresholdType' },
       { 'title': 'TrendSign', 'name': 'TrendSign' },
       //{ 'title': 'TplData', 'name': 'TplData' },
     ],

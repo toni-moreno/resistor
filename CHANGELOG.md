@@ -1,3 +1,27 @@
+# v 0.3.0  (unreleased )
+### New features.
+* Added udf config info.
+* The data to check on alerts can be a measurement field or a lambda expression.
+* Field ExtraData added on alerts to use on MovingAverage and Percentile functions.
+* Field Active added on alerts to activate or deactivate the related kapacitor task.
+* Field InfluxFilter added on alerts to include a lambda expression to filter data from Influx.
+* Fields on Alert Definition screen reordered and/or restyled.
+* New component Kapacitor Tasks added on Runtime.
+* Columns on Alert Events formatted.
+* TimeLogs added on resinjector UDF.
+* Port changed from 8090 to 6090.
+
+### fixes
+* Function MOVAVG changed to MOVINGAVERAGE on Templates and Alerts definition.
+* Literals for Alerting Endpoints modified.
+* Modal window modified to show html info.
+* ng-table modified to show column tooltips correctly.
+* Literal 'ThresholdType' changed to 'TrendType'.
+
+### breaking changes
+* Changes on Product component to improve configuration of products.
+* 'commontags' column changed to 'products' on 'product_group_cfg' table.
+
 # v 0.2.0  (unreleased )
 ### New features.
 * Added resinjector sample file and options to build and package the UDF module.

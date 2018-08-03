@@ -11,8 +11,7 @@ export class ProductService {
     }
 
     jsonParser(key,value) {
-        if ( key == 'CommonTags'|| 
-             key == 'BaseLines') {
+        if ( key == 'CommonTags' || key == 'ExtraTags' || key == 'BaseLines' || key == 'Measurements' || key == 'AlertGroups' ) {
             return String(value).split(',');
           }
         return value
