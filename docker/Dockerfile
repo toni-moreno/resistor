@@ -9,6 +9,8 @@ EXPOSE 6090
 
 WORKDIR /opt/resistor
 COPY ./resistor.toml ./conf/
+COPY ./resinjector.toml ./conf/
 COPY ./start.sh /
+COPY ./start_resinjector.sh /
 
 ENTRYPOINT ["/start.sh"]
