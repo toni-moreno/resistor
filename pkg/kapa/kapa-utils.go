@@ -573,7 +573,11 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["INFLUX_BD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getIfxDBNameByID(dev.InfluxDB)}
 	vars["INFLUX_RP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxRP}
 	vars["INFLUX_MEAS"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxMeasurement}
-	vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: strconv.Quote(dev.Field)}
+	if dev.IsCustomExpression == true {
+		vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.Field}
+	} else {
+		vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: strconv.Quote(dev.Field)}
+	}
 	vars["FIELD_DESC"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.FieldDesc}
 	//TagDescription
 	if len(dev.InfluxFilter) > 0 {
