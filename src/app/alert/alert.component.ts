@@ -59,11 +59,16 @@ export class AlertComponent implements OnInit {
   public select_ifxms : IMultiSelectOption[] = [];
   public select_ifxfs : IMultiSelectOption[] = [];
   public select_ifxts : IMultiSelectOption[] = [];
+  public select_baseline : IMultiSelectOption[] = [];
+  public select_alertgroup : IMultiSelectOption[] = [];
 
 
   public ifxdb_list : any = [];
   public picked_ifxdb: any = null;
   public picked_ifxms: any = null;
+
+  public product_list : any = [];
+  public picked_product: any = null;
 
   private single_select: IMultiSelectSettings = {
       singleSelect: true,
@@ -90,7 +95,7 @@ export class AlertComponent implements OnInit {
       Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaselineID: [this.sampleComponentForm ? this.sampleComponentForm.value.BaselineID : '', Validators.required],
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
-      GroupID: [this.sampleComponentForm ? this.sampleComponentForm.value.GroupID : '', Validators.required],
+      AlertGroup: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertGroup : '', Validators.required],
       NumAlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.NumAlertID : '', Validators.required],
       TrigerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TrigerType : 'THRESHOLD', Validators.required],
       InfluxDB: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxDB : null, Validators.required],
@@ -106,8 +111,8 @@ export class AlertComponent implements OnInit {
       GrafanaServer: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaServer : ''],
       GrafanaDashLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashLabel : ''],
       GrafanaDashPanelID: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashPanelID : ''],
-      DeviceIDTag: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDTag : '', Validators.required],
-      DeviceIDTagRO: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDTagRO : ''],
+      ProductTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductTag : '', Validators.required],
+      ProductTagRO: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductTagRO : ''],
       DeviceIDLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.DeviceIDLabel : ''],
       ExtraTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTag : ''],
       ExtraLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraLabel : ''],
@@ -130,7 +135,7 @@ export class AlertComponent implements OnInit {
       let value = entry.defVal;
       //Check if there are common values from the previous selected item
       if (tmpform) {
-        if (tmpform[entry.ID] && entry.override !== true) {
+        if (tmpform[entry.ID] !== null && entry.override !== true) {
           value = tmpform[entry.ID];
         }
       }
@@ -144,7 +149,6 @@ export class AlertComponent implements OnInit {
     let controlArray : Array<any> = [];
     switch (field) {
       case 'THRESHOLD':
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
@@ -184,7 +188,6 @@ export class AlertComponent implements OnInit {
       case 'DEADMAN':
       break;
       default: //Default mode is THRESHOLD
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
@@ -307,7 +310,6 @@ export class AlertComponent implements OnInit {
     this.getRangeTimeItem();
     this.getOutHTTPItem();
     this.getKapacitorItem();
-    this.getIfxDBItem();
     if (this.sampleComponentForm) {
       this.setDynamicFields(this.sampleComponentForm.value.TrigerType);
     } else {
@@ -322,7 +324,6 @@ export class AlertComponent implements OnInit {
     this.getRangeTimeItem();
     this.getOutHTTPItem();
     this.getKapacitorItem();
-    this.getIfxDBItem();
     this.alertService.getAlertItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
@@ -446,6 +447,7 @@ export class AlertComponent implements OnInit {
     this.productService.getProductItem(null)
       .subscribe(
       data => {
+        this.product_list = data;
         this.select_product = [];
         this.select_product = this.createMultiselectArray(data, 'ID','ID');
       },
@@ -508,39 +510,72 @@ export class AlertComponent implements OnInit {
     if (this.picked_ifxdb) {
       if (ifxdb_picked !== this.picked_ifxdb['ID']) {
         this.sampleComponentForm.controls.InfluxRP.setValue(null);
-        this.sampleComponentForm.controls.InfluxMeasurement.setValue(null);
+        this.sampleComponentForm.controls.Field.setValue(null);
       }
     }
     //Clear Vars:
     this.select_ifxrp = null;
     this.picked_ifxdb = this.ifxdb_list.filter((x) => x['ID'] === ifxdb_picked)[0];
-    this.select_ifxts = [];
 
     if(this.picked_ifxdb) {
       this.select_ifxrp = this.createMultiselectArray(this.picked_ifxdb['Retention']);
-      this.select_ifxms = this.createMultiselectArray(this.picked_ifxdb['Measurements'], 'Name', 'Name','ID');
+      this.select_ifxfs = [];
+      this.ifxMeasurementService.getIfxMeasurementItemByDbIdMeasName(ifxdb_picked, this.picked_ifxms)
+      .subscribe(
+        data => {
+          this.select_ifxfs = this.createMultiselectArray(data.Fields);
+        },
+        err => console.error(err),
+        () => console.log('DONE')
+      );
     }
   }
 
   pickMeasItem(ifxms_picked) {
     //Only reset values when default values are loaded
     if (ifxms_picked !== this.sampleComponentForm.value.InfluxMeasurement){
+      this.sampleComponentForm.controls.InfluxDB.setValue(null);
+      this.sampleComponentForm.controls.InfluxRP.setValue(null);
       this.sampleComponentForm.controls.Field.setValue(null);
-      this.sampleComponentForm.controls.TagDescription.setValue(null);
     }
 
     if (ifxms_picked){
-      this.select_ifxfs = [];
-      this.ifxMeasurementService.getIfxMeasurementItemById(_.find(this.select_ifxms, {'id' : ifxms_picked})['extraData'])
+      this.picked_ifxms = ifxms_picked;
+      this.ifxDBService.getIfxDBCfgArrayByMeasName(ifxms_picked)
       .subscribe(
         data => {
           console.log(data);
-          this.select_ifxfs = this.createMultiselectArray(data.Fields);
-          this.select_ifxts = this.createMultiselectArray(data.Tags);
+          this.ifxdb_list = data;
+          this.select_ifxdb = [];
+          this.select_ifxdb = this.createMultiselectArray(data, 'ID','Name','IfxServer');
         },
         err => console.error(err),
         () => console.log('DONE')
       );
+    }
+  }
+
+  pickProductItem(product_picked) {
+
+    if (this.picked_product) {
+      if (product_picked !== this.picked_product['ID']) {
+        this.sampleComponentForm.controls.ProductTag.setValue(null);
+        this.sampleComponentForm.controls.BaselineID.setValue(null);
+        this.sampleComponentForm.controls.AlertGroup.setValue(null);
+        this.sampleComponentForm.controls.InfluxMeasurement.setValue(null);
+      }
+    }
+    //Clear Vars:
+    this.picked_product = this.product_list.filter((x) => x['ID'] === product_picked)[0];
+    this.select_baseline = null;
+    this.select_alertgroup = null;
+    this.select_ifxms = null;
+
+    if(this.picked_product) {
+      this.sampleComponentForm.controls.ProductTag.setValue(this.picked_product['ProductTag']);
+      this.select_baseline = this.createMultiselectArray(this.picked_product['BaseLines']);
+      this.select_alertgroup = this.createMultiselectArray(this.picked_product['AlertGroups']);
+      this.select_ifxms = this.createMultiselectArray(this.picked_product['Measurements']);
     }
   }
 

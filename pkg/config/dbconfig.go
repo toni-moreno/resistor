@@ -164,7 +164,7 @@ type AlertIDCfg struct {
 	Active      bool   `xorm:"active"`
 	BaselineID  string `xorm:"baselineid" binding:"Required"`
 	ProductID   string `xorm:"productid" binding:"Required"` //FK - > Product_devices
-	GroupID     string `xorm:"groupid" binding:"Required"`
+	AlertGroup  string `xorm:"alertgroup" binding:"Required"`
 	NumAlertID  int    `xorm:"numalertid" binding:"Required"`
 	Description string `xorm:"description"`
 	//Alert Origin data
@@ -208,7 +208,7 @@ type AlertIDCfg struct {
 	GrafanaServer      string `xorm:"grafana_server"`
 	GrafanaDashLabel   string `xorm:"grafana_dash_label"`
 	GrafanaDashPanelID string `xorm:"grafana_panel_id"`
-	DeviceIDTag        string `xorm:"deviceid_tag"`
+	ProductTag         string `xorm:"producttag"`
 	DeviceIDLabel      string `xorm:"deviceid_label"`
 	ExtraTag           string `xorm:"extra_tag"`
 	ExtraLabel         string `xorm:"extra_label"`

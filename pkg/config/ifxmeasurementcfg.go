@@ -8,9 +8,10 @@ import (
 
 /***************************
 	IfxMeasurementCfg DB backends
-	-GetIfxMeasurementCfgCfgByID(struct)
+	-GetIfxMeasurementCfgByID(struct)
 	-GetIfxMeasurementCfgMap (map - for interna config use
 	-GetIfxMeasurementCfgArray(Array - for web ui use )
+	-GetIfxMeasurementCfgBySQLQuery(struct - for web ui use )
 	-GetIfxMeasurementCfgDistinctNamesArray
 	-GetIfxMeasurementTagsArray
 	-AddIfxMeasurementCfg
@@ -62,6 +63,24 @@ func (dbc *DatabaseCfg) GetIfxMeasurementCfgArray(filter string) ([]*IfxMeasurem
 		}
 	}
 	return devices, nil
+}
+
+/*GetIfxMeasurementCfgBySQLQuery Gets an IfxMeasurementCfg with all its information */
+func (dbc *DatabaseCfg) GetIfxMeasurementCfgBySQLQuery(sqlquery string) (IfxMeasurementCfg, error) {
+	var err error
+	var cfgarray []*IfxMeasurementCfg
+	//Get Only data for selected devices
+	if err = dbc.x.SQL(sqlquery).Find(&cfgarray); err != nil {
+		log.Warnf("Failed getting IfxMeasurementCfg data with sql %s. Error: %s\n", sqlquery, err)
+		return IfxMeasurementCfg{}, err
+	}
+	if len(cfgarray) > 1 {
+		return IfxMeasurementCfg{}, fmt.Errorf("Error %d results getting IfxMeasurementCfg by sqlquery %s", len(cfgarray), sqlquery)
+	}
+	if len(cfgarray) == 0 {
+		return IfxMeasurementCfg{}, fmt.Errorf("Error no values have been returned with this sqlquery %s in the config table", sqlquery)
+	}
+	return *cfgarray[0], nil
 }
 
 /*GetIfxMeasurementCfgDistinctNamesArray generate an array of IfxMeasurementCfg with distinct names */
