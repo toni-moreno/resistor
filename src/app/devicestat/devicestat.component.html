@@ -40,14 +40,6 @@
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
-          <div class="form-group" style="margin-top: 25px">
-            <label class="control-label col-sm-2" for="OrderID">OrderID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="OrderID for application of rules"></i>
-            <div class="col-sm-9">
-              <input type="number" formControlName="OrderID" id="OrderID" [ngModel]="sampleComponentForm.value.OrderID" />
-              <control-messages [control]="sampleComponentForm.controls.OrderID"></control-messages>
-            </div>
-          </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="DeviceID">DeviceID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Id of the Device or * for generic rules."></i>
@@ -57,32 +49,45 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="control-label col-sm-2" for="AlertID">AlertID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="AlertID with format line-product-productgroup-nnn. Regular expressions accepted."></i>
-            <div class="col-sm-9">
-              <input formControlName="AlertID" id="AlertID" [ngModel]="sampleComponentForm.value.AlertID" />
-              <control-messages [control]="sampleComponentForm.controls.AlertID"></control-messages>
-            </div>
-          </div>
-          <div class="form-group">
             <label class="control-label col-sm-2" for="ProductID">ProductID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the product to associate this exception"></i>
             <div class="col-sm-9">
-              <input formControlName="ProductID" id="ProductID" [ngModel]="sampleComponentForm.value.ProductID" />
+              <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID" (ngModelChange)="pickProductItem($event)"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
             </div>
           </div>
           <div class="form-group">
-            <label class="control-label col-sm-2" for="ExceptionID">ExceptionID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <label class="control-label col-sm-2" for="AlertID">AlertID</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="AlertID with format line-product-alertgroup-nnn. Regular expressions accepted."></i>
             <div class="col-sm-9">
-              <input type="number" formControlName="ExceptionID" id="ExceptionID" [ngModel]="sampleComponentForm.value.ExceptionID" />
+              <ss-multiselect-dropdown [options]="select_alert" formControlName="AlertID" id="AlertID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.AlertID"></ss-multiselect-dropdown>
+              <control-messages [control]="sampleComponentForm.controls.AlertID"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 25px">
+            <label class="control-label col-sm-2" for="OrderID">OrderID</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="OrderID for application of rules"></i>
+            <div class="col-sm-9">
+              <input type="number" formControlName="OrderID" id="OrderID" [ngModel]="sampleComponentForm.value.OrderID" min="1" />
+              <control-messages [control]="sampleComponentForm.controls.OrderID"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="ExceptionID">ExceptionID</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the exception to apply (-1: don't send the alerts, 0: default values for the alerts, 1: Ex1 values for the alerts, 2: Ex2 values for the alerts)"></i>
+            <div class="col-sm-9">
+              <select formControlName="ExceptionID" id="ExceptionID" [ngModel]="sampleComponentForm.value.ExceptionID">
+                <option value="-1">-1</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
               <control-messages [control]="sampleComponentForm.controls.ExceptionID"></control-messages>
             </div>
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="Active">Active</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if this exception must be considered or not"></i>
             <div class="col-sm-9">
               <select formControlName="Active" id="Active" [ngModel]="sampleComponentForm.value.Active">
                 <option value="true">True</option>
@@ -93,17 +98,17 @@
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="BaseLine">BaseLine</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Line used for filtering"></i>
             <div class="col-sm-9">
-              <input formControlName="BaseLine" id="BaseLine" [ngModel]="sampleComponentForm.value.BaseLine" />
+              <ss-multiselect-dropdown [options]="select_baseline" formControlName="BaseLine" id="BaseLine" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.BaseLine"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.BaseLine"></control-messages>
             </div>
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="FilterTagKey">FilterTagKey</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Kapacitor instance"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Name of the tag used for filtering"></i>
             <div class="col-sm-9">
-              <input formControlName="FilterTagKey" id="FilterTagKey" [ngModel]="sampleComponentForm.value.FilterTagKey" />
+              <ss-multiselect-dropdown [options]="select_tag" formControlName="FilterTagKey" id="FilterTagKey" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.FilterTagKey"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.FilterTagKey"></control-messages>
             </div>
           </div>
@@ -120,7 +125,7 @@
           <span class="editsection">Extra Settings</span>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="Description">Description</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the InfluxDB Server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the Device Stat"></i>
             <div class="col-sm-9">
               <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
               <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>

@@ -24,6 +24,7 @@ func NewAPICfgAlertID(m *macaron.Macaron) error {
 		m.Post("/deploy", reqSignedIn, bind(config.AlertIDCfg{}), DeployAlertID)
 		m.Delete("/:id", reqSignedIn, DeleteAlertID)
 		m.Get("/:id", reqSignedIn, GetAlertIDCfgByID)
+		m.Get("/byproductid/:productid", reqSignedIn, GetAlertIDCfgArrayByProductID)
 		m.Get("/checkondel/:id", reqSignedIn, GetAlertIDAffectOnDel)
 	})
 
@@ -146,6 +147,23 @@ func GetAlertIDCfgByID(ctx *Context) {
 	} else {
 		_, _, sKapaSrvsNotOK := kapa.GetKapaTask(&dev)
 		dev.ServersWOLastDeployment = sKapaSrvsNotOK
+		ctx.JSON(200, &dev)
+	}
+}
+
+//GetAlertIDCfgArrayByProductID Gets AlertIDCfgArray By ProductID from resistor database
+//Returns the information of the process with a JSON in context
+func GetAlertIDCfgArrayByProductID(ctx *Context) {
+	productid := ctx.Params(":productid")
+	filter := ""
+	if len(productid) > 0 {
+		filter = "productid='" + productid + "'"
+	}
+	dev, err := agent.MainConfig.Database.GetAlertIDCfgArray(filter)
+	if err != nil {
+		log.Warningf("Error getting alerts with productid: %s. Error: %s", productid, err)
+		ctx.JSON(404, err.Error())
+	} else {
 		ctx.JSON(200, &dev)
 	}
 }

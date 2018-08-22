@@ -2,17 +2,17 @@ export const DeviceStatComponentConfig: any =
   {
     'name' : 'Device Stats',
     'table-columns' : [
-      { 'title': 'ID', 'name': 'ID' },
-      { 'title': 'DeviceID', 'name': 'DeviceID' },
-      { 'title': 'AlertID', 'name': 'AlertID' },
-      { 'title': 'OrderID', 'name': 'OrderID' },
-      { 'title': 'ProductID', 'name': 'ProductID' },
-      { 'title': 'ExceptionID', 'name': 'ExceptionID' },
-      { 'title': 'Active', 'name': 'Active' },
-      { 'title': 'BaseLine', 'name': 'BaseLine' },
-      { 'title': 'FilterTagKey', 'name': 'FilterTagKey' },
-      { 'title': 'FilterTagValue', 'name': 'FilterTagValue' },
-      { 'title': 'Description', 'name': 'Description' },
+      { 'title': 'ID', 'name': 'ID','tooltip':'Unique identifier for the Device Stat'},
+      { 'title': 'DeviceID', 'name': 'DeviceID','tooltip':'Id of the Device or * for generic rules.' },
+      { 'title': 'ProductID', 'name': 'ProductID','tooltip':'ID of the product to associate this exception' },
+      { 'title': 'AlertID', 'name': 'AlertID','tooltip':'AlertID with format line-product-alertgroup-nnn. Regular expressions accepted.' },
+      { 'title': 'OrderID', 'name': 'OrderID','tooltip':'OrderID for application of rules' },
+      { 'title': 'ExceptionID', 'name': 'ExceptionID','tooltip':'ID of the exception to apply (-1: alerts NOT sent, 0: default values for the alerts, 1: Ex1 values for the alerts, 2: Ex2 values for the alerts)' },
+      { 'title': 'Active', 'name': 'Active','tooltip':'Indicates if this exception must be considered or not' },
+      { 'title': 'BaseLine', 'name': 'BaseLine','tooltip':'Line used for filtering' },
+      { 'title': 'FilterTagKey', 'name': 'FilterTagKey','tooltip':'Name of the tag used for filtering' },
+      { 'title': 'FilterTagValue', 'name': 'FilterTagValue','tooltip':'Value of the tag used for filtering. Regular expressions accepted.' },
+      { 'title': 'Description', 'name': 'Description','tooltip':'Description of the Device Stat' },
     ],
     'slug' : 'devicestatcfg'
   };
