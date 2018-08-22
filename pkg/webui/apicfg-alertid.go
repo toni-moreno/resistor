@@ -62,13 +62,23 @@ func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
 	kapa.DeployKapaTask(dev)
-	id := ctx.Params(":id")
-	log.Debugf("Trying to update: %+v", dev)
+	id := ctx.Params(":id") //oldID from form
+	log.Debugf("Trying to update alert with id: %s and info: %+v", id, dev)
 	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, &dev)
 	if err != nil {
 		log.Warningf("Error on update for alert %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
+		if id != dev.ID {
+			//If the name of the alert has been changed,
+			//a new task has been created on kapacitor servers with the new name,
+			//the kapacitor task with the old name must be deleted.
+			_, _, sKapaSrvsNotOK := DeleteKapaTask(id)
+			if len(sKapaSrvsNotOK) > 0 {
+				log.Warningf("Error deleting task %s from kapacitor servers: %s", id, sKapaSrvsNotOK)
+				ctx.JSON(404, err.Error())
+			}
+		}
 		//TODO: review if needed return device data
 		ctx.JSON(200, &dev)
 	}
@@ -91,17 +101,25 @@ func DeployAlertID(ctx *Context, dev config.AlertIDCfg) {
 	}
 }
 
-//DeleteAlertID removes alert from
-func DeleteAlertID(ctx *Context) {
-	id := ctx.Params(":id")
-	log.Debugf("Trying to delete: %+v", id)
-	sKapaSrvsNotOK := make([]string, 0)
+//DeleteKapaTask Deletes task from kapacitor servers
+func DeleteKapaTask(id string) (int, int, []string) {
 	kapaserversarray, err := kapa.GetKapaServers("")
+	iNumKapaServers := len(kapaserversarray)
+	iNumDeleted := 0
+	sKapaSrvsNotOK := make([]string, 0)
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = kapa.DeleteKapaTask(id, kapaserversarray)
+		iNumKapaServers, iNumDeleted, sKapaSrvsNotOK = kapa.DeleteKapaTask(id, kapaserversarray)
 	}
+	return iNumKapaServers, iNumDeleted, sKapaSrvsNotOK
+}
+
+//DeleteAlertID removes alert from resistor database
+func DeleteAlertID(ctx *Context) {
+	id := ctx.Params(":id")
+	log.Debugf("Trying to delete: %+v", id)
+	_, _, sKapaSrvsNotOK := DeleteKapaTask(id)
 	if len(sKapaSrvsNotOK) == 0 {
 		affected, err := agent.MainConfig.Database.DelAlertIDCfg(id)
 		if err != nil {

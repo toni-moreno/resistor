@@ -562,7 +562,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["ID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ID}
 	vars["ID_LINE"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.BaselineID}
 	vars["ID_PRODUCT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ProductID}
-	vars["ID_GROUP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GroupID}
+	vars["ID_GROUP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.AlertGroup}
 	vars["ID_NUMALERT"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.NumAlertID}
 	vars["ID_INSTRUCTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.OperationID}
 	//External Services Settings
@@ -638,7 +638,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["GRAFANA_SERVER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GrafanaServer}
 	vars["GRAFANA_DASH_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GrafanaDashLabel}
 	vars["GRAFANA_DASH_PANELID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.GrafanaDashPanelID}
-	vars["DEVICEID_TAG"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.DeviceIDTag}
+	vars["DEVICEID_TAG"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ProductTag}
 	vars["DEVICEID_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.DeviceIDLabel}
 	vars["EXTRA_TAG"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraTag}
 	vars["EXTRA_LABEL"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ExtraLabel}

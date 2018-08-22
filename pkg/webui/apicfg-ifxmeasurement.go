@@ -2,6 +2,7 @@ package webui
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
@@ -23,6 +24,7 @@ func NewAPICfgIfxMeasurement(m *macaron.Macaron) error {
 		m.Get("/:id", reqSignedIn, GetIfxMeasurementCfgByID)
 		m.Get("/getnames/", reqSignedIn, GetIfxMeasurementCfgDistinctNamesArray)
 		m.Get("/gettags/:filter", reqSignedIn, GetIfxMeasurementTagsArray)
+		m.Get("/bydbidmeasname/:filter", reqSignedIn, GetIfxMeasurementCfgByDbIDMeasName)
 		m.Get("/checkondel/:id", reqSignedIn, GetIfxMeasurementAffectOnDel)
 	})
 
@@ -103,6 +105,25 @@ func GetIfxMeasurementCfgByID(ctx *Context) {
 	dev, err := agent.MainConfig.Database.GetIfxMeasurementCfgByID(nid)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
+		ctx.JSON(404, err.Error())
+	} else {
+		ctx.JSON(200, &dev)
+	}
+}
+
+//GetIfxMeasurementCfgByDbIDMeasName Gets an Influx Measurement with all its information from DbID and Measurement Name
+func GetIfxMeasurementCfgByDbIDMeasName(ctx *Context) {
+	filter := ctx.Params(":filter")
+	log.Debugf("Getting Influx Measurements with filter (DbID&MeasName): '%s'.", filter)
+	sqlquery := "select * from ifx_measurement_cfg, ifx_db_meas_rel where ifxmeasid = ifx_measurement_cfg.id "
+	if len(filter) > 0 {
+		params := strings.Split(filter, "&")
+		sqlquery = sqlquery + " and ifxdbid = " + params[0] + " and name = '" + params[1] + "'"
+	}
+	sqlquery = sqlquery + " order by name, id"
+	dev, err := agent.MainConfig.Database.GetIfxMeasurementCfgBySQLQuery(sqlquery)
+	if err != nil {
+		log.Warningf("Error getting Measurement for sqlquery %s. Error: %s", sqlquery, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &dev)

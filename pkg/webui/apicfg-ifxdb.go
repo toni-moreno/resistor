@@ -21,6 +21,7 @@ func NewAPICfgIfxDB(m *macaron.Macaron) error {
 		m.Put("/:id", reqSignedIn, bind(config.IfxDBCfg{}), UpdateIfxDB)
 		m.Delete("/:id", reqSignedIn, DeleteIfxDB)
 		m.Get("/:id", reqSignedIn, GetIfxDBCfgByID)
+		m.Get("/bymeasname/:id", reqSignedIn, GetIfxDBCfgArrayByMeasName)
 		m.Get("/checkondel/:id", reqSignedIn, GetIfxDBAffectOnDel)
 	})
 
@@ -88,6 +89,18 @@ func GetIfxDBCfgByID(ctx *Context) {
 	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(nid)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
+		ctx.JSON(404, err.Error())
+	} else {
+		ctx.JSON(200, &dev)
+	}
+}
+
+//GetIfxDBCfgArrayByMeasName Gets an array of Influx databases with their measurements
+func GetIfxDBCfgArrayByMeasName(ctx *Context) {
+	id := ctx.Params(":id")
+	dev, err := agent.MainConfig.Database.GetIfxDBCfgArrayByMeasName(id)
+	if err != nil {
+		log.Warningf("Error getting IfxDBCfgArrayByMeasName with Measurement Name %s, error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &dev)

@@ -10,6 +10,7 @@ import (
 	-GetIfxDBCfgCfgByID(struct)
 	-GetIfxDBCfgMap (map - for interna config use
 	-GetIfxDBCfgArray(Array - for web ui use )
+	-GetIfxDBCfgArrayByMeasName(Array - for web ui use )
 	-AddIfxDBCfg
 	-DelIfxDBCfg
 	-UpdateIfxDBCfg
@@ -26,7 +27,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgByID(id int64) (IfxDBCfg, error) {
 		return IfxDBCfg{}, fmt.Errorf("Error %d results on get IfxDBCfg by id %d", len(cfgarray), id)
 	}
 	if len(cfgarray) == 0 {
-		return IfxDBCfg{}, fmt.Errorf("Error no values have been returned with this id %d in the influx config table", id)
+		return IfxDBCfg{}, fmt.Errorf("Error no values have been returned with this id %d in the config table", id)
 	}
 	return *cfgarray[0], nil
 }
@@ -85,6 +86,37 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 
 			mVal.Measurements = append(mVal.Measurements, &ItemComponent{ID: id, Label: lab})
 		}*/
+	}
+	return devices, nil
+}
+
+/*GetIfxDBCfgArrayByMeasName Gets an array of Influx databases with their measurements */
+func (dbc *DatabaseCfg) GetIfxDBCfgArrayByMeasName(filter string) ([]*IfxDBCfg, error) {
+	var err error
+	var devices []*IfxDBCfg
+	sqlquery := "select distinct id, name, ifxserver, retention, description from ifx_db_cfg, ifx_db_meas_rel where ifx_db_meas_rel.ifxdbid = ifx_db_cfg.id "
+	if len(filter) > 0 {
+		sqlquery = sqlquery + " and ifxmeasname = '" + filter + "' "
+	}
+	sqlquery = sqlquery + " order by name, id"
+	//Get Only data for selected devices
+	if err = dbc.x.SQL(sqlquery).Find(&devices); err != nil {
+		log.Warnf("Fail to get IfxDBCfg data filtered with %s : %v\n", filter, err)
+		return nil, err
+	}
+
+	for _, mVal := range devices {
+
+		//Measurements for each DB
+		var dbmeas []*IfxDBMeasRel
+		if err = dbc.x.Where("ifxdbid ==" + strconv.FormatInt(mVal.ID, 10)).And("ifxmeasname = '" + filter + "'").Find(&dbmeas); err != nil {
+			log.Warnf("Fail to get MGroup Measurements relationship data: %v\n", err)
+		}
+
+		for _, m := range dbmeas {
+			mVal.Measurements = append(mVal.Measurements, &ItemComponent{ID: m.IfxMeasID, Name: m.IfxMeasName})
+		}
+
 	}
 	return devices, nil
 }
