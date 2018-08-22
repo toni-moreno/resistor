@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 
@@ -66,6 +67,9 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 			} else {
 				log.Debugf("Got outhttp: %+v", outhttp)
 				err = sendData(al, outhttp)
+				if err != nil {
+					log.Warningf("Error sending data to endpoint with id %s. Error: %s.", outhttpid, err)
+				}
 			}
 		}
 	}
@@ -134,13 +138,21 @@ func sendDataToLog(al alert.Data, jsonconfig string) error {
 	logout.Level = l
 	//Log file
 	if len(logConf.File) > 0 {
-		//os.Mkdir(logDir, 0755)
+		logConfDir, _ := filepath.Split(logConf.File)
+		err = os.MkdirAll(logConfDir, 0755)
+		if err != nil {
+			log.Warningf("sendDataToLog. Error creating logConfDir: %s. Error: %s", logConfDir, err)
+		}
 		//Log output
-		f, _ := os.OpenFile(logConf.File, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
-		logout.Out = f
+		f, err := os.OpenFile(logConf.File, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+		if err != nil {
+			log.Warningf("sendDataToLog. Error opening logfile: %s", err)
+		} else {
+			logout.Out = f
+			//Log message
+			logout.Debugf("Alert received from kapacitor:%+v", al)
+		}
 	}
-	//Log message
-	logout.Debugf("Alert received from kapacitor:%+v", al)
 	return err
 }
 
