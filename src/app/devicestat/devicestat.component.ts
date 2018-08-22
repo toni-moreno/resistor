@@ -43,13 +43,16 @@ export class DeviceStatComponent implements OnInit {
   public defaultConfig : any = DeviceStatComponentConfig;
   public tableRole : any = TableRole;
   public overrideRoleActions: any = OverrideRoleActions;
-  public select_alert : IMultiSelectOption[] = [];
   public select_product : IMultiSelectOption[] = [];
+  public select_alert : IMultiSelectOption[] = [];
+  public select_baseline : IMultiSelectOption[] = [];
+  public select_tag : IMultiSelectOption[] = [];
   private single_select: IMultiSelectSettings = {singleSelect: true};
 
   public selectedArray : any = [];
-  public  : any = [];
 
+  public product_list : any = [];
+  public picked_product: any = null;
 
   public data : Array<any>;
   public isRequesting : boolean;
@@ -180,7 +183,6 @@ export class DeviceStatComponent implements OnInit {
   }
   newItem() {
     //No hidden fields, so create fixed Form
-    this.getAlertItem();
     this.getProductItem();
     this.createStaticForm();
     this.editmode = "create";
@@ -188,7 +190,6 @@ export class DeviceStatComponent implements OnInit {
 
   editSampleItem(row) {
     let id = row.ID;
-    this.getAlertItem();
     this.getProductItem();
     this.devicestatService.getDeviceStatItemById(id)
       .subscribe(data => {
@@ -316,7 +317,7 @@ export class DeviceStatComponent implements OnInit {
   }
 
   getAlertItem() {
-    this.alertService.getAlertItem(null)
+    this.alertService.getAlertItemByProductId(this.picked_product['ID'])
       .subscribe(
       data => {
         this.select_alert = [];
@@ -331,12 +332,46 @@ export class DeviceStatComponent implements OnInit {
     this.productService.getProductItem(null)
       .subscribe(
       data => {
+        this.product_list = data;
         this.select_product = [];
         this.select_product = this.createMultiselectArray(data, 'ID', 'ID');
       },
       err => console.error(err),
       () => console.log('DONE')
       );
+  }
+
+  pickProductItem(product_picked) {
+
+    if (this.picked_product) {
+      if (product_picked !== this.picked_product['ID']) {
+        this.sampleComponentForm.controls.AlertID.setValue(null);
+        this.sampleComponentForm.controls.BaseLine.setValue(null);
+        this.sampleComponentForm.controls.FilterTagKey.setValue(null);
+      }
+    }
+    //Clear Vars:
+    this.picked_product = this.product_list.filter((x) => x['ID'] === product_picked)[0];
+    this.select_alert = null;
+    this.select_baseline = null;
+    this.select_tag = null;
+
+    if(this.picked_product) {
+      this.getAlertItem();
+      this.getBaseLineItem();
+      this.getFilterTagKeyItem();
+    }
+  }
+
+  getBaseLineItem() {
+    this.select_baseline = this.createMultiselectArray(this.picked_product['BaseLines']);
+  }
+
+  getFilterTagKeyItem() {
+    let tagsarray : string[] = [this.picked_product['ProductTag']];
+    tagsarray = tagsarray.concat(this.picked_product['CommonTags']);
+    tagsarray = tagsarray.concat(this.picked_product['ExtraTags']);
+    this.select_tag = this.createMultiselectArray(tagsarray);
   }
 
   createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {

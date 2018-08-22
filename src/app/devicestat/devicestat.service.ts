@@ -11,8 +11,10 @@ export class DeviceStatService {
     }
 
     jsonParser(key,value) {
-        if ( key == 'Active')
+        if (key == 'Active')
             return ( value === "true" || value === true);
+        if (key == 'ExceptionID')
+            return Number(value);
         return value;
     }
 
