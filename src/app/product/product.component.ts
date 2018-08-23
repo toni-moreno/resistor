@@ -25,6 +25,11 @@ declare var _:any;
   styleUrls: ['../../css/component-styles.css']
 })
 
+/*
+TODO
+When a tag is selected in one of the three taglist fields, 
+this tag should be removed from the other two taglist fields.
+*/
 export class ProductComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
@@ -306,13 +311,7 @@ export class ProductComponent implements OnInit {
   }
 
   pickMeasItem(ifxms_picked) {
-    /*
-    PENDING TASK
-    Remove old selected tags when an old measurement is unselected
-    */
     //Only reset values when default values are loaded
-    console.log('ifxms_picked:'+ifxms_picked);
-    console.log('this.sampleComponentForm.value.Measurements:'+this.sampleComponentForm.value.Measurements);
     if (ifxms_picked !== this.sampleComponentForm.value.Measurements){
       this.sampleComponentForm.controls.ProductTag.setValue(null);
       this.sampleComponentForm.controls.CommonTags.setValue(null);
@@ -324,13 +323,15 @@ export class ProductComponent implements OnInit {
         this.ifxMeasurementService.getIfxMeasurementTagsArray(ifxms_picked)
         .subscribe(
           data => {
-            console.log(data);
             this.select_ifxpts = [];
             this.select_ifxcts = [];
             this.select_ifxets = [];
             this.select_ifxpts = this.createMultiselectArray(data);
             this.select_ifxcts = this.createMultiselectArray(data);
             this.select_ifxets = this.createMultiselectArray(data);
+            this.sampleComponentForm.controls.ProductTag.setValue(this.cleanSingleselectValue(this.sampleComponentForm.value.ProductTag, data));
+            this.sampleComponentForm.controls.CommonTags.setValue(this.cleanMultiselectValue(this.sampleComponentForm.value.CommonTags, data));
+            this.sampleComponentForm.controls.ExtraTags.setValue(this.cleanMultiselectValue(this.sampleComponentForm.value.ExtraTags, data));
           },
           err => console.error(err),
           () => console.log('DONE')
@@ -355,6 +356,28 @@ export class ProductComponent implements OnInit {
       };
     }
     return myarray;
+  }
+
+  cleanMultiselectValue(oldValuesArray, currentArray) : string[] {
+    let myarray : string[] = [];
+    if(oldValuesArray){
+      for (let oldValue of oldValuesArray) {
+        if (currentArray.indexOf(oldValue) >= 0) {
+          myarray.push(oldValue);
+        }
+      }
+    }
+    return myarray;
+  }
+
+  cleanSingleselectValue(oldValue, currentArray) : string {
+    let myValue : string = "";
+    if(oldValue){
+      if (currentArray.indexOf(oldValue) >= 0) {
+        myValue = oldValue;
+      }
+    }
+    return myValue;
   }
 
 }
