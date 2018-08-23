@@ -59,14 +59,72 @@ export class OutHTTPComponent implements OnInit {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       Type: [this.sampleComponentForm ? this.sampleComponentForm.value.Type : '', Validators.required],
-      JSONConfig: [this.sampleComponentForm ? this.sampleComponentForm.value.JSONConfig : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
 
+  createDynamicForm(fieldsArray: any) : void {
+
+    //Generates the static form:
+    //Saves the actual to check later if there are shared values
+    let tmpform : any;
+    if (this.sampleComponentForm)  tmpform = this.sampleComponentForm.value;
+    this.createStaticForm();
+    //Set new values and check if we have to mantain the value!
+    for (let entry of fieldsArray) {
+      let value = entry.defVal;
+      //Check if there are common values from the previous selected item
+      if (tmpform) {
+        if (tmpform[entry.ID] !== null && entry.override !== true) {
+          value = tmpform[entry.ID];
+        }
+      }
+      //Set different controls:
+      this.sampleComponentForm.addControl(entry.ID, new FormControl(value, entry.Validators));
+    }
+  }
+
+  setDynamicFields (field : any, override? : boolean) : void  {
+    //Saves on the array all values to push into formGroup
+    let controlArray : Array<any> = [];
+    switch (field) {
+      case 'httppost':
+      controlArray.push({'ID': 'EndPointID', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'URL', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'Headers', 'defVal' : '' });
+      controlArray.push({'ID': 'BasicAuthUsername', 'defVal' : '' });
+      controlArray.push({'ID': 'BasicAuthPassword', 'defVal' : '' });
+      controlArray.push({'ID': 'AlertTemplate', 'defVal' : '' });
+      controlArray.push({'ID': 'AlertTemplateFile', 'defVal' : '' });
+      controlArray.push({'ID': 'RowTemplate', 'defVal' : '' });
+      controlArray.push({'ID': 'RowTemplateFile', 'defVal' : '' });
+      break;
+      case 'logging':
+      controlArray.push({'ID': 'LogFile', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'LogLevel', 'defVal' : '', 'Validators' : Validators.required });
+      break;
+      case 'slack':
+      controlArray.push({'ID': 'JSONConfig', 'defVal' : '', 'Validators' : Validators.required });
+      break;
+      default: //Default mode is httppost
+      controlArray.push({'ID': 'EndPointID', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'URL', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'Headers', 'defVal' : '' });
+      controlArray.push({'ID': 'BasicAuthUsername', 'defVal' : '' });
+      controlArray.push({'ID': 'BasicAuthPassword', 'defVal' : '' });
+      controlArray.push({'ID': 'AlertTemplate', 'defVal' : '' });
+      controlArray.push({'ID': 'AlertTemplateFile', 'defVal' : '' });
+      controlArray.push({'ID': 'RowTemplate', 'defVal' : '' });
+      controlArray.push({'ID': 'RowTemplateFile', 'defVal' : '' });
+      break;
+    }
+    //Reload the formGroup with new values saved on controlArray
+    this.createDynamicForm(controlArray);
+  }
+
   reloadData() {
     // now it's a simple subscription to the observable
-  this.outhttpService.getOutHTTPItem(null)
+    this.outhttpService.getOutHTTPItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -82,7 +140,7 @@ export class OutHTTPComponent implements OnInit {
   customActions(action : any) {
     switch (action.option) {
       case 'new' :
-        this.newItem()
+        this.newItem();
       break;
       case 'export' :
         this.exportItem(action.event);
@@ -156,8 +214,11 @@ export class OutHTTPComponent implements OnInit {
       );
   }
   newItem() {
-    //No hidden fields, so create fixed Form
-    this.createStaticForm();
+    if (this.sampleComponentForm) {
+      this.setDynamicFields(this.sampleComponentForm.value.Type);
+    } else {
+      this.setDynamicFields(null);
+    }
     this.editmode = "create";
   }
 
@@ -167,8 +228,8 @@ export class OutHTTPComponent implements OnInit {
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
-        this.oldID = data.ID
-        this.createStaticForm();
+        this.oldID = data.ID;
+        this.setDynamicFields(data.Type);
         this.editmode = "modify";
       },
       err => console.error(err)
