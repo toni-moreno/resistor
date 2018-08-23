@@ -43,22 +43,122 @@
             <label class="control-label col-sm-2" for="Type">Type</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Type for HTTP Alerting Backend"></i>
             <div class="col-sm-9">
-              <select formControlName="Type" id="Type" [ngModel]="sampleComponentForm.value.Type">
-                <option value="logging" selected="selected">logging</option>
-                <option value="httppost">httppost</option>
+              <select formControlName="Type" id="Type" (click)="setDynamicFields(sampleComponentForm.value.Type)" [ngModel]="sampleComponentForm.value.Type">
+                <option value="httppost" selected="selected">httppost</option>
+                <option value="logging">logging</option>
                 <option value="slack">slack</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.Type"></control-messages>
             </div>
           </div>
-          <div class="form-group" style="margin-top: 25px">
-            <label class="control-label col-sm-2" for="JSONConfig">JSONConfig</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Alert Template"></i>
-            <div class="col-sm-9">
-              <textarea class="form-control" style="width: 50%" rows="5" formControlName="JSONConfig" id="JSONConfig" [ngModel]="sampleComponentForm.value.JSONConfig"> </textarea>
-              <control-messages [control]="sampleComponentForm.controls.JSONConfig"></control-messages>
+        </div>
+        <div class="well well-sm">
+          <span class="editsection">Endpoint Settings</span>
+          <div *ngIf="sampleComponentForm.value.Type==='httppost'">
+            <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.EndPointID">
+              <label class="control-label col-sm-2" for="EndPointID">EndPointID</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the EndPoint"></i>
+              <div class="col-sm-9">
+                <input formControlName="EndPointID" id="EndPointID" [ngModel]="sampleComponentForm.value.EndPointID" />
+                <control-messages [control]="sampleComponentForm.controls.EndPointID"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.URL">
+              <label class="control-label col-sm-2" for="URL">URL</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for the HTTP POST"></i>
+              <div class="col-sm-9">
+                <input formControlName="URL" id="URL" [ngModel]="sampleComponentForm.value.URL" />
+                <control-messages [control]="sampleComponentForm.controls.URL"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.Headers">
+              <label class="control-label col-sm-2" for="Headers">Headers</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Headers for the HTTP POST"></i>
+              <div class="col-sm-9">
+                <input formControlName="Headers" id="Headers" [ngModel]="sampleComponentForm.value.Headers" />
+                <control-messages [control]="sampleComponentForm.controls.Headers"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.BasicAuthUsername">
+              <label class="control-label col-sm-2" for="BasicAuthUsername">BasicAuthUsername</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Username of BasicAuth for the HTTP POST"></i>
+              <div class="col-sm-9">
+                <input formControlName="BasicAuthUsername" id="BasicAuthUsername" [ngModel]="sampleComponentForm.value.BasicAuthUsername" />
+                <control-messages [control]="sampleComponentForm.controls.BasicAuthUsername"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.BasicAuthPassword">
+              <label class="control-label col-sm-2" for="BasicAuthPassword">BasicAuthPassword</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Password of BasicAuth for the HTTP POST"></i>
+              <div class="col-sm-9">
+                <input type="password" formControlName="BasicAuthPassword" id="BasicAuthPassword" [ngModel]="sampleComponentForm.value.BasicAuthPassword" />
+                <control-messages [control]="sampleComponentForm.controls.BasicAuthPassword"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.AlertTemplate">
+              <label class="control-label col-sm-2" for="AlertTemplate">AlertTemplate</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Provide an alert template inline for constructing a custom HTTP body (See https://golang.org/pkg/text/template/)"></i>
+              <div class="col-sm-9">
+                <textarea class="form-control" style="width: 50%" rows="5" formControlName="AlertTemplate" id="AlertTemplate" [ngModel]="sampleComponentForm.value.AlertTemplate"> </textarea>
+                <control-messages [control]="sampleComponentForm.controls.AlertTemplate"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.AlertTemplateFile">
+              <label class="control-label col-sm-2" for="AlertTemplateFile">AlertTemplateFile</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Provide an alert template by file for constructing a custom HTTP body (See https://golang.org/pkg/text/template/)"></i>
+              <div class="col-sm-9">
+                <input formControlName="AlertTemplateFile" id="AlertTemplateFile" [ngModel]="sampleComponentForm.value.AlertTemplateFile" />
+                <control-messages [control]="sampleComponentForm.controls.AlertTemplateFile"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.RowTemplate">
+              <label class="control-label col-sm-2" for="RowTemplate">RowTemplate</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Provide a row template inline for constructing a custom HTTP body (See https://golang.org/pkg/text/template/)"></i>
+              <div class="col-sm-9">
+                <textarea class="form-control" style="width: 50%" rows="5" formControlName="RowTemplate" id="RowTemplate" [ngModel]="sampleComponentForm.value.RowTemplate"> </textarea>
+                <control-messages [control]="sampleComponentForm.controls.RowTemplate"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.RowTemplateFile">
+              <label class="control-label col-sm-2" for="RowTemplateFile">RowTemplateFile</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Provide a row template by file for constructing a custom HTTP body (See https://golang.org/pkg/text/template/)"></i>
+              <div class="col-sm-9">
+                <input formControlName="RowTemplateFile" id="RowTemplateFile" [ngModel]="sampleComponentForm.value.RowTemplateFile" />
+                <control-messages [control]="sampleComponentForm.controls.RowTemplateFile"></control-messages>
+              </div>
             </div>
           </div>
+          <div *ngIf="sampleComponentForm.value.Type==='logging'">
+            <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.LogFile">
+              <label class="control-label col-sm-2" for="LogFile">LogFile</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of HTTP Alerting Backend server"></i>
+              <div class="col-sm-9">
+                <input formControlName="LogFile" id="LogFile" [ngModel]="sampleComponentForm.value.LogFile" />
+                <control-messages [control]="sampleComponentForm.controls.LogFile"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.LogLevel">
+              <label class="control-label col-sm-2" for="LogLevel">LogLevel</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of HTTP Alerting Backend server"></i>
+              <div class="col-sm-9">
+                <input formControlName="LogLevel" id="LogLevel" [ngModel]="sampleComponentForm.value.LogLevel" />
+                <control-messages [control]="sampleComponentForm.controls.LogLevel"></control-messages>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="sampleComponentForm.value.Type==='slack'">
+            <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.JSONConfig">
+              <label class="control-label col-sm-2" for="JSONConfig">JSONConfig</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Row Template"></i>
+              <div class="col-sm-9">
+                <textarea class="form-control" style="width: 50%" rows="5" formControlName="JSONConfig" id="JSONConfig" [ngModel]="sampleComponentForm.value.JSONConfig"> </textarea>
+                <control-messages [control]="sampleComponentForm.controls.JSONConfig"></control-messages>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="well well-sm">
+          <span class="editsection">Extra Settings</span>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="Description">Description</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the HTTP Alerting Backend"></i>

@@ -135,10 +135,33 @@ type TemplateCfg struct {
 
 // OutHTTPCfg Alert Destination HTTP based backends config
 type OutHTTPCfg struct {
-	ID          string `xorm:"'id' unique" binding:"Required"`
-	Type        string `xorm:"type"`
-	JSONConfig  string `xorm:"json_config"`
-	Description string `xorm:"description"`
+	ID                 string   `xorm:"'id' unique" binding:"Required"`
+	Type               string   `xorm:"type"`
+	JSONConfig         string   `xorm:"json_config"`
+	Description        string   `xorm:"description"`
+	EndPointID         string   `xorm:"endpointid"`
+	URL                string   `xorm:"url"`
+	Headers            []string `xorm:"headers"`
+	BasicAuthUsername  string   `xorm:"basicauthusername"`
+	BasicAuthPassword  string   `xorm:"basicauthpassword"`
+	AlertTemplate      string   `xorm:"alerttemplate"`
+	AlertTemplateFile  string   `xorm:"alerttemplatefile"`
+	RowTemplate        string   `xorm:"rowtemplate"`
+	RowTemplateFile    string   `xorm:"rowtemplatefile"`
+	LogFile            string   `xorm:"logfile"`
+	LogLevel           string   `xorm:"loglevel"`
+	SlackEnabled       bool     `xorm:"slackenabled"`
+	SlackDefault       bool     `xorm:"slackdefault"`
+	Workspace          string   `xorm:"workspace"`
+	Channel            string   `xorm:"channel"`
+	SlackUsername      string   `xorm:"slackusername"`
+	Global             bool     `xorm:"global"`
+	StateChangesOnly   string   `xorm:"statechangesonly"`
+	IconEmoji          string   `xorm:"iconemoji"`
+	SslCa              string   `xorm:"sslca"`
+	SslCert            string   `xorm:"sslcert"`
+	SslKey             string   `xorm:"sslkey"`
+	InsecureSkipVerify string   `xorm:"insecureskipverify"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
