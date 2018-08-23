@@ -18,7 +18,7 @@
           <h4 style="display:inline"><i class="glyphicon glyphicon-cog text-info"></i> {{ editmode | uppercase}}</h4>
           <div class="pull-right" style="margin-right: 20px">
             <div style="display:inline" tooltip='Import Data' container=body>
-              <button class="btn btn-primary" type="button" (click)="importIfxCatalog(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-import"></i></button>
+              <button class="btn btn-primary" type="button" (click)="importIfxCatalog(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid || editmode == 'create'"> <i class="glyphicon glyphicon-import"></i></button>
             </div>
             <div style="display:inline" tooltip='Test Connection' container=body>
               <button class="btn btn-info" type="button" (click)="testSampleItemConnection(sampleComponentForm.value)" [disabled]="!sampleComponentForm.valid"> <i class="glyphicon glyphicon-flash"></i></button>
