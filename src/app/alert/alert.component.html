@@ -192,7 +192,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.IntervalCheck">
             <label class="control-label col-sm-2" for="IntervalCheck">IntervalCheck</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Duration for evaluation of points"></i>
             <div class="col-sm-9">
               <input formControlName="IntervalCheck" id="IntervalCheck" [ngModel]="sampleComponentForm.value.IntervalCheck" />
               <control-messages [control]="sampleComponentForm.controls.IntervalCheck"></control-messages>
@@ -202,21 +202,21 @@
 
         <div class="well well-sm">
           <span class="editsection">Alert Settings</span>
-          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.TrigerType">
-            <label class="control-label col-sm-2" for="TrigerType">TriggerType</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.TriggerType">
+            <label class="control-label col-sm-2" for="TriggerType">TriggerType</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Type used for evaluation of points"></i>
             <div class="col-sm-9">
-              <select formControlName="TrigerType" id="TrigerType" (click)="setDynamicFields(sampleComponentForm.value.TrigerType)" [ngModel]="sampleComponentForm.value.TrigerType">
+              <select formControlName="TriggerType" id="TriggerType" (click)="setDynamicFields(sampleComponentForm.value.TriggerType)" [ngModel]="sampleComponentForm.value.TriggerType">
                 <option value="THRESHOLD" selected="selected">Threshold</option>
                 <option value="TREND">Trend</option>
                 <option value="DEADMAN">Deadman</option>
               </select>
-              <control-messages [control]="sampleComponentForm.controls.TrigerType"></control-messages>
+              <control-messages [control]="sampleComponentForm.controls.TriggerType"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.Shift">
             <label class="control-label col-sm-2" for="Shift">Shift</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Duration of the shift for the incoming points"></i>
             <div class="col-sm-9">
               <input formControlName="Shift" id="Shift" [ngModel]="sampleComponentForm.value.Shift" />
               <control-messages [control]="sampleComponentForm.controls.Shift"></control-messages>
@@ -224,7 +224,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
             <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Function applied to points"></i>
             <div class="col-sm-9">
               <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
                 <option value="NONE" selected="selected">NONE</option>
@@ -252,7 +252,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
             <label class="control-label col-sm-2" for="CritDirection">CritDirection</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Direction of critical alerts. If ascending, greater values imply greater criticality."></i>
             <div class="col-sm-9">
               <select formControlName="CritDirection" id="CritDirection" [ngModel]="sampleComponentForm.value.CritDirection">
                 <option value="AC" selected="selected">ASC Level</option>
@@ -261,20 +261,20 @@
               <control-messages [control]="sampleComponentForm.controls.CritDirection"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ThresholdType">
-            <label class="control-label col-sm-2" for="ThresholdType">TrendType</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.TrendType">
+            <label class="control-label col-sm-2" for="TrendType">TrendType</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Type used to calculate the difference between values. Difference is calculated in absolute value or in percentage."></i>
             <div class="col-sm-9">
-              <select formControlName="ThresholdType" id="ThresholdType" [ngModel]="sampleComponentForm.value.ThresholdType">
+              <select formControlName="TrendType" id="TrendType" [ngModel]="sampleComponentForm.value.TrendType">
                 <option value="absolute" selected="selected">Absolute</option>
                 <option value="relative">Relative</option>
               </select>
-              <control-messages [control]="sampleComponentForm.controls.ThresholdType"></control-messages>
+              <control-messages [control]="sampleComponentForm.controls.TrendType"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.TrendSign">
             <label class="control-label col-sm-2" for="TrendSign">TrendSign</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if the difference between values is positive or negative."></i>
             <div class="col-sm-9">
               <select formControlName="TrendSign" id="TrendSign" [ngModel]="sampleComponentForm.value.TrendSign">
                 <option value="positive" selected="selected">Positive</option>

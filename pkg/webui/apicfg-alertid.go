@@ -170,14 +170,14 @@ func GetAlertIDCfgArrayByProductID(ctx *Context) {
 
 //GetAlertIDCfgByTemplate Gets an array of strings with the IDs of the Alerts where this template is used.
 //The input parameters are the 5 fields needed to define a template.
-func GetAlertIDCfgByTemplate(sTriggerType string, sCritDirection string, sThresholdType string, sTrendSign string, sStatFunc string) ([]string, error) {
-	filter := fmt.Sprintf("trigertype = '%s'", sTriggerType)
+func GetAlertIDCfgByTemplate(sTriggerType string, sCritDirection string, sTrendType string, sTrendSign string, sStatFunc string) ([]string, error) {
+	filter := fmt.Sprintf("triggertype = '%s'", sTriggerType)
 	if sTriggerType != "DEADMAN" {
 		if len(sCritDirection) > 0 {
 			filter += fmt.Sprintf(" and critdirection = '%s'", sCritDirection)
 		}
-		if len(sThresholdType) > 0 {
-			filter += fmt.Sprintf(" and thresholdtype = '%s'", sThresholdType)
+		if len(sTrendType) > 0 {
+			filter += fmt.Sprintf(" and trendtype = '%s'", sTrendType)
 		}
 		if len(sStatFunc) > 0 {
 			filter += fmt.Sprintf(" and statfunc = '%s'", sStatFunc)

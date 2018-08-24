@@ -4,7 +4,10 @@ export const OutHTTPComponentConfig: any =
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Type', 'name': 'Type' },
-      { 'title': 'JSONConfig', 'name': 'JSONConfig' }
+      { 'title': 'URL', 'name': 'URL' },
+      { 'title': 'LogFile', 'name': 'LogFile' },
+      { 'title': 'LogLevel', 'name': 'LogLevel' },
+      { 'title': 'JSONConfig', 'name': 'JSONConfig' },
     ],
     'slug' : 'outhttpcfg'
   };

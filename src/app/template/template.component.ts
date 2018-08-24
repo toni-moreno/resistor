@@ -58,7 +58,7 @@ export class TemplateComponent implements OnInit {
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      TrigerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TrigerType : 'THRESHOLD', Validators.required],
+      TriggerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TriggerType : 'THRESHOLD', Validators.required],
       TplData: [this.sampleComponentForm ? this.sampleComponentForm.value.TplData : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
@@ -90,12 +90,12 @@ export class TemplateComponent implements OnInit {
     let controlArray : Array<any> = [];
     switch (field) {
       case 'THRESHOLD':
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       break;
       case 'TREND':
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'TrendSign', 'defVal' : 'positive', 'Validators' : Validators.required });
@@ -103,7 +103,7 @@ export class TemplateComponent implements OnInit {
       case 'DEADMAN':
       break
       default: //Default mode is THRESHOLD
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       break;
@@ -209,7 +209,7 @@ export class TemplateComponent implements OnInit {
   newItem() {
     //Check for subhidden fields
     if (this.sampleComponentForm) {
-      this.setDynamicFields(this.sampleComponentForm.value.TrigerType);
+      this.setDynamicFields(this.sampleComponentForm.value.TriggerType);
     } else {
       this.setDynamicFields(null);
     }
@@ -223,7 +223,7 @@ export class TemplateComponent implements OnInit {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
-        this.setDynamicFields(data.TrigerType);
+        this.setDynamicFields(data.TriggerType);
         this.editmode = "modify";
       },
       err => console.error(err)
