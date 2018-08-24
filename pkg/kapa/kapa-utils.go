@@ -418,11 +418,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			DBRPs[0].RetentionPolicy = dev.InfluxRP
 
 			taskType := kapacitorClient.StreamTask
-			taskStatus := kapacitorClient.Enabled
-			if dev.Active == false {
-				log.Debugf("Disabling kapacitor task")
-				taskStatus = kapacitorClient.Disabled
-			}
+			taskStatus := kapacitorClient.Disabled
 
 			//Getting JSON vars from user input
 			vars := setKapaTaskVars(dev)
@@ -443,7 +439,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 					l := kapaClient.TaskLink(dev.ID)
 					t, err := kapaClient.Task(l, nil)
 					if err != nil {
-						log.Errorf("Error getting Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+						log.Debugf("Kapacitor Task %s NOT found into kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 					} else {
 						log.Debugf("Kapacitor task %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 					}
@@ -462,7 +458,31 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 						} else {
 							log.Debugf("Kapacitor task %s created into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
-							iNumLastDeployed++
+							if dev.Active == false {
+								iNumLastDeployed++
+							} else {
+								//Kapacitor task has been created or updated Disabled
+								//Enable Kapacitor task if Active=true has been selected on form
+								//This is done in order to Kapacitor applies new values to task
+								log.Debugf("Enabling kapacitor task")
+								taskStatus = kapacitorClient.Enabled
+								l := kapaClient.TaskLink(dev.ID)
+								_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
+									ID:         dev.ID,
+									TemplateID: sTemplateID,
+									Type:       taskType,
+									DBRPs:      DBRPs,
+									Vars:       vars,
+									Status:     taskStatus,
+									//TICKscript: dev.TplData,
+								})
+								if err != nil {
+									log.Errorf("Error enabling Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+									sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
+								} else {
+									iNumLastDeployed++
+								}
+							}
 						}
 					} else {
 						_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
@@ -479,7 +499,31 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 						} else {
 							log.Debugf("Kapacitor task %s updated into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
-							iNumLastDeployed++
+							if dev.Active == false {
+								iNumLastDeployed++
+							} else {
+								//Kapacitor task has been created or updated Disabled
+								//Enable Kapacitor task if Active=true has been selected on form
+								//This is done in order to Kapacitor applies new values to task
+								log.Debugf("Enabling kapacitor task")
+								taskStatus = kapacitorClient.Enabled
+								l := kapaClient.TaskLink(dev.ID)
+								_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
+									ID:         dev.ID,
+									TemplateID: sTemplateID,
+									Type:       taskType,
+									DBRPs:      DBRPs,
+									Vars:       vars,
+									Status:     taskStatus,
+									//TICKscript: dev.TplData,
+								})
+								if err != nil {
+									log.Errorf("Error enabling Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+									sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
+								} else {
+									iNumLastDeployed++
+								}
+							}
 						}
 					}
 				}
@@ -502,22 +546,22 @@ func getKapaCfgIDArray(devcfgarray []*config.KapacitorCfg) []string {
 
 // getTemplateID Gets TemplateID from AlertIDCfg
 // example: "THRESHOLD_2EX_AC_TH_FMOVAVG"
-// TrigerType + _2EX_ + CritDirection + _ + ThresholdTypeTranslated + _F + StatFunc
+// TriggerType + _2EX_ + CritDirection + _ + TrendTypeTranslated + _F + StatFunc
 func getTemplateID(dev config.AlertIDCfg) string {
 	sRet := "DEADMAN"
-	if dev.TrigerType != "DEADMAN" {
-		sTriggerType := dev.TrigerType
-		sThresholdType := translateThresholdType(dev.TrigerType, dev.ThresholdType, dev.TrendSign)
-		sRet = fmt.Sprintf("%s_2EX_%s_%s_F%s", sTriggerType, dev.CritDirection, sThresholdType, dev.StatFunc)
+	if dev.TriggerType != "DEADMAN" {
+		sTriggerType := dev.TriggerType
+		sTrendType := translateTrendType(dev.TriggerType, dev.TrendType, dev.TrendSign)
+		sRet = fmt.Sprintf("%s_2EX_%s_%s_F%s", sTriggerType, dev.CritDirection, sTrendType, dev.StatFunc)
 	}
 	log.Debugf("getTemplateID. %s.", sRet)
 	return sRet
 }
 
-// translateThresholdType Translates ThresholdType
-func translateThresholdType(sTriggerType string, sThresholdType string, sTrendSign string) string {
-	sRet := sThresholdType
-	if sThresholdType == "relative" {
+// translateTrendType Translates TrendType
+func translateTrendType(sTriggerType string, sTrendType string, sTrendSign string) string {
+	sRet := sTrendType
+	if sTrendType == "relative" {
 		// only for TREND
 		sRet = "RTP"
 		if sTrendSign == "negative" {
@@ -533,7 +577,7 @@ func translateThresholdType(sTriggerType string, sThresholdType string, sTrendSi
 			sRet = "TH"
 		}
 	}
-	log.Debugf("translateThresholdType. TriggerType: %s, ThresholdType: %s, TrendSign: %s. Returns: %s.", sTriggerType, sThresholdType, sTrendSign, sRet)
+	log.Debugf("translateTrendType. TriggerType: %s, TrendType: %s, TrendSign: %s. Returns: %s.", sTriggerType, sTrendType, sTrendSign, sRet)
 	return sRet
 }
 
@@ -589,8 +633,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	}
 	vars["INTERVAL_CHECK"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dIntervalCheck}
 	//Alert Settings
-	//vars["TIPO_TRIGUER"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.TrigerType}
-	if dev.TrigerType != "DEADMAN" {
+	if dev.TriggerType != "DEADMAN" {
 		vars["STAT_FUN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.StatFunc}
 		if dev.StatFunc == "MOVINGAVERAGE" {
 			vars["EXTRA_DATA"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.ExtraData}
@@ -598,7 +641,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 			vars["EXTRA_DATA"] = kapacitorClient.Var{Type: kapacitorClient.VarFloat, Value: dev.ExtraData}
 		}
 		vars["CRIT_DIRECTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.CritDirection}
-		if dev.TrigerType == "TREND" {
+		if dev.TriggerType == "TREND" {
 			dShift, err := time.ParseDuration(dev.Shift)
 			if err != nil {
 				log.Warningf("Error parsing duration from shift field value %s. 0 will be assigned. Error: %s", dev.Shift, err)
@@ -790,20 +833,20 @@ func DeployKapaTemplate(dev config.TemplateCfg) ([]string, error) {
 
 // GetTemplateIDParts Gets TemplateID parts from TemplateID
 // example: from: "TREND_2EX_AC_ATP_FMOVAVG" --> result: "TREND", "AC", "absolute", "positive", "MOVAVG"
-// TrigerType + CritDirection + ThresholdTypeTranslated + StatFunc
+// TriggerType + CritDirection + TrendTypeTranslated + StatFunc
 func GetTemplateIDParts(sTemplateID string) (string, string, string, string, string) {
-	sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc := "DEADMAN", "", "", "", ""
+	sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc := "DEADMAN", "", "", "", ""
 	if sTemplateID != "DEADMAN" {
 		partsarray := strings.Split(sTemplateID, "_")
 		if len(partsarray) == 5 {
 			sTriggerType = partsarray[0]
 			sCritDirection = partsarray[2]
-			sThresholdType, sTrendSign = getTrendDetails(partsarray[3])
+			sTrendType, sTrendSign = getTrendDetails(partsarray[3])
 			sStatFunc = partsarray[4][1:]
 		}
 	}
-	log.Debugf("GetTemplateIDParts. %s, %s, %s, %s, %s, %s.", sTemplateID, sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc)
-	return sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc
+	log.Debugf("GetTemplateIDParts. %s, %s, %s, %s, %s, %s.", sTemplateID, sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc)
+	return sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc
 }
 
 // getTrendDetails Gets trend details

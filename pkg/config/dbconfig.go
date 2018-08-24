@@ -122,11 +122,11 @@ type RangeTimeCfg struct {
 // TemplateCfg Templating data strucr
 type TemplateCfg struct {
 	ID                      string    `xorm:"'id' unique" binding:"Required"`
-	TrigerType              string    `xorm:"trigertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman
+	TriggerType             string    `xorm:"triggertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman
 	StatFunc                string    `xorm:"statfunc"`
 	CritDirection           string    `xorm:"critdirection"`
-	ThresholdType           string    `xorm:"thresholdtype"` //Absolute/Relative
-	TrendSign               string    `xorm:"trendsign"`     //Positive/Negative
+	TrendType               string    `xorm:"trendtype"` //Absolute/Relative
+	TrendSign               string    `xorm:"trendsign"` //Positive/Negative
 	TplData                 string    `xorm:"tpldata"`
 	Description             string    `xorm:"description"`
 	Modified                time.Time `xorm:"modified"`
@@ -196,7 +196,7 @@ type AlertIDCfg struct {
 	InfluxMeasurement  string `xorm:"influxmeasurement" binding:"Required"`
 	TagDescription     string `xorm:"tagdescription"`
 	InfluxFilter       string `xorm:"influxfilter"`
-	TrigerType         string `xorm:"trigertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman|
+	TriggerType        string `xorm:"triggertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman|
 	IntervalCheck      string `xorm:"intervalcheck" binding:"Required"`
 	OperationID        string `xorm:"operationid"`
 	Field              string `xorm:"field" binding:"Required"`
@@ -206,8 +206,8 @@ type AlertIDCfg struct {
 	StatFunc           string `xorm:"statfunc"`
 	CritDirection      string `xorm:"critdirection"`
 	Shift              string `xorm:"shift"`
-	ThresholdType      string `xorm:"thresholdtype"` //Absolute/Relative
-	TrendSign          string `xorm:"trendsign"`     //Positive/Negative
+	TrendType          string `xorm:"trendtype"` //Absolute/Relative
+	TrendSign          string `xorm:"trendsign"` //Positive/Negative
 	//thresholds
 	//CRITICAL
 	ThCritDef         float64 `xorm:"th_crit_def"`

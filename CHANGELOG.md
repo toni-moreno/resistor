@@ -8,15 +8,20 @@
     * 'DeviceIDTag' field filled in with data depending on selected product and label changed to 'ProductTag'.
 * 'Alerts' label changed to 'Alert Definitions'.
 * Changes for defining device stats (alert exceptions) based on product.
-* Changes for Alerting Endpoints refactoring. Now the configuration for httppost and logging is done with several form fields. The configuration for slack still is done with a form field in JSON format.
+* Changes for Alerting Endpoints refactoring.
+    * Now the configuration for httppost and logging is done with several form fields.
+    * The configuration for slack still is done with a form field in JSON format.
 * The size of TplData textarea has been increased.
 * The Import Data button for Influx DB Servers is disabled on create mode.
+* If an alert is created or modified with Active=true, the related kapacitor task is created or modified disabled, then it's enabled.
+    * This is done in order to Kapacitor applies new values to task.
+* Changed log level message when a kapacitor task is not found: from error to debug. This message is also logged when a kapacitor task is been created.
 
 ### fixes
 * Label for 'ThresholdType' field changed to 'TrendType' and field only visible when TriggerType selected is 'Trend'.
 * Fixed errors on showing 'IsCustomExpression' field and related for alert component.
 * Fixed errors on showing empty threshold fields when value was 0 for alert component.
-* Fixed errors on some tooltips for alert component.
+* Fixed errors on tooltips for alert component.
 * Fixed error on logging endpoint when the directory with the logfile does not exist.
 * Fixed error on product modify. When 'unselecting' one measurement the related tags were not 'unselected' from taglist fields.
 * Fixed error on renaming an alert. The related kapacitor task with the new name was created, but the related kapacitor task with the old name was not deleted.
@@ -25,6 +30,14 @@
 ### breaking changes
 * 'deviceid_tag' column changed to 'producttag' on 'alert_id_cfg' table.
 * 'groupid' column changed to 'alertgroup' on 'alert_id_cfg' table.
+* Execute the following sql to update your table:
+    * UPDATE alert_id_cfg SET producttag = deviceid_tag, alertgroup = groupid
+* 'trigertype' column changed to 'triggertype' on 'alert_id_cfg' and 'template_cfg' tables.
+* 'thresholdtype' column changed to 'trendtype' on 'alert_id_cfg' and 'template_cfg' tables.
+* Execute the following sqls to update your tables:
+    * UPDATE alert_id_cfg SET triggertype = trigertype, trendtype = thresholdtype
+    * UPDATE template_cfg SET triggertype = trigertype, trendtype = thresholdtype
+
 
 # v 0.3.0  (unreleased )
 ### New features.

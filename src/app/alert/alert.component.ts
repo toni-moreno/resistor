@@ -97,7 +97,7 @@ export class AlertComponent implements OnInit {
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
       AlertGroup: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertGroup : '', Validators.required],
       NumAlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.NumAlertID : '', Validators.required],
-      TrigerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TrigerType : 'THRESHOLD', Validators.required],
+      TriggerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TriggerType : 'THRESHOLD', Validators.required],
       InfluxDB: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxDB : null, Validators.required],
       InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : null, Validators.required],
       InfluxMeasurement: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxMeasurement : null, Validators.required],
@@ -166,7 +166,7 @@ export class AlertComponent implements OnInit {
       controlArray.push({'ID': 'ThInfoRangeTimeID', 'defVal' : '', 'Validators' : Validators.required });
       break;
       case 'TREND':
-      controlArray.push({'ID': 'ThresholdType', 'defVal' : 'absolute', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
@@ -311,7 +311,7 @@ export class AlertComponent implements OnInit {
     this.getOutHTTPItem();
     this.getKapacitorItem();
     if (this.sampleComponentForm) {
-      this.setDynamicFields(this.sampleComponentForm.value.TrigerType);
+      this.setDynamicFields(this.sampleComponentForm.value.TriggerType);
     } else {
       this.setDynamicFields(null);
     }
@@ -329,7 +329,7 @@ export class AlertComponent implements OnInit {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
-        this.setDynamicFields(data.TrigerType);
+        this.setDynamicFields(data.TriggerType);
 
         this.editmode = "modify";
       },

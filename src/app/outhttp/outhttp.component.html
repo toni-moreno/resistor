@@ -141,7 +141,14 @@
               <label class="control-label col-sm-2" for="LogLevel">LogLevel</label>
               <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of HTTP Alerting Backend server"></i>
               <div class="col-sm-9">
-                <input formControlName="LogLevel" id="LogLevel" [ngModel]="sampleComponentForm.value.LogLevel" />
+                <select formControlName="LogLevel" id="LogLevel" [ngModel]="sampleComponentForm.value.LogLevel">
+                  <option value="debug" selected="selected">debug</option>
+                  <option value="info">info</option>
+                  <option value="warning">warning</option>
+                  <option value="error">error</option>
+                  <option value="fatal">fatal</option>
+                  <option value="panic">panic</option>
+                </select>
                 <control-messages [control]="sampleComponentForm.controls.LogLevel"></control-messages>
               </div>
             </div>

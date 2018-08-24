@@ -3,10 +3,10 @@ export const TemplateComponentConfig: any =
     'name' : 'Templates',
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
-      { 'title': 'TriggerType', 'name': 'TrigerType' },
+      { 'title': 'TriggerType', 'name': 'TriggerType' },
       { 'title': 'StatFunc', 'name': 'StatFunc' },
       { 'title': 'CritDirection', 'name': 'CritDirection' },
-      { 'title': 'TrendType', 'name': 'ThresholdType' },
+      { 'title': 'TrendType', 'name': 'TrendType' },
       { 'title': 'TrendSign', 'name': 'TrendSign' },
       //{ 'title': 'TplData', 'name': 'TplData' },
     ],

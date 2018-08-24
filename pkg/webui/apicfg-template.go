@@ -134,8 +134,8 @@ func DeleteTemplate(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete template with id: %s.", id)
 	//ensure this template is not used by any resistor alert
-	sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc := kapa.GetTemplateIDParts(id)
-	idalertsarray, err := GetAlertIDCfgByTemplate(sTriggerType, sCritDirection, sThresholdType, sTrendSign, sStatFunc)
+	sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc := kapa.GetTemplateIDParts(id)
+	idalertsarray, err := GetAlertIDCfgByTemplate(sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc)
 	if err != nil {
 		log.Warningf("Error getting alerts related to this template %s. Error: %s", id, err)
 		ctx.JSON(404, err.Error())

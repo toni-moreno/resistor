@@ -171,7 +171,7 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
 		e.Export("productcfg", v.ProductID, recursive, level+1)
 
-		if v.TrigerType != "DEADMAN" {
+		if v.TriggerType != "DEADMAN" {
 			e.Export("rangetimecfg", v.ThCritRangeTimeID, recursive, level+1)
 			e.Export("rangetimecfg", v.ThWarnRangeTimeID, recursive, level+1)
 			e.Export("rangetimecfg", v.ThInfoRangeTimeID, recursive, level+1)
