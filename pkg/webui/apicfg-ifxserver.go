@@ -49,13 +49,13 @@ func ping(cfg *config.IfxServerCfg) (client.Client, time.Duration, string, error
 	}
 	elapsed, message, err := cli.Ping(time.Duration(5) * time.Second)
 	if err == nil {
-		_, err = InfluxQuery(cli, "show databases", "")
+		_, err = InfluxQuery(cli, "show databases", "", 0)
 	}
 	return cli, elapsed, message, err
 }
 
 // InfluxQuery does IQL queries
-func InfluxQuery(cli client.Client, query string, db string) ([]string, error) {
+func InfluxQuery(cli client.Client, query string, db string, colidx int) ([]string, error) {
 	defer cli.Close()
 	q := client.NewQuery(query, db, "s")
 	response, err := cli.Query(q)
@@ -71,7 +71,7 @@ func InfluxQuery(cli client.Client, query string, db string) ([]string, error) {
 	for _, v1 := range response.Results {
 		for _, v2 := range v1.Series {
 			for _, v3 := range v2.Values {
-				retarray = append(retarray, v3[0].(string))
+				retarray = append(retarray, v3[colidx].(string))
 			}
 		}
 	}
@@ -79,7 +79,7 @@ func InfluxQuery(cli client.Client, query string, db string) ([]string, error) {
 }
 
 func getInfluxDBs(cli client.Client) []string {
-	ret, err := InfluxQuery(cli, "SHOW DATABASES", "")
+	ret, err := InfluxQuery(cli, "SHOW DATABASES", "", 0)
 	if err != nil {
 		log.Errorf("GetInfluxDB's Query: %s", err)
 	}
@@ -87,7 +87,7 @@ func getInfluxDBs(cli client.Client) []string {
 }
 
 func getDBMeasurements(cli client.Client, db string) []string {
-	ret, err := InfluxQuery(cli, "SHOW MEASUREMENTS", db)
+	ret, err := InfluxQuery(cli, "SHOW MEASUREMENTS", db, 0)
 	if err != nil {
 		log.Errorf("Get Measurements Query: %s", err)
 	}
@@ -95,7 +95,7 @@ func getDBMeasurements(cli client.Client, db string) []string {
 }
 
 func getDBRetention(cli client.Client, db string) []string {
-	ret, err := InfluxQuery(cli, "SHOW RETENTION POLICIES ON \""+db+"\"", "")
+	ret, err := InfluxQuery(cli, "SHOW RETENTION POLICIES ON \""+db+"\"", "", 0)
 	if err != nil {
 		log.Errorf("Get Retention Policies Query: %s", err)
 	}
@@ -104,7 +104,7 @@ func getDBRetention(cli client.Client, db string) []string {
 
 func getMeasurementsFields(cli client.Client, db string, m string) []string {
 
-	ret, err := InfluxQuery(cli, "SHOW FIELD KEYS FROM \""+m+"\"", db)
+	ret, err := InfluxQuery(cli, "SHOW FIELD KEYS FROM \""+m+"\"", db, 0)
 	if err != nil {
 		log.Errorf("Get Measurements Fields Query: %s", err)
 	}
@@ -112,14 +112,24 @@ func getMeasurementsFields(cli client.Client, db string, m string) []string {
 }
 
 func getMeasurementsTags(cli client.Client, db string, m string) []string {
-	ret, err := InfluxQuery(cli, "SHOW TAG KEYS FROM \""+m+"\"", db)
+	ret, err := InfluxQuery(cli, "SHOW TAG KEYS FROM \""+m+"\"", db, 0)
 	if err != nil {
 		log.Errorf("Get Measurements Tags Query: %s", err)
 	}
 	return ret
 }
 
-// ImportIfxCatalog new snmpdevice to de internal BBDD --pending--
+func getMeasurementTagsByKey(cli client.Client, db string, m string, tagkey string) []string {
+	s := "SHOW TAG VALUES FROM \"" + m + "\" WITH KEY = \"" + tagkey + "\""
+	ret, err := InfluxQuery(cli, s, db, 1)
+	if err != nil {
+		log.Errorf("getMeasurementTagsByKey. Error getting Measurement Tags with query: %s. Error: %s", s, err)
+	}
+	log.Debugf("getMeasurementTagsByKey. DB: %s. Query: %s. Returning: %+v", db, s, ret)
+	return ret
+}
+
+// ImportIfxCatalog Imports Influx Catalog to the internal database
 func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 	log.Warningf("Importing catalog for Server: %s", dev.ID)
 	cli, _, _, err := ping(&dev)
@@ -162,7 +172,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 	ctx.JSON(200, &dbs)
 }
 
-// PingIfxServer Insert new snmpdevice to de internal BBDD --pending--
+// PingIfxServer Pings Influx Server and returns the result on context
 func PingIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	_, elapsed, message, err := ping(&dev)
 	if err != nil {
@@ -180,7 +190,7 @@ func PingIfxServer(ctx *Context, dev config.IfxServerCfg) {
 
 }
 
-// GetIfxServer Return snmpdevice list to frontend
+// GetIfxServer Returns Influx Server list to frontend
 func GetIfxServer(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetIfxServerCfgArray("")
 	if err != nil {
@@ -192,7 +202,7 @@ func GetIfxServer(ctx *Context) {
 	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
 }
 
-// AddIfxServer Insert new snmpdevice to de internal BBDD --pending--
+// AddIfxServer Inserts Influx Server to the internal database and returns the result on context
 func AddIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
 	affected, err := agent.MainConfig.Database.AddIfxServerCfg(&dev)
@@ -200,12 +210,12 @@ func AddIfxServer(ctx *Context, dev config.IfxServerCfg) {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
-		//TODO: review if needed return data  or affected
+		//TODO: review if needed return data or affected
 		ctx.JSON(200, &dev)
 	}
 }
 
-// UpdateIfxServer --pending--
+// UpdateIfxServer Updates Influx Server into the internal database and returns the result on context
 func UpdateIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
@@ -219,7 +229,7 @@ func UpdateIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	}
 }
 
-//DeleteIfxServer delete from the catalog database
+//DeleteIfxServer Deletes Influx Server from the internal database and returns the result on context
 func DeleteIfxServer(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete: %+v", id)
@@ -232,7 +242,7 @@ func DeleteIfxServer(ctx *Context) {
 	}
 }
 
-//GetIfxServerCfgByID --pending--
+//GetIfxServerCfgByID Returns Influx Server to frontend
 func GetIfxServerCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetIfxServerCfgByID(id)
@@ -244,7 +254,7 @@ func GetIfxServerCfgByID(ctx *Context) {
 	}
 }
 
-//GetIfxServerAffectOnDel --pending--
+//GetIfxServerAffectOnDel Checks if Deletion of Influx Server affects on som eother items of the internal database and returns the result on context
 func GetIfxServerAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetIfxServerCfgAffectOnDel(id)
@@ -253,5 +263,38 @@ func GetIfxServerAffectOnDel(ctx *Context) {
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)
+	}
+}
+
+//GetDevicesByAlertID Gets the list of devices related to the alertid parameter and returns the result on context
+func GetDevicesByAlertID(ctx *Context) {
+	alertid := ctx.Params(":alertid")
+	log.Debugf("GetDevicesByAlertID. Entering with alertid: %s", alertid)
+	alertidcfg, err := agent.MainConfig.Database.GetAlertIDCfgByID(alertid)
+	if err != nil {
+		log.Warningf("GetDevicesByAlertID. Error getting alert with id: %s. Error: %s", alertid, err)
+		ctx.JSON(404, err.Error())
+	} else {
+		ifxdbid := alertidcfg.InfluxDB
+		ifxdbcfg, err := agent.MainConfig.Database.GetIfxDBCfgByID(ifxdbid)
+		if err != nil {
+			log.Warningf("GetDevicesByAlertID. Error getting InfluxDB with id: %s. Error: %s", ifxdbid, err)
+			ctx.JSON(404, err.Error())
+		} else {
+			ifxservercfg, err := agent.MainConfig.Database.GetIfxServerCfgByID(ifxdbcfg.IfxServer)
+			if err != nil {
+				log.Warningf("GetDevicesByAlertID. Error getting Influx server with id: %d. Error: %s", ifxdbcfg.IfxServer, err)
+				ctx.JSON(404, err.Error())
+			} else {
+				cli, _, _, err := ping(&ifxservercfg)
+				if err != nil {
+					log.Warningf("GetDevicesByAlertID. Error Pinging Influx Server with id: %d. Error: %s", ifxdbcfg.ID, err)
+					ctx.JSON(404, err.Error())
+				} else {
+					devices := getMeasurementTagsByKey(cli, ifxdbcfg.Name, alertidcfg.InfluxMeasurement, alertidcfg.ProductTag)
+					ctx.JSON(200, devices)
+				}
+			}
+		}
 	}
 }
