@@ -46,6 +46,12 @@ export class DeviceStatService {
             responseData.json()
     )};
 
+    getDeviceItemByAlertId(alertid : string) {
+        return this.http.get('/api/cfg/devicestat/devsbyalertid/'+alertid)
+        .map( (responseData) =>
+            responseData.json()
+    )};
+
     checkOnDeleteDeviceStatItem(id : string){
       return this.http.get('/api/cfg/devicestat/checkondel/'+id)
       .map( (responseData) =>

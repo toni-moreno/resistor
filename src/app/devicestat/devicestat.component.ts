@@ -45,6 +45,7 @@ export class DeviceStatComponent implements OnInit {
   public overrideRoleActions: any = OverrideRoleActions;
   public select_product : IMultiSelectOption[] = [];
   public select_alert : IMultiSelectOption[] = [];
+  public select_device : IMultiSelectOption[] = [];
   public select_baseline : IMultiSelectOption[] = [];
   public select_tag : IMultiSelectOption[] = [];
   private single_select: IMultiSelectSettings = {singleSelect: true};
@@ -53,6 +54,9 @@ export class DeviceStatComponent implements OnInit {
 
   public product_list : any = [];
   public picked_product: any = null;
+
+  public alert_list : any = [];
+  public picked_alert: any = null;
 
   public data : Array<any>;
   public isRequesting : boolean;
@@ -316,25 +320,13 @@ export class DeviceStatComponent implements OnInit {
               );
   }
 
-  getAlertItem() {
-    this.alertService.getAlertItemByProductId(this.picked_product['ID'])
-      .subscribe(
-      data => {
-        this.select_alert = [];
-        this.select_alert = this.createMultiselectArray(data, 'ID', 'ID');
-      },
-      err => console.error(err),
-      () => console.log('DONE')
-      );
-  }
-
   getProductItem() {
     this.productService.getProductItem(null)
       .subscribe(
       data => {
         this.product_list = data;
         this.select_product = [];
-        this.select_product = this.createMultiselectArray(data, 'ID', 'ID');
+        this.select_product = this.createMultiselectArray(data, '', 'ID', 'ID');
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -342,7 +334,6 @@ export class DeviceStatComponent implements OnInit {
   }
 
   pickProductItem(product_picked) {
-
     if (this.picked_product) {
       if (product_picked !== this.picked_product['ID']) {
         this.sampleComponentForm.controls.AlertID.setValue(null);
@@ -352,7 +343,7 @@ export class DeviceStatComponent implements OnInit {
     }
     //Clear Vars:
     this.picked_product = this.product_list.filter((x) => x['ID'] === product_picked)[0];
-    this.select_alert = null;
+    this.select_alert = [];
     this.select_baseline = null;
     this.select_tag = null;
 
@@ -374,9 +365,49 @@ export class DeviceStatComponent implements OnInit {
     this.select_tag = this.createMultiselectArray(tagsarray);
   }
 
-  createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
+  getAlertItem() {
+    this.alertService.getAlertItemByProductId(this.picked_product['ID'])
+      .subscribe(
+      data => {
+        this.alert_list = data;
+        this.select_alert = [];
+        this.select_alert = this.createMultiselectArray(data, '', 'ID', 'ID');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
+  pickAlertItem(alert_picked) {
+    //Clear Vars:
+    this.picked_alert = this.alert_list.filter((x) => x['ID'] === alert_picked)[0];
+    this.select_device = [];
+
+    let alert_id : string = alert_picked;
+    if (this.picked_alert) alert_id = this.picked_alert['ID'];
+    if(alert_id && alert_id.length > 0) {
+      this.getDeviceItem(alert_id);
+    }
+  }
+
+  getDeviceItem(alert_id) {
+    this.devicestatService.getDeviceItemByAlertId(alert_id)
+      .subscribe(
+      data => {
+        this.select_device = [];
+        this.select_device = this.createMultiselectArray(data, '*');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
+  createMultiselectArray(tempArray, initValue?, ID?, Name?, extraData?) : any {
     let myarray = [];
     if(tempArray){
+      if (initValue && initValue.length > 0) {
+        myarray.push({ 'id': ID ? initValue : initValue, 'name': Name ? initValue : initValue, 'extraData': extraData ? initValue : null });
+      }
       for (let entry of tempArray) {
         myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
       };
