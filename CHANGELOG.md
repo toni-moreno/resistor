@@ -1,3 +1,39 @@
+# v 0.5.0  (unreleased )
+### New features.
+* 'Enable/Disable Edit' button on filtering section moved to left, text changed to 'Show/Hide multiselect', text removed and shown as tooltip.
+* First and Last buttons shown on pagination section.
+* Selector fields modified to include the possibility of adding custom items on list.
+* Changes on Device Stats component:
+    * Selector for fields: ProductID, AlertID, DeviceID, BaseLine and FilterTagKey modified to include the possibility of adding custom items on list.
+* Changes on Alert Events component:
+    * New columns on list: ProductID, ProductTagValue, Field, Tags and Value.
+    * Datetime format applied on column Time.
+    * Added the possibility of single and multiple deletion.
+    * New field added on filtering section to select the column used to filter.
+    * New field included indicating the time of the last refresh.
+    * New button included to refresh the list.
+* Changes on Kapacitor Tasks component:
+    * New column NumErrors included on list.
+    * Datetime format applied on columns Created, Modified and LastEnabled.
+    * New field included indicating the time of the last refresh.
+    * New button included to refresh the list.
+* Changes on Alerting Endpoints component:
+    * Configuration of HTTP Post endpoint modified to take into account Headers and BasicAuth form fields.
+    * Form fields added to configure Slack endpoint.
+
+### fixes
+* Fixed error when deleting a range time related to an alert.
+
+### breaking changes
+* Table alert_event_cfg changed to alert_event_hist. Some fields of the table also changed.
+* Execute the following sql if you want to copy data from alert_event_cfg to alert_event_hist:
+    * insert into alert_event_hist (id, alertid, message, details, eventtime, duration, level, previousLevel) select uid, id, message, details, eventtime, duration, level, previousLevel from alert_event_cfg;
+* Table out_http_cfg changed to endpoint_cfg.
+* Table alert_http_out_rel changed to alert_endpoint_rel.
+* Execute the following sqls if you want to copy data from old tables to new tables:
+    * insert into endpoint_cfg (id, type, description, url, headers, basicauthusername, basicauthpassword, logfile, loglevel, slackenabled, channel, slackusername, iconemoji, sslca, sslcert, sslkey, insecureskipverify) select id, type, description, url, headers, basicauthusername, basicauthpassword, logfile, loglevel, slackenabled, channel, slackusername, iconemoji, sslca, sslcert, sslkey, insecureskipverify from out_http_cfg;
+    * insert into alert_endpoint_rel (alert_id, endpoint_id) select alert_id, http_out_id from alert_http_out_rel;
+
 # v 0.4.0  (unreleased )
 ### New features.
 * Changes for defining alerts depending on product and some errors fixed.
