@@ -94,12 +94,12 @@
 
         <div class="well well-sm">
           <span class="editsection">External Services Settings</span>
-          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.OutHTTP">
-            <label class="control-label col-sm-2" for="OutHTTP">Alerting Endpoints</label>
+          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.Endpoint">
+            <label class="control-label col-sm-2" for="Endpoint">Alerting Endpoints</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="List of EndPoints where the alert will be sent"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_outhttp" formControlName="OutHTTP" [texts]="myTexts" [ngModel]="sampleComponentForm.value.OutHTTP"></ss-multiselect-dropdown>
-              <control-messages [control]="sampleComponentForm.controls.OutHTTP"></control-messages>
+              <ss-multiselect-dropdown [options]="select_endpoint" formControlName="Endpoint" [texts]="myTexts" [ngModel]="sampleComponentForm.value.Endpoint"></ss-multiselect-dropdown>
+              <control-messages [control]="sampleComponentForm.controls.Endpoint"></control-messages>
             </div>
           </div>
 

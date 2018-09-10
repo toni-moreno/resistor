@@ -10,7 +10,7 @@ import { IfxServerService } from '../../ifxserver/ifxserver.service';
 import { AlertService } from '../../alert/alert.service';
 import { DeviceStatService } from '../../devicestat/devicestat.service';
 import { KapacitorService } from '../../kapacitor/kapacitor.service';
-import { OutHTTPService } from '../../outhttp/outhttp.service';
+import { EndpointService } from '../../endpoint/endpoint.service';
 import { ProductService } from '../../product/product.service';
 import { ProductGroupService } from '../../productgroup/productgroup.service';
 import { RangeTimeService } from '../../rangetime/rangetime.service';
@@ -150,7 +150,7 @@ import { Subscription } from 'rxjs';
           </div>
         </div>`,
         styleUrls: ['./import-modal-styles.css'],
-        providers: [IfxServerService,AlertService,DeviceStatService,KapacitorService ,OutHTTPService ,ProductService,ProductGroupService,RangeTimeService ,TemplateService, TreeView]
+        providers: [IfxServerService,AlertService,DeviceStatService,KapacitorService ,EndpointService ,ProductService,ProductGroupService,RangeTimeService ,TemplateService, TreeView]
 })
 
 export class ExportFileModal {
@@ -176,7 +176,7 @@ export class ExportFileModal {
   constructor(builder: FormBuilder, public exportServiceCfg : ExportServiceCfg,
     public alertService : AlertService, public ifxServerService : IfxServerService, 
     public deviceStatService : DeviceStatService, public kapacitorService : KapacitorService,
-    public outHTTPService : OutHTTPService,public productService : ProductService, 
+    public endpointService : EndpointService,public productService : ProductService, 
     public productGroupService : ProductGroupService, public rangeTimeService : RangeTimeService,
     public templateService : TemplateService) {
 
@@ -203,7 +203,7 @@ export class ExportFileModal {
     "devicestatcfg": 'info',
     "ifxservercfg": 'success',
     "kapacitorcfg": 'primary',
-    "outhttpcfg": 'default',
+    "endpointcfg": 'default',
     "productcfg": 'warning',
     "productgroupcfg": 'info',
     "rangetimecfg": 'danger',
@@ -238,7 +238,7 @@ export class ExportFileModal {
     {'Type':"devicestatcfg", 'Class': 'info', 'Visible':false},
     {'Type':"ifxservercfg", 'Class' : 'success', 'Visible':false},
     {'Type':"kapacitorcfg", 'Class' : 'primary', 'Visible':false},
-    {'Type':"outhttpcfg", 'Class' : 'default', 'Visible':false},
+    {'Type':"endpointcfg", 'Class' : 'default', 'Visible':false},
     {'Type':"productcfg", 'Class' : 'warning', 'Visible':false},
     {'Type':"productgroupcfg", 'Class' : 'info', 'Visible':false},
     {'Type':"rangetimecfg", 'Class' : 'danger', 'Visible':false},
@@ -466,8 +466,8 @@ export class ExportFileModal {
        () => {console.log("DONE")}
        );
       break;
-      case 'outhttpcfg':
-      this.mySubscriber = this.outHTTPService.getOutHTTPItem(filter)
+      case 'endpointcfg':
+      this.mySubscriber = this.endpointService.getEndpointItem(filter)
        .subscribe(
        data => {
          this.dataArray=data;

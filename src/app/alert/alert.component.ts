@@ -5,7 +5,7 @@ import { FormArray, FormGroup, FormControl} from '@angular/forms';
 import { AlertService } from './alert.service';
 import { ProductService } from '../product/product.service';
 import { RangeTimeService } from '../rangetime/rangetime.service';
-import { OutHTTPService } from '../outhttp/outhttp.service';
+import { EndpointService } from '../endpoint/endpoint.service';
 import { KapacitorService } from '../kapacitor/kapacitor.service';
 import { IfxDBService } from '../ifxdb/ifxdb.service';
 import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service';
@@ -27,7 +27,7 @@ declare var _:any;
 
 @Component({
   selector: 'alert-component',
-  providers: [AlertService, ProductService, RangeTimeService, OutHTTPService, KapacitorService, IfxDBService,IfxMeasurementService, ValidationService],
+  providers: [AlertService, ProductService, RangeTimeService, EndpointService, KapacitorService, IfxDBService,IfxMeasurementService, ValidationService],
   templateUrl: './alert.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -52,7 +52,7 @@ export class AlertComponent implements OnInit {
 
   public select_product : IMultiSelectOption[] = [];
   public select_rangetime : IMultiSelectOption[] = [];
-  public select_outhttp : IMultiSelectOption[] = [];
+  public select_endpoint : IMultiSelectOption[] = [];
   public select_kapacitor : IMultiSelectOption[] = [];
   public select_ifxdb : IMultiSelectOption[] = [];
   public select_ifxrp : IMultiSelectOption[] = [];
@@ -85,7 +85,7 @@ export class AlertComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public outhttpService: OutHTTPService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -118,7 +118,7 @@ export class AlertComponent implements OnInit {
       ExtraLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraLabel : ''],
       AlertExtraText: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertExtraText : ''],
       KapacitorID: [this.sampleComponentForm ? this.sampleComponentForm.value.KapacitorID : '', Validators.required],
-      OutHTTP: [this.sampleComponentForm ? this.sampleComponentForm.value.OutHTTP : ''],
+      Endpoint: [this.sampleComponentForm ? this.sampleComponentForm.value.Endpoint : ''],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -308,7 +308,7 @@ export class AlertComponent implements OnInit {
     //Check for subhidden fields
     this.getProductItem();
     this.getRangeTimeItem();
-    this.getOutHTTPItem();
+    this.getEndpointItem();
     this.getKapacitorItem();
     if (this.sampleComponentForm) {
       this.setDynamicFields(this.sampleComponentForm.value.TriggerType);
@@ -322,7 +322,7 @@ export class AlertComponent implements OnInit {
     let id = row.ID;
     this.getProductItem();
     this.getRangeTimeItem();
-    this.getOutHTTPItem();
+    this.getEndpointItem();
     this.getKapacitorItem();
     this.alertService.getAlertItemById(id)
       .subscribe(data => {
@@ -469,12 +469,12 @@ export class AlertComponent implements OnInit {
       );
   }
 
-  getOutHTTPItem() {
-    this.outhttpService.getOutHTTPItem(null)
+  getEndpointItem() {
+    this.endpointService.getEndpointItem(null)
       .subscribe(
       data => {
-        this.select_outhttp = [];
-        this.select_outhttp = this.createMultiselectArray(data, 'ID','ID');
+        this.select_endpoint = [];
+        this.select_endpoint = this.createMultiselectArray(data, 'ID','ID');
       },
       err => console.error(err),
       () => console.log('DONE')

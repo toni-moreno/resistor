@@ -18,8 +18,8 @@ export class AvailableTableActions {
         return this.getAlertEventAvailableActions();
         case 'devicestats-component':
         return this.getDeviceStatsAvailableActions();
-        case 'outhttp-component':
-        return this.getOutHTTPAvailableActions();
+        case 'endpoint-component':
+        return this.getEndpointAvailableActions();
         case 'product-component':
         return this.getProductAvailableActions();
         case 'rangetime-component':
@@ -74,7 +74,7 @@ export class AvailableTableActions {
     ];
     return tableAvailableActions;
   }
-  getOutHTTPAvailableActions (data ? : any) : any {
+  getEndpointAvailableActions (data ? : any) : any {
     let tableAvailableActions = [
     //Remove Action
       {'title': 'Remove', 'content' :

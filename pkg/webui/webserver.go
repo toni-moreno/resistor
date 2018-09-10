@@ -186,7 +186,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	//Servers
 	NewAPICfgKapacitor(m)      //Kapacitor URL's
 	NewAPICfgIfxMeasurement(m) //Influx Measurments
-	NewAPICfgOutHTTP(m)        //HttpOut list
+	NewAPICfgEndpoint(m)        //Endpoint list
 	//Config
 
 	NewAPICfgAlertID(m)      //Alert Admin
