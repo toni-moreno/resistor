@@ -21,18 +21,28 @@ declare var _: any;
   template: `
     <div class="row">
     <div class="col-md-8 text-left">
-    <!--Filtering section-->
+      <!--Show/Hide multiselect-->
+      <ng-container *ngIf="tableRole !== 'viewonly'">
+        <button style ="margin-top: -5px;" type="button" title="{{editEnabled === false ? 'Show multiselect' : 'Hide multiselect' }}" (click)="enableEdit()" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i></button>
+      </ng-container>
+      <!--Filtering section-->
       <label [tooltip]="'Clear Filter'" container="body" (click)="onResetFilter()" style="margin-top: 10px"><i class="glyphicon glyphicon-trash text-primary"></i></label>
-      <input *ngIf="config.filtering" placeholder="Filter all columns" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
+      <ng-container *ngIf="filterColumn != null && filterColumn.length > 0">
+        <select style="width:auto" [ngModel]="filterColumn" (ngModelChange)="changeFilterColumn($event)">
+          <option *ngFor="let option of columns" style="padding-left:2px" [value]="option.name">{{option.name}}</option>
+        </select>
+      </ng-container>
+      <input *ngIf="config.filtering" placeholder="{{(filterColumn != null && filterColumn.length > 0) ? 'Filter selected column' : 'Filter all columns' }}" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
       <span [ngClass]="length > 0 ? ['label label-info'] : ['label label-warning']" style="font-size : 100%">{{length}} Results</span>
-    <!--Table Actions-->
-    <ng-container *ngIf="tableRole === 'fulledit'">
-      <button style ="margin-top: -5px;" type="button" (click)="customClick('new')" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> New</button>
-    </ng-container>
-    <ng-container *ngIf="tableRole !== 'viewonly'">
-      <button style ="margin-top: -5px;" type="button" (click)="enableEdit()" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i> {{editEnabled === false ? 'Enable Edit' : 'Disable Edit' }}</button>
-    </ng-container>
-      </div>
+      <!--Table Actions-->
+      <ng-container *ngIf="typeComponent === 'alertevent-component' || typeComponent === 'kapacitortasks-component'">
+        <button style ="margin-top: -5px;" type="button" title="Refresh" (click)="customClick('reloaddata')" class="btn btn-primary"><i class="glyphicon glyphicon-refresh"></i></button>
+        <span [ngClass]="['label label-info']" style="font-size : 100%">Last Refresh: {{this.LastUpdate | date : 'HH:mm:ss - Z'}}</span>
+      </ng-container>
+      <ng-container *ngIf="tableRole === 'fulledit'">
+        <button style ="margin-top: -5px;" type="button" (click)="customClick('new')" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> New</button>
+      </ng-container>
+    </div>
     <!--Items per page selection-->
     <div class="col-md-4 text-right">
         <span style="margin-left: 20px"> Items per page: </span>
@@ -49,6 +59,7 @@ declare var _: any;
     <ng-table *ngIf="isRequesting === false && data"
       [rows]="rows"
       [columns]="columns"
+      [filterColumn]="filterColumn"
       [sanitizeCell]="sanitizeCell"
       [config]="config"
       [(checkedItems)]="selectedArray"
@@ -60,7 +71,7 @@ declare var _: any;
     </ng-table>
 
     <!-- Pagination -->
-    <pagination *ngIf="config.paging" class="pagination-sm" [ngModel]="page" [totalItems]="length" [itemsPerPage]="itemsPerPage" [maxSize]="maxSize" [boundaryLinks]="false" [rotate]="false" (pageChanged)="onChangeTable(config, $event)" (numPages)="numPages = $event">
+    <pagination *ngIf="config.paging" class="pagination-sm" [ngModel]="page" [totalItems]="length" [itemsPerPage]="itemsPerPage" [maxSize]="maxSize" [boundaryLinks]="true" [rotate]="false" (pageChanged)="onChangeTable(config, $event)" (numPages)="numPages = $event">
     </pagination>
     <pre *ngIf="config.paging" class="card card-block card-header">Page: {{page}} / {{numPages}}</pre>
     `,
@@ -71,6 +82,7 @@ export class TableListComponent implements OnInit, OnChanges {
 
   //Inputs
   @Input() typeComponent: string;
+  @Input() filterColumn: string = '';
   @Input() columns: Array<any>;
   @Input() data: Array<any>;
   @Input() counterItems: any = 0;
@@ -97,15 +109,21 @@ export class TableListComponent implements OnInit, OnChanges {
   public itemsPerPageOptions: any = ItemsPerPageOptions;
   public maxSize: number = 5;
   public numPages: number = 1;
+  public numPagesShown: number = 1;
+  public firstPageShown: number = 1;
+  public lastPageShown: number = 1;
   public length: number = 0;
   public tableAvailableActions: any;
   public myFilterValue: any;
+  public sortColumn = '';
+  public sortDir = '';
+  public LastUpdate = new Date();
 
   //Set config
   public config: any = {
     paging: true,
     sorting: { columns: this.columns },
-    filtering: { filterString: '' },
+    filtering: { filterString: '', columnName: this.filterColumn },
     className: ['table-striped', 'table-bordered']
   };
 
@@ -113,7 +131,6 @@ export class TableListComponent implements OnInit, OnChanges {
     if (!this.data) this.data = [];
     this.onChangeTable(this.config);
     this.cd.markForCheck();
-
   }
 
   ngOnInit() {
@@ -134,7 +151,8 @@ export class TableListComponent implements OnInit, OnChanges {
     //Check if we have to change the actual page
 
     let maxPage = Math.ceil(data.length / this.itemsPerPage);
-    if (page.page > maxPage && page.page != 1) this.page = page.page = maxPage;
+    if (page.page > maxPage && page.page != this.page) this.page = page.page = maxPage;
+    if (page.page != this.page) this.page = page.page;
     let start = (page.page - 1) * page.itemsPerPage;
     let end = page.itemsPerPage > -1 ? (start + page.itemsPerPage) : data.length;
     return data.slice(start, end);
@@ -150,9 +168,11 @@ export class TableListComponent implements OnInit, OnChanges {
     let sort: string = void 0;
 
     for (let i = 0; i < columns.length; i++) {
-      if (columns[i].sort !== '' && columns[i].sort !== false) {
+      if (typeof columns[i].sort !== 'undefined' && columns[i].sort !== '' && columns[i].sort !== false) {
         columnName = columns[i].name;
         sort = columns[i].sort;
+        this.sortColumn = columnName;
+        this.sortDir = sort;
       }
     }
 
@@ -173,6 +193,18 @@ export class TableListComponent implements OnInit, OnChanges {
 
   public changeFilter(data: any, config: any): any {
     let filteredData: Array<any> = data;
+    if (!config.filtering) {
+      return filteredData;
+    }
+
+    config.filtering.columnName = this.filterColumn;
+    if (config.filtering.columnName && config.filtering.columnName.length > 0) {
+      filteredData = filteredData.filter((item: any) => 
+        (item[config.filtering.columnName] === null ? '' : item[config.filtering.columnName]).toString().match(this.config.filtering.filterString)
+      );
+      return filteredData;
+    }
+
     this.columns.forEach((column: any) => {
       if (column.filtering) {
         filteredData = filteredData.filter((item: any) => {
@@ -180,15 +212,6 @@ export class TableListComponent implements OnInit, OnChanges {
         });
       }
     });
-
-    if (!config.filtering) {
-      return filteredData;
-    }
-
-    if (config.filtering.columnName) {
-      return filteredData.filter((item: any) =>
-        item[config.filtering.columnName].match(this.config.filtering.filterString));
-    }
 
     let tempArray: Array<any> = [];
     filteredData.forEach((item: any) => {
@@ -217,6 +240,11 @@ export class TableListComponent implements OnInit, OnChanges {
     this.onChangeTable(this.config);
   }
 
+  changeFilterColumn(columnName) {
+    this.filterColumn = columnName;
+    this.onChangeTable(this.config)
+  }
+
   public onChangeTable(config: any, page: any = { page: this.page, itemsPerPage: this.itemsPerPage }): any {
     if (config) {
       if (config.filtering) {
@@ -230,17 +258,25 @@ export class TableListComponent implements OnInit, OnChanges {
     let sortedData = this.changeSort(filteredData, this.config);
     this.rows = page && config.paging ? this.changePage(page, sortedData) : sortedData;
     this.length = sortedData.length;
+    let maxPage = Math.ceil(this.length / this.itemsPerPage);
+    this.numPagesShown = maxPage < this.maxSize ? maxPage : this.maxSize;
+    this.firstPageShown = ((Math.ceil(this.page / this.maxSize) - 1) * this.numPagesShown) + 1;
+    this.lastPageShown = (this.firstPageShown + this.numPagesShown - 1) < maxPage ? (this.firstPageShown + this.numPagesShown - 1) : maxPage;
+    if (this.firstPageShown + this.numPagesShown > maxPage) this.numPagesShown = maxPage - this.firstPageShown + 1;
   }
 
   onResetFilter(): void {
     this.page = 1;
     this.myFilterValue = "";
-    this.config.filtering = { filtering: { filterString: '' } };
+    this.config.filtering = { filtering: { filterString: '', columnName: this.filterColumn } };
     this.onChangeTable(this.config);
   }
 
   customClick(clicked: string, event: any = "", data: any = ""): void {
-    this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data });
+    if (clicked == "reloaddata") this.LastUpdate = new Date();
+    this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir, 'filterColumn': this.filterColumn, 'filterString': this.config.filtering.filterString });
+    //pending change for future, to get only the list of results to show, not all the list
+    //this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir, 'page': this.page, 'itemsPerPage': this.itemsPerPage, 'maxSize': this.maxSize });
   }
 
 }

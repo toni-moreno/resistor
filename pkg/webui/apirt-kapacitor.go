@@ -1,6 +1,8 @@
 package webui
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	kapacitorClient "github.com/influxdata/kapacitor/client/v1"
@@ -23,6 +25,7 @@ type KapaTaskRt struct {
 	Status         kapacitorClient.TaskStatus     `json:"Status"`
 	Executing      bool                           `json:"Executing"`
 	Error          string                         `json:"Error"`
+	NumErrors      int64                          `json:"NumErrors"`
 	ExecutionStats kapacitorClient.ExecutionStats `json:"stats"`
 	Created        time.Time                      `json:"Created"`
 	Modified       time.Time                      `json:"Modified"`
@@ -98,5 +101,13 @@ func makeKapaTaskRt(kapasrv *config.KapacitorCfg, kapatask kapacitorClient.Task)
 	kapaTaskRt.Created = kapatask.Created
 	kapaTaskRt.Modified = kapatask.Modified
 	kapaTaskRt.LastEnabled = kapatask.LastEnabled
+	var numErrors int64
+	for _, nodestats := range kapatask.ExecutionStats.NodeStats {
+		nodeErrors, err := strconv.ParseInt(fmt.Sprintf("%v", nodestats["errors"]), 10, 64)
+		if err == nil {
+			numErrors = numErrors + nodeErrors
+		}
+	}
+	kapaTaskRt.NumErrors = numErrors
 	return kapaTaskRt
 }

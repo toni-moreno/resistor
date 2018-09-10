@@ -91,8 +91,11 @@ export class KapacitorTasksComponent implements OnInit {
       case 'view':
         this.viewItem(action.event);
       break;
-        case 'tableaction':
+      case 'tableaction':
         this.applyAction(action.event, action.data);
+      break;
+      case 'reloaddata':
+        this.reloadData();
       break;
     }
   }

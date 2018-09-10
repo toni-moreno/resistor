@@ -116,8 +116,8 @@ func (dbc *DatabaseCfg) InitDB() {
 	if err = dbc.x.Sync(new(AlertIDCfg)); err != nil {
 		log.Fatalf("Fail to sync database AlertIDCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(AlertEventCfg)); err != nil {
-		log.Fatalf("Fail to sync database AlertEventCfg: %v\n", err)
+	if err = dbc.x.Sync(new(AlertEventHist)); err != nil {
+		log.Fatalf("Fail to sync database AlertEventHist: %v\n", err)
 	}
 }
 
@@ -154,7 +154,7 @@ func (dbc *DatabaseCfg) LoadDbConfig(cfg *DBConfig) {
 	if err != nil {
 		log.Warningf("Some errors on get Templates map :%v", err)
 	}
-	cfg.AlertEvent, err = dbc.GetAlertEventCfgMap("")
+	cfg.AlertEvent, err = dbc.GetAlertEventHistMap("")
 	if err != nil {
 		log.Warningf("Some errors on get AlertEvents map :%v", err)
 	}

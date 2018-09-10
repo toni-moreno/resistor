@@ -14,6 +14,9 @@ export class OutHTTPService {
         if ( key == 'Headers') {
             if(typeof value === 'string') return value.split(',');
         }
+        if ( key == 'SlackEnabled' || key == 'InsecureSkipVerify' ) {
+            return ( value === "true" || value === true);
+        }
         return value;
     }
 

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, Pipe, PipeTransform,  } from '@angular/core';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ElapsedSecondsPipe } from '../../../custom-pipe/elapsedseconds.pipe';
 
@@ -19,6 +20,7 @@ export class NgTableComponent {
 
   @Input() public roleActions: any;
   @Input() public tableRole : string = 'fulledit';
+  @Input() public filterColumn : string = '';
 
   @Input() public showStatus: boolean = false;
   @Input() public editMode: boolean = false;
@@ -76,11 +78,13 @@ export class NgTableComponent {
 
   public sanitize(html: any, transform?: any ): SafeHtml {
 
-    let output: string
+    let output: string;
     if (typeof this.sanitizeCell === "function" ) {
-      output = this.sanitizeCell(html,transform)
-      if ( output.length > 0 ) {
-        return output
+      output = this.sanitizeCell(html,transform);
+      if ( output != null ) {
+        if ( output.length > 0 ) {
+          return output;
+        }
       }
     }
     if  (transform === "ns2s") {
@@ -93,6 +97,20 @@ export class NgTableComponent {
     }
     if  (transform === "imgwtooltip") {
       if (html) return '<i class="glyphicon glyphicon-remove text-danger" title="'+html+'"></i>';
+      else return html;
+    }
+    if  (transform === "decimal") {
+      if (html && (typeof html == "number")) {
+        let trf = new DecimalPipe("es-ES").transform(html,'1.2-2');
+        return trf;
+      }
+      else return html;
+    }
+    if  (transform === "datetime") {
+      if (html) {
+        let trf = new DatePipe("es-ES").transform(html,'dd/MM/yyyy HH:mm:ss');
+        return trf;
+      }
       else return html;
     }
     if  (transform === "color") {
@@ -108,22 +126,24 @@ export class NgTableComponent {
     }
     if (typeof html === 'object') {
       var test: any = '<ul class="list-unstyled">';
-      for (var item of html) {
-        if (typeof item === 'object') {
-          test += "<li>";
-          for (var item2 in Object(item)) {
-            if (typeof item[item2] === 'boolean') {
-              if (item[item2]) test += ' <i class="glyphicon glyphicon-arrow-right"></i>'
-              else test += ' <i class="glyphicon glyphicon-alert"></i>'
-            } else if (item2 === 'TagID') {
-              test += '<h4 class="text-success displayinline">'+item[item2] +' - </h4>';
-            } else {
-              test +='<span>'+item[item2]+'</span>';
+      if (html != null) {
+        for (var item of html) {
+          if (typeof item === 'object') {
+            test += "<li>";
+            for (var item2 in Object(item)) {
+              if (typeof item[item2] === 'boolean') {
+                if (item[item2]) test += ' <i class="glyphicon glyphicon-arrow-right"></i>'
+                else test += ' <i class="glyphicon glyphicon-alert"></i>'
+              } else if (item2 === 'TagID') {
+                test += '<h4 class="text-success displayinline">'+item[item2] +' - </h4>';
+              } else {
+                test +='<span>'+item[item2]+'</span>';
+              }
             }
+            test += "</li>";
+          } else {
+            test += "<li>" + item + "</li>";
           }
-          test += "</li>";
-        } else {
-          test += "<li>" + item + "</li>";
         }
       }
       test += "</ul>"
