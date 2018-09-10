@@ -44,7 +44,7 @@
             <label class="control-label col-sm-2" for="ProductID">ProductID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the product to associate this exception"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID" (ngModelChange)="pickProductItem($event)"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown [options]="select_product" formControlName="ProductID" [settings]="single_and_custom" [texts]="myTexts" [ngModel]="sampleComponentForm.value.ProductID" (ngModelChange)="pickProductItem($event)" ></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.ProductID"></control-messages>
             </div>
           </div>
@@ -52,7 +52,7 @@
             <label class="control-label col-sm-2" for="AlertID">AlertID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="AlertID with format line-product-alertgroup-nnn. Regular expressions accepted."></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_alert" formControlName="AlertID" id="AlertID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.AlertID" (ngModelChange)="pickAlertItem($event)"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown [options]="select_alert" formControlName="AlertID" id="AlertID" [settings]="single_and_custom" [texts]="myTexts" [ngModel]="sampleComponentForm.value.AlertID" (ngModelChange)="pickAlertItem($event)"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.AlertID"></control-messages>
             </div>
           </div>
@@ -60,7 +60,7 @@
             <label class="control-label col-sm-2" for="DeviceID">DeviceID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Id of the Device or * for generic rules."></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_device" formControlName="DeviceID" id="DeviceID" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.DeviceID"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown [options]="select_device" formControlName="DeviceID" id="DeviceID" [settings]="single_and_custom" [texts]="myTexts" [ngModel]="sampleComponentForm.value.DeviceID"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.DeviceID"></control-messages>
             </div>
           </div>
@@ -98,9 +98,9 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.BaseLine">
             <label class="control-label col-sm-2" for="BaseLine">BaseLine</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Line used for filtering"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Lines used for filtering"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_baseline" formControlName="BaseLine" id="BaseLine" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.BaseLine"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown [options]="select_baseline" formControlName="BaseLine" id="BaseLine" [settings]="single_and_custom" [texts]="myTexts" [ngModel]="sampleComponentForm.value.BaseLine"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.BaseLine"></control-messages>
             </div>
           </div>
@@ -108,7 +108,7 @@
             <label class="control-label col-sm-2" for="FilterTagKey">FilterTagKey</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Name of the tag used for filtering"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown [options]="select_tag" formControlName="FilterTagKey" id="FilterTagKey" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.FilterTagKey"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown [options]="select_tag" formControlName="FilterTagKey" id="FilterTagKey" [settings]="single_and_custom" [texts]="myTexts" [ngModel]="sampleComponentForm.value.FilterTagKey"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.FilterTagKey"></control-messages>
             </div>
           </div>

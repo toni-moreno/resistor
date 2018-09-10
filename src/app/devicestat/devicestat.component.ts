@@ -48,7 +48,13 @@ export class DeviceStatComponent implements OnInit {
   public select_device : IMultiSelectOption[] = [];
   public select_baseline : IMultiSelectOption[] = [];
   public select_tag : IMultiSelectOption[] = [];
+  public select_product_custom : IMultiSelectOption[] = [];
+  public select_alert_custom : IMultiSelectOption[] = [];
+  public select_device_custom : IMultiSelectOption[] = [];
+  public select_baseline_custom : IMultiSelectOption[] = [];
+  public select_tag_custom : IMultiSelectOption[] = [];
   private single_select: IMultiSelectSettings = {singleSelect: true};
+  private single_and_custom: IMultiSelectSettings = {singleSelect: true, allowCustomItem: true};
 
   public selectedArray : any = [];
 
@@ -109,10 +115,10 @@ export class DeviceStatComponent implements OnInit {
     console.log(action);
     switch (action.option) {
       case 'new' :
-        this.newItem()
+        this.newItem();
       break;
-        case 'export' :
-      this.exportItem(action.event);
+      case 'export' :
+        this.exportItem(action.event);
       break;
       case 'view':
         this.viewItem(action.event);
@@ -199,8 +205,9 @@ export class DeviceStatComponent implements OnInit {
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
-        this.oldID = data.ID
+        this.oldID = data.ID;
         this.createStaticForm();
+        this.setInitValues();
         this.editmode = "modify";
       },
       err => console.error(err)
@@ -326,7 +333,7 @@ export class DeviceStatComponent implements OnInit {
       data => {
         this.product_list = data;
         this.select_product = [];
-        this.select_product = this.createMultiselectArray(data, '', 'ID', 'ID');
+        this.select_product = this.createMultiselectArray(data, 'ID', 'ID');
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -336,19 +343,25 @@ export class DeviceStatComponent implements OnInit {
   pickProductItem(product_picked) {
     if (this.picked_product) {
       if (product_picked !== this.picked_product['ID']) {
-        this.sampleComponentForm.controls.AlertID.setValue(null);
-        this.sampleComponentForm.controls.BaseLine.setValue(null);
-        this.sampleComponentForm.controls.FilterTagKey.setValue(null);
+        if (this.select_alert.length > 0) this.select_alert = this.select_alert.filter(item => item.extraData==='Custom Item');
+        if (this.select_device.length > 0) this.select_device = this.select_device.filter(item => item.extraData==='Custom Item');
+        if (this.select_baseline.length > 0) this.select_baseline = this.select_baseline.filter(item => item.extraData==='Custom Item');
+        if (this.select_tag.length > 0) this.select_tag = this.select_tag.filter(item => item.extraData==='Custom Item');
       }
     }
-    //Clear Vars:
     this.picked_product = this.product_list.filter((x) => x['ID'] === product_picked)[0];
-    this.select_alert = [];
-    this.select_baseline = null;
-    this.select_tag = null;
 
     if(this.picked_product) {
-      this.getAlertItem();
+      if (this.select_alert.length > 0) this.select_alert_custom = this.select_alert.filter(item => item.extraData==='Custom Item');
+      if (this.select_device.length > 0) this.select_device_custom = this.select_device.filter(item => item.extraData==='Custom Item');
+      if (this.select_baseline.length > 0) this.select_baseline_custom = this.select_baseline.filter(item => item.extraData==='Custom Item');
+      if (this.select_tag.length > 0) this.select_tag_custom = this.select_tag.filter(item => item.extraData==='Custom Item');
+      this.select_alert = [];
+      this.select_device = [];
+      this.select_baseline = [];
+      this.select_tag = [];
+      this.getAlertItem(this.picked_product['ID']);
+      this.getDeviceItemByProductId(this.picked_product['ID']);
       this.getBaseLineItem();
       this.getFilterTagKeyItem();
     }
@@ -356,6 +369,10 @@ export class DeviceStatComponent implements OnInit {
 
   getBaseLineItem() {
     this.select_baseline = this.createMultiselectArray(this.picked_product['BaseLines']);
+    //remove from select_baseline_custom items with id in select_baseline
+    this.select_baseline_custom = this.removeDuplicates(this.select_baseline_custom, this.select_baseline);
+    //add select_baseline_custom to select_baseline
+    this.select_baseline = this.select_baseline_custom.concat(this.select_baseline);
   }
 
   getFilterTagKeyItem() {
@@ -363,15 +380,23 @@ export class DeviceStatComponent implements OnInit {
     tagsarray = tagsarray.concat(this.picked_product['CommonTags']);
     tagsarray = tagsarray.concat(this.picked_product['ExtraTags']);
     this.select_tag = this.createMultiselectArray(tagsarray);
+    //remove from select_tag_custom items with id in select_tag
+    this.select_tag_custom = this.removeDuplicates(this.select_tag_custom, this.select_tag);
+    //add select_tag_custom to select_tag
+    this.select_tag = this.select_tag_custom.concat(this.select_tag);
   }
 
-  getAlertItem() {
-    this.alertService.getAlertItemByProductId(this.picked_product['ID'])
+  getAlertItem(product_id) {
+    this.alertService.getAlertItemByProductId(product_id)
       .subscribe(
       data => {
         this.alert_list = data;
         this.select_alert = [];
-        this.select_alert = this.createMultiselectArray(data, '', 'ID', 'ID');
+        this.select_alert = this.createMultiselectArray(data, 'ID', 'ID');
+        //remove from select_alert_custom items with id in select_alert
+        this.select_alert_custom = this.removeDuplicates(this.select_alert_custom, this.select_alert);
+        //add select_alert_custom to select_alert
+        this.select_alert = this.select_alert_custom.concat(this.select_alert);
       },
       err => console.error(err),
       () => console.log('DONE')
@@ -379,40 +404,116 @@ export class DeviceStatComponent implements OnInit {
   }
 
   pickAlertItem(alert_picked) {
-    //Clear Vars:
     this.picked_alert = this.alert_list.filter((x) => x['ID'] === alert_picked)[0];
-    this.select_device = [];
 
-    let alert_id : string = alert_picked;
-    if (this.picked_alert) alert_id = this.picked_alert['ID'];
-    if(alert_id && alert_id.length > 0) {
-      this.getDeviceItem(alert_id);
+    if (this.picked_alert) {
+      if (this.select_device.length > 0) this.select_device_custom = this.select_device.filter(item => item.extraData==='Custom Item');
+      this.getDeviceItemByAlertId(this.picked_alert['ID']);
     }
   }
 
-  getDeviceItem(alert_id) {
-    this.devicestatService.getDeviceItemByAlertId(alert_id)
+  getDeviceItemByProductId(product_id) {
+    if (product_id.length > 0) {
+      this.devicestatService.getDeviceItemByProductId(product_id)
       .subscribe(
       data => {
         this.select_device = [];
-        this.select_device = this.createMultiselectArray(data, '*');
+        this.select_device = this.createMultiselectArray(data);
+        //remove from select_device_custom items with id in select_device
+        this.select_device_custom = this.removeDuplicates(this.select_device_custom, this.select_device);
+        //add select_device_custom to select_device
+        this.select_device = this.select_device_custom.concat(this.select_device);
       },
       err => console.error(err),
       () => console.log('DONE')
       );
+    }
   }
 
-  createMultiselectArray(tempArray, initValue?, ID?, Name?, extraData?) : any {
+  getDeviceItemByAlertId(alert_id) {
+    if (alert_id.length > 0) {
+      this.devicestatService.getDeviceItemByAlertId(alert_id)
+      .subscribe(
+      data => {
+        this.select_device = [];
+        this.select_device = this.createMultiselectArray(data);
+        //remove from select_device_custom items with id in select_device
+        this.select_device_custom = this.removeDuplicates(this.select_device_custom, this.select_device);
+        //add select_device_custom to select_device
+        this.select_device = this.select_device_custom.concat(this.select_device);
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+    }
+  }
+
+  setInitValues() {
+    this.select_product = this.setSelectInitValues(this.sampleComponentForm.value.ProductID, this.select_product);
+    this.select_alert = this.setSelectInitValues(this.sampleComponentForm.value.AlertID, this.select_alert);
+    this.select_device = this.setSelectInitValues(this.sampleComponentForm.value.DeviceID, this.select_device);
+    this.select_baseline = this.setSelectInitValues(this.sampleComponentForm.value.BaseLine, this.select_baseline);
+    this.select_tag = this.setSelectInitValues(this.sampleComponentForm.value.FilterTagKey, this.select_tag);
+    if (this.select_product.length > 0) this.select_product_custom = this.select_product.filter(item => item.extraData==='Custom Item');
+    if (this.select_alert.length > 0) this.select_alert_custom = this.select_alert.filter(item => item.extraData==='Custom Item');
+    if (this.select_device.length > 0) this.select_device_custom = this.select_device.filter(item => item.extraData==='Custom Item');
+    if (this.select_baseline.length > 0) this.select_baseline_custom = this.select_baseline.filter(item => item.extraData==='Custom Item');
+    if (this.select_tag.length > 0) this.select_tag_custom = this.select_tag.filter(item => item.extraData==='Custom Item');
+  }
+
+  setSelectInitValues(initvalue, select_array) : any {
+    let item_found_array = [];
+    if (select_array.length > 0) {
+      item_found_array = select_array.filter(item => item.id===initvalue);
+    }
+    if (item_found_array.length == 0) {
+      //initvalue not found, then this is a custom item. Add it to select_array
+      let inititem = this.createCustomItem(initvalue);
+      let initarray = [];
+      initarray.push(inititem);
+      select_array = initarray.concat(select_array);
+    }
+    return select_array;
+  }
+
+  createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {
     let myarray = [];
     if(tempArray){
-      if (initValue && initValue.length > 0) {
-        myarray.push({ 'id': ID ? initValue : initValue, 'name': Name ? initValue : initValue, 'extraData': extraData ? initValue : null });
-      }
       for (let entry of tempArray) {
-        myarray.push({ 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null });
-      };
+        let item = this.createArrayItem(entry, ID, Name, extraData);
+        myarray.push(item);
+      }
     }
     return myarray;
+  }
+
+  createArrayItem(entry, ID?, Name?, extraData?) : any {
+    let item = { 'id': ID ? entry[ID] : entry, 'name': Name ? entry[Name] : entry, 'extraData': extraData ? entry[extraData] : null };
+    return item;
+  }
+
+  createCustomItem(entry) : any {
+    let item = { 'id': entry, 'name': entry, 'extraData': 'Custom Item' };
+    return item;
+  }
+
+  //if array_to_search has items
+  //for each item of array_to_clean get item.id
+  //use filter to check if an item with this id is found on array_to_search
+  //if no item is found, add item from array_to_clean into cleaned_array
+  removeDuplicates(array_to_clean, array_to_search) : any {
+    let cleaned_array = array_to_clean;
+    if (array_to_search.length > 0) {
+      cleaned_array = [];
+      let found_array = [];
+      for (let item_to_clean of array_to_clean) {
+        found_array = array_to_search.filter(item_to_search => item_to_search.id===item_to_clean.id);
+        if (found_array.length == 0) {
+          cleaned_array.push(item_to_clean);
+        }
+      }
+    }
+    return cleaned_array;
   }
 
 }

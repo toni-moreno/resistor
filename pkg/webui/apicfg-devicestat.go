@@ -21,6 +21,7 @@ func NewAPICfgDeviceStat(m *macaron.Macaron) error {
 		m.Put("/:id", reqSignedIn, bind(config.DeviceStatCfg{}), UpdateDeviceStat)
 		m.Delete("/:id", reqSignedIn, DeleteDeviceStat)
 		m.Get("/:id", reqSignedIn, GetDeviceStatCfgByID)
+		m.Get("/devsbyproductid/:productid", reqSignedIn, GetDevicesByProductID)
 		m.Get("/devsbyalertid/:alertid", reqSignedIn, GetDevicesByAlertID)
 		m.Get("/checkondel/:id", reqSignedIn, GetDeviceStatAffectOnDel)
 	})
