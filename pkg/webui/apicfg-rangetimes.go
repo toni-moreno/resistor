@@ -70,14 +70,14 @@ func DeleteRangeTime(ctx *Context) {
 	log.Debugf("Trying to delete: %+v", id)
 	affected, err := agent.MainConfig.Database.DelRangeTimeCfg(id)
 	if err != nil {
-		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
+		log.Warningf("Error deleting range time %s  , affected : %+v , error: %s", id, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, "deleted")
 	}
 }
 
-//GetRangeTimeCfgByID --pending--
+//GetRangeTimeCfgByID Gets RangeTimeCfg By ID and returns it on context
 func GetRangeTimeCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetRangeTimeCfgByID(id)
@@ -89,12 +89,12 @@ func GetRangeTimeCfgByID(ctx *Context) {
 	}
 }
 
-//GetRangeTimeAffectOnDel --pending--
+//GetRangeTimeAffectOnDel Check if there are any AlertIDCfg affected when deleting RangeTimeCfg
 func GetRangeTimeAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetRangeTimeCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error getting object array for range time %s , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)
