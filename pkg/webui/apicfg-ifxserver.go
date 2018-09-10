@@ -254,15 +254,48 @@ func GetIfxServerCfgByID(ctx *Context) {
 	}
 }
 
-//GetIfxServerAffectOnDel Checks if Deletion of Influx Server affects on som eother items of the internal database and returns the result on context
+//GetIfxServerAffectOnDel Checks if Deletion of Influx Server affects on some other items of the internal database and returns the result on context
 func GetIfxServerAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetIfxServerCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for Influx server with id: %s. Error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)
+	}
+}
+
+//GetDevicesByProductID Gets the list of devices related to the productid parameter and returns the result on context
+func GetDevicesByProductID(ctx *Context) {
+	productid := ctx.Params(":productid")
+	log.Debugf("GetDevicesByProductID. Entering with productid: %s", productid)
+	productcfg, err := agent.MainConfig.Database.GetProductCfgByID(productid)
+	if err != nil {
+		log.Warningf("GetDevicesByProductID. Error getting product with id: %s. Error: %s", productid, err)
+		ctx.JSON(404, err.Error())
+	} else {
+		ifxdbcfgarray, err := agent.MainConfig.Database.GetIfxDBCfgArrayByMeasName(productcfg.Measurements[0])
+		if err != nil {
+			log.Warningf("GetDevicesByProductID. Error getting InfluxDB list for measurement name: %s. Error: %s", productcfg.Measurements[0], err)
+			ctx.JSON(404, err.Error())
+		} else {
+			ifxdbcfg := ifxdbcfgarray[0]
+			ifxservercfg, err := agent.MainConfig.Database.GetIfxServerCfgByID(ifxdbcfg.IfxServer)
+			if err != nil {
+				log.Warningf("GetDevicesByProductID. Error getting Influx server with id: %d. Error: %s", ifxdbcfg.IfxServer, err)
+				ctx.JSON(404, err.Error())
+			} else {
+				cli, _, _, err := ping(&ifxservercfg)
+				if err != nil {
+					log.Warningf("GetDevicesByProductID. Error Pinging Influx Server with id: %d. Error: %s", ifxdbcfg.ID, err)
+					ctx.JSON(404, err.Error())
+				} else {
+					devices := getMeasurementTagsByKey(cli, ifxdbcfg.Name, productcfg.Measurements[0], productcfg.ProductTag)
+					ctx.JSON(200, devices)
+				}
+			}
+		}
 	}
 }
 

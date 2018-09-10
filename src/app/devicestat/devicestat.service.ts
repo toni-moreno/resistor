@@ -46,6 +46,12 @@ export class DeviceStatService {
             responseData.json()
     )};
 
+    getDeviceItemByProductId(productid : string) {
+        return this.http.get('/api/cfg/devicestat/devsbyproductid/'+productid)
+        .map( (responseData) =>
+            responseData.json()
+    )};
+
     getDeviceItemByAlertId(alertid : string) {
         return this.http.get('/api/cfg/devicestat/devsbyalertid/'+alertid)
         .map( (responseData) =>
