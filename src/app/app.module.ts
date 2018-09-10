@@ -63,7 +63,7 @@ import { IfxMeasurementComponent } from './ifxmeasurement/ifxmeasurement.compone
 import { ProductComponent } from './product/product.component';
 import { ProductGroupComponent } from './productgroup/productgroup.component';
 import { TemplateComponent } from './template/template.component';
-import { OutHTTPComponent } from './outhttp/outhttp.component';
+import { EndpointComponent } from './endpoint/endpoint.component';
 import { AlertComponent } from './alert/alert.component';
 import { AlertEventComponent } from './alertevent/alertevent.component';
 import { DeviceStatComponent } from './devicestat/devicestat.component';
@@ -93,7 +93,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     ProductComponent,
     ProductGroupComponent,
     TemplateComponent,
-    OutHTTPComponent,
+    EndpointComponent,
     AlertComponent,
     AlertEventComponent,
     DeviceStatComponent,
@@ -139,7 +139,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
       ProductComponent,
       ProductGroupComponent,
       TemplateComponent,
-      OutHTTPComponent,
+      EndpointComponent,
       AlertComponent,
       AlertEventComponent,
       DeviceStatComponent

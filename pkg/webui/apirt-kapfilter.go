@@ -34,7 +34,7 @@ func NewAPIRtKapFilter(m *macaron.Macaron) error {
 
 	bind := binding.Bind
 	m.Group("/api/rt/kapfilter", func() {
-		m.Post("/alert/:outhttp", reqAlertSignedIn, bind(alert.Data{}), RTAlertHandler)
+		m.Post("/alert/:endpoint", reqAlertSignedIn, bind(alert.Data{}), RTAlertHandler)
 	})
 	return nil
 }
@@ -64,16 +64,16 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	AddAlertEvent(alertevent)
 
 	//Send alert event to related endpoints
-	arouthttp := alertcfg.OutHTTP
-	for _, outhttpid := range arouthttp {
-		outhttp, err := agent.MainConfig.Database.GetOutHTTPCfgByID(outhttpid)
+	arendpoint := alertcfg.Endpoint
+	for _, endpointid := range arendpoint {
+		endpoint, err := agent.MainConfig.Database.GetEndpointCfgByID(endpointid)
 		if err != nil {
-			log.Warningf("Error getting outhttp for id %s. Error: %s.", outhttpid, err)
+			log.Warningf("Error getting endpoint for id %s. Error: %s.", endpointid, err)
 		} else {
-			log.Debugf("Got outhttp: %+v", outhttp)
-			err = sendData(al, outhttp)
+			log.Debugf("Got endpoint: %+v", endpoint)
+			err = sendData(al, endpoint)
 			if err != nil {
-				log.Warningf("Error sending data to endpoint with id %s. Error: %s.", outhttpid, err)
+				log.Warningf("Error sending data to endpoint with id %s. Error: %s.", endpointid, err)
 			}
 		}
 	}
@@ -131,29 +131,29 @@ func AddAlertEvent(dev config.AlertEventHist) {
 	}
 }
 
-func sendData(al alert.Data, outhttp config.OutHTTPCfg) error {
+func sendData(al alert.Data, endpoint config.EndpointCfg) error {
 	var err error
-	strouttype := outhttp.Type
+	strouttype := endpoint.Type
 	log.Debugf("strouttype: %s", strouttype)
 	if strouttype == "logging" {
-		err = sendDataToLog(al, outhttp)
+		err = sendDataToLog(al, endpoint)
 	} else if strouttype == "httppost" {
-		err = sendDataToHTTPPost(al, outhttp)
+		err = sendDataToHTTPPost(al, endpoint)
 	} else if strouttype == "slack" {
-		err = sendDataToSlack(al, outhttp)
+		err = sendDataToSlack(al, endpoint)
 	}
 	return err
 }
 
-func sendDataToHTTPPost(al alert.Data, outhttp config.OutHTTPCfg) error {
-	log.Debugf("sendDataToHTTPPost. outhttp.ID: %+v, outhttp.URL: %+v", outhttp.ID, outhttp.URL)
+func sendDataToHTTPPost(al alert.Data, endpoint config.EndpointCfg) error {
+	log.Debugf("sendDataToHTTPPost. endpoint.ID: %+v, endpoint.URL: %+v", endpoint.ID, endpoint.URL)
 
 	jsonStr, err := json.Marshal(al)
 
-	req, err := http.NewRequest("POST", outhttp.URL, bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("POST", endpoint.URL, bytes.NewBuffer(jsonStr))
 
 	//Set headers
-	for _, hkv := range outhttp.Headers {
+	for _, hkv := range endpoint.Headers {
 		kv := strings.Split(hkv, "=")
 		req.Header.Set(kv[0], kv[1])
 	}
@@ -161,9 +161,9 @@ func sendDataToHTTPPost(al alert.Data, outhttp config.OutHTTPCfg) error {
 	//req.Header.Set("Content-Type", "text/plain")
 
 	//Set basic auth
-	if len(outhttp.BasicAuthUsername) > 0 && len(outhttp.BasicAuthPassword) > 0 {
-		log.Debugf("sendDataToHTTPPost. Setting BasicAuth with Username: %s and pwd: *****", outhttp.BasicAuthUsername)
-		req.SetBasicAuth(outhttp.BasicAuthUsername, outhttp.BasicAuthPassword)
+	if len(endpoint.BasicAuthUsername) > 0 && len(endpoint.BasicAuthPassword) > 0 {
+		log.Debugf("sendDataToHTTPPost. Setting BasicAuth with Username: %s and pwd: *****", endpoint.BasicAuthUsername)
+		req.SetBasicAuth(endpoint.BasicAuthUsername, endpoint.BasicAuthPassword)
 	}
 
 	client := &http.Client{}
@@ -180,10 +180,10 @@ func sendDataToHTTPPost(al alert.Data, outhttp config.OutHTTPCfg) error {
 	return err
 }
 
-func sendDataToLog(al alert.Data, outhttp config.OutHTTPCfg) error {
+func sendDataToLog(al alert.Data, endpoint config.EndpointCfg) error {
 
 	var err error
-	log.Debugf("sendDataToLog. outhttp.LogLevel: %+v, outhttp.LogFile: %+v", outhttp.LogLevel, outhttp.LogFile)
+	log.Debugf("sendDataToLog. endpoint.LogLevel: %+v, endpoint.LogFile: %+v", endpoint.LogLevel, endpoint.LogFile)
 	// New log
 	logout := logrus.New()
 	//Log format
@@ -192,17 +192,17 @@ func sendDataToLog(al alert.Data, outhttp config.OutHTTPCfg) error {
 	logout.Formatter = customFormatter
 	customFormatter.FullTimestamp = true
 	//Log level
-	l, _ := logrus.ParseLevel(outhttp.LogLevel)
+	l, _ := logrus.ParseLevel(endpoint.LogLevel)
 	logout.Level = l
 	//Log file
-	if len(outhttp.LogFile) > 0 {
-		logConfDir, _ := filepath.Split(outhttp.LogFile)
+	if len(endpoint.LogFile) > 0 {
+		logConfDir, _ := filepath.Split(endpoint.LogFile)
 		err = os.MkdirAll(logConfDir, 0755)
 		if err != nil {
 			log.Warningf("sendDataToLog. Error creating logConfDir: %s. Error: %s", logConfDir, err)
 		}
 		//Log output
-		f, err := os.OpenFile(outhttp.LogFile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+		f, err := os.OpenFile(endpoint.LogFile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 		if err != nil {
 			log.Warningf("sendDataToLog. Error opening logfile: %s", err)
 		} else {
@@ -261,18 +261,18 @@ type Service struct {
 	client      *http.Client
 }
 
-func sendDataToSlack(al alert.Data, outhttp config.OutHTTPCfg) error {
+func sendDataToSlack(al alert.Data, endpoint config.EndpointCfg) error {
 
 	slackConfig := Config{}
-	slackConfig.Enabled = outhttp.SlackEnabled
-	slackConfig.URL = outhttp.URL
-	slackConfig.Channel = outhttp.Channel
-	slackConfig.Username = outhttp.SlackUsername
-	slackConfig.IconEmoji = outhttp.IconEmoji
-	slackConfig.SSLCA = outhttp.SslCa
-	slackConfig.SSLCert = outhttp.SslCert
-	slackConfig.SSLKey = outhttp.SslKey
-	slackConfig.InsecureSkipVerify = outhttp.InsecureSkipVerify
+	slackConfig.Enabled = endpoint.SlackEnabled
+	slackConfig.URL = endpoint.URL
+	slackConfig.Channel = endpoint.Channel
+	slackConfig.Username = endpoint.SlackUsername
+	slackConfig.IconEmoji = endpoint.IconEmoji
+	slackConfig.SSLCA = endpoint.SslCa
+	slackConfig.SSLCert = endpoint.SslCert
+	slackConfig.SSLKey = endpoint.SslKey
+	slackConfig.InsecureSkipVerify = endpoint.InsecureSkipVerify
 	log.Debugf("slackConfig: %+v", slackConfig)
 	var diag Diagnostic
 	s, err := NewService(slackConfig, diag)

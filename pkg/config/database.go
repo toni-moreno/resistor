@@ -107,11 +107,11 @@ func (dbc *DatabaseCfg) InitDB() {
 	if err = dbc.x.Sync(new(RangeTimeCfg)); err != nil {
 		log.Fatalf("Fail to sync database RangeTimeCfg: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(OutHTTPCfg)); err != nil {
-		log.Fatalf("Fail to sync database OutHTTPOuts: %v\n", err)
+	if err = dbc.x.Sync(new(EndpointCfg)); err != nil {
+		log.Fatalf("Fail to sync database Endpoints: %v\n", err)
 	}
-	if err = dbc.x.Sync(new(AlertHTTPOutRel)); err != nil {
-		log.Fatalf("Fail to sync database Alert and HTTPOut Relationship: %v\n", err)
+	if err = dbc.x.Sync(new(AlertEndpointRel)); err != nil {
+		log.Fatalf("Fail to sync database Alert and Endpoint Relationship: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(AlertIDCfg)); err != nil {
 		log.Fatalf("Fail to sync database AlertIDCfg: %v\n", err)
@@ -130,9 +130,9 @@ func (dbc *DatabaseCfg) LoadDbConfig(cfg *DBConfig) {
 	if err != nil {
 		log.Warningf("Some errors on get Kapacitor servers map :%v", err)
 	}
-	cfg.OutHTTP, err = dbc.GetOutHTTPCfgMap("")
+	cfg.Endpoint, err = dbc.GetEndpointCfgMap("")
 	if err != nil {
-		log.Warningf("Some errors on get Out HTTP map :%v", err)
+		log.Warningf("Some errors on get Endpoint map :%v", err)
 	}
 	cfg.RangeTime, err = dbc.GetRangeTimeCfgMap("")
 	if err != nil {

@@ -45,7 +45,7 @@ export const AlertComponentConfig: any =
       { 'title': 'ExtraLabel', 'name': 'ExtraLabel' },
       { 'title': 'AlertExtraText', 'name': 'AlertExtraText' },
       { 'title': 'KapacitorID', 'name': 'KapacitorID' },
-      { 'title': 'OutHTTP', 'name': 'OutHTTP' }
+      { 'title': 'Endpoint', 'name': 'Endpoint' }
     ],
     'slug' : 'alertcfg'
   };

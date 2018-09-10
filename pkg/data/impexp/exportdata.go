@@ -149,12 +149,12 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 		for _, val := range v.Products {
 			e.Export("productcfg", val, recursive, level+1)
 		}
-	case "outhttpcfg":
-		v, err := dbc.GetOutHTTPCfgByID(id)
+	case "endpointcfg":
+		v, err := dbc.GetEndpointCfgByID(id)
 		if err != nil {
 			return err
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "outhttpcfg", ObjectID: id, ObjectCfg: v})
+		e.PrependObject(&ExportObject{ObjectTypeID: "endpointcfg", ObjectID: id, ObjectCfg: v})
 	case "alertcfg":
 		//contains sensible data
 		v, err := dbc.GetAlertIDCfgByID(id)
@@ -165,8 +165,8 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 		if !recursive {
 			break
 		}
-		for _, val := range v.OutHTTP {
-			e.Export("outhttpcfg", val, recursive, level+1)
+		for _, val := range v.Endpoint {
+			e.Export("endpointcfg", val, recursive, level+1)
 		}
 		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
 		e.Export("productcfg", v.ProductID, recursive, level+1)

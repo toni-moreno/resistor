@@ -59,7 +59,7 @@ export class TreeView {
     "devicestatcfg": 'info',
     "ifxservercfg": 'success',
     "kapacitorcfg": 'primary',
-    "outhttpcfg": 'default',
+    "endpointcfg": 'default',
     "productcfg": 'warning',
     "productgroupcfg": 'info',
     "rangetimecfg": 'danger',

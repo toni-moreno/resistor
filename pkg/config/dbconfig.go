@@ -133,8 +133,8 @@ type TemplateCfg struct {
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 }
 
-// OutHTTPCfg Alert Destination HTTP based backends config
-type OutHTTPCfg struct {
+// EndpointCfg Alert Destination HTTP based backends config
+type EndpointCfg struct {
 	ID                 string   `xorm:"'id' unique" binding:"Required"`
 	Type               string   `xorm:"type"`
 	Description        string   `xorm:"description"`
@@ -155,19 +155,19 @@ type OutHTTPCfg struct {
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
-func (OutHTTPCfg) TableName() string {
-	return "out_http_cfg"
+func (EndpointCfg) TableName() string {
+	return "endpoint_cfg"
 }
 
-// AlertHTTPOutRel  relation between Alerts and HTTP Out's type
-type AlertHTTPOutRel struct {
-	AlertID   string `xorm:"alert_id"`
-	HTTPOutID string `xorm:"http_out_id"`
+// AlertEndpointRel  relation between Alerts and Endpoint's type
+type AlertEndpointRel struct {
+	AlertID    string `xorm:"alert_id"`
+	EndpointID string `xorm:"endpoint_id"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
-func (AlertHTTPOutRel) TableName() string {
-	return "alert_http_out_rel"
+func (AlertEndpointRel) TableName() string {
+	return "alert_endpoint_rel"
 }
 
 // AlertIDCfg Alert Definition Config type
@@ -229,7 +229,7 @@ type AlertIDCfg struct {
 	//Where to deploy this rule
 	KapacitorID string `xorm:"kapacitorid" binding:"Required"`
 
-	OutHTTP                 []string  `xorm:"-"` //relation with outhttpcfgs
+	Endpoint                []string  `xorm:"-"` //relation with endpointcfgs
 	Modified                time.Time `xorm:"modified"`
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 }
@@ -272,7 +272,7 @@ type DBConfig struct {
 	AlertID    map[string]*AlertIDCfg
 	AlertEvent map[int64]*AlertEventHist
 	Template   map[string]*TemplateCfg
-	OutHTTP    map[string]*OutHTTPCfg
+	Endpoint   map[string]*EndpointCfg
 }
 
 // Init initialices the DB

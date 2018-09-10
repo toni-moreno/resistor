@@ -8,7 +8,7 @@ import { RangeTimeComponent } from '../rangetime/rangetime.component';
 import { ProductComponent } from '../product/product.component';
 import { ProductGroupComponent } from '../productgroup/productgroup.component';
 import { TemplateComponent } from '../template/template.component';
-import { OutHTTPComponent } from '../outhttp/outhttp.component';
+import { EndpointComponent } from '../endpoint/endpoint.component';
 import { AlertComponent } from '../alert/alert.component';
 import { AlertEventComponent } from '../alertevent/alertevent.component';
 import { DeviceStatComponent } from '../devicestat/devicestat.component'
@@ -56,7 +56,7 @@ export const HomeComponentConfig: any =
     [
       {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'type': 'component', 'data': IfxServerComponent},
       {'title': 'Kapacitor Backends', 'selector' : 'kapacitor-component', 'type': 'component', 'data': KapacitorComponent},
-      {'title': 'Alerting Endpoints', 'selector' : 'outhttp-component', 'type': 'component', 'data': OutHTTPComponent},
+      {'title': 'Alerting Endpoints', 'selector' : 'endpoint-component', 'type': 'component', 'data': EndpointComponent},
     ]
     }, 
     {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':

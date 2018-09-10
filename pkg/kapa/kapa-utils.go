@@ -610,8 +610,8 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["ID_NUMALERT"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.NumAlertID}
 	vars["ID_INSTRUCTION"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.OperationID}
 	//External Services Settings
-	//OutHTTP
-	vars["OUT_HTTP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: strings.Join(dev.OutHTTP, ",")}
+	//Endpoint
+	vars["OUT_HTTP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: strings.Join(dev.Endpoint, ",")}
 	//KapacitorID
 	//Data Origin Settings
 	vars["INFLUX_BD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getIfxDBNameByID(dev.InfluxDB)}
