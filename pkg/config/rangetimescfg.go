@@ -77,7 +77,7 @@ func (dbc *DatabaseCfg) AddRangeTimeCfg(dev *RangeTimeCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Time  Range Successfully with id %s ", dev.ID)
+	log.Infof("Added new Range Time Successfully with id %s ", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }
@@ -116,7 +116,7 @@ func (dbc *DatabaseCfg) DelRangeTimeCfg(id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully  Time Rante with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	log.Infof("Deleted Successfully Range Time with ID %s [ %d Devices Affected  ]", id, affected)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
@@ -161,21 +161,21 @@ func (dbc *DatabaseCfg) UpdateRangeTimeCfg(id string, dev *RangeTimeCfg) (int64,
 	return affected, nil
 }
 
-/*GetRangeTimeCfgAffectOnDel for deleting devices from ID*/
+/*GetRangeTimeCfgAffectOnDel Check if there are any AlertIDCfg affected when deleting RangeTimeCfg with this ID*/
 func (dbc *DatabaseCfg) GetRangeTimeCfgAffectOnDel(id string) ([]*DbObjAction, error) {
-	var devices []*RangeTimeCfg
+	var alerts []*AlertIDCfg
 	var obj []*DbObjAction
-	if err := dbc.x.Where("th_crit_rangetime_id='" + id + "'").Find(&devices); err != nil {
-		log.Warnf("Error on Get Outout db id %d for devices , error: %s", id, err)
+	if err := dbc.x.Where("th_crit_rangetime_id='" + id + "'").Or("th_warn_rangetime_id='" + id + "'").Or("th_info_rangetime_id='" + id + "'").Find(&alerts); err != nil {
+		log.Warnf("Error getting alerts related with rangetime %d, error: %s", id, err)
 		return nil, err
 	}
 
-	for _, val := range devices {
+	for _, val := range alerts {
 		obj = append(obj, &DbObjAction{
 			Type:     "rangetime",
-			TypeDesc: "Crit Range Time",
+			TypeDesc: "Range Time",
 			ObID:     val.ID,
-			Action:   "Reset InfluxDB Server from SNMPDevice to 'default' InfluxDB Server",
+			Action:   "Select another Range Time for Alert",
 		})
 
 	}
