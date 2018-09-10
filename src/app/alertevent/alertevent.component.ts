@@ -11,7 +11,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { AlertEventComponentConfig, TableRole, OverrideRoleActions } from './alertevent.data';
+import { AlertEventComponentConfig, FilterColumn, TableRole, OverrideRoleActions } from './alertevent.data';
 
 declare var _:any;
 
@@ -32,8 +32,8 @@ export class AlertEventComponent implements OnInit {
   public editmode: string; //list , create, modify
   public componentList: Array<any>;
   public filter: string;
+  public filterColumn: string = FilterColumn;
   public sampleComponentForm: any;
-  public alertHandler : any = null;
   public counterItems : number = null;
   public counterErrors: any = [];
   public defaultConfig : any = AlertEventComponentConfig;
@@ -58,8 +58,8 @@ export class AlertEventComponent implements OnInit {
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
-      UID: [this.sampleComponentForm ? this.sampleComponentForm.value.UID: '', Validators.required],
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID: '', Validators.required],
+      AlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertID: '', Validators.required],
       Message: [this.sampleComponentForm ? this.sampleComponentForm.value.Message: '', Validators.required],
       Details: [this.sampleComponentForm ? this.sampleComponentForm.value.Details: '', Validators.required],
       Time: [this.sampleComponentForm ? this.sampleComponentForm.value.Time: '', Validators.required],
@@ -69,14 +69,12 @@ export class AlertEventComponent implements OnInit {
     });
   }
 
-  reloadData() {
-    // now it's a simple subscription to the observable
-    this.alertHandler = null;
-    this.alertEventService.getAlertEventItem(null)
+  reloadData(action? : any) {
+    this.alertEventService.getAlertEventWithParams(action)
       .subscribe(
       data => {
         this.isRequesting = false;
-        this.componentList = data
+        this.componentList = data;
         this.data = data;
         this.editmode = "list";
       },
@@ -93,9 +91,30 @@ export class AlertEventComponent implements OnInit {
       case 'edit':
         this.editSampleItem(action.event);
       break;
+      case 'remove':
+        this.removeItem(action.event);
+      break;
+      case 'tableaction':
+        this.applyAction(action.event, action.data);
+      break;
+      case 'reloaddata':
+        this.reloadData(action);
+      break;
     }
   }
 
+  applyAction(action : any, data? : Array<any>) : void {
+    this.selectedArray = data || [];
+    switch(action.action) {
+       case "RemoveAllSelected": {
+          this.removeAllSelectedItems(this.selectedArray);
+          break;
+       }
+       default: {
+          break;
+       }
+    }
+  }
 
   viewItem(id) {
     this.viewModal.parseObject(id);
@@ -105,8 +124,31 @@ export class AlertEventComponent implements OnInit {
     this.exportFileModal.initExportModal(item);
   }
 
+  removeAllSelectedItems(myArray) {
+    let obsArray = [];
+    this.counterItems = 0;
+    this.isRequesting = true;
+    let idList = "";
+    for (let i in myArray) {
+      idList = idList + "'" + myArray[i].ID + "',";
+    }
+    if (idList.length > 0) idList = idList.slice(0, -1);
+    this.deleteSampleItem(idList,false);
+  }
+
+  removeItem(row) {
+    let id = row.ID;
+    this.alertEventService.checkOnDeleteAlertEventItem(id)
+      .subscribe(
+        data => {
+        this.viewModalDelete.parseObject(data)
+      },
+      err => console.error(err),
+      () => { }
+      );
+  }
+
   editSampleItem(row) {
-    this.alertHandler =  null;
     let id = row.ID;
     this.alertEventService.getAlertEventItemById(id)
       .subscribe(data => {
@@ -119,6 +161,22 @@ export class AlertEventComponent implements OnInit {
       err => console.error(err)
       );
  	}
+
+  deleteSampleItem(id, recursive?) {
+    if (!recursive) {
+    this.alertEventService.deleteAlertEventItem(id)
+      .subscribe(data => { },
+      err => console.error(err),
+      () => { this.viewModalDelete.hide(); this.reloadData() }
+      );
+    } else {
+      return this.alertEventService.deleteAlertEventItem(id)
+      .do(
+        (test) =>  { this.counterItems++; console.log(this.counterItems)},
+        (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
+      );
+    }
+  }
 
   cancelEdit() {
     this.editmode = "list";

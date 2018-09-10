@@ -5,9 +5,10 @@ export const OutHTTPComponentConfig: any =
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Type', 'name': 'Type' },
       { 'title': 'URL', 'name': 'URL' },
+      { 'title': 'SlackEnabled', 'name': 'SlackEnabled' },
+      { 'title': 'Channel', 'name': 'Channel' },
       { 'title': 'LogFile', 'name': 'LogFile' },
       { 'title': 'LogLevel', 'name': 'LogLevel' },
-      { 'title': 'JSONConfig', 'name': 'JSONConfig' },
     ],
     'slug' : 'outhttpcfg'
   };

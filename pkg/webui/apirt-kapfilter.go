@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync/atomic"
 
@@ -53,23 +54,26 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 		log.Debugf("ALERT Serie: %+v", serie)
 	}
 
-	alertevent := makeAlertEvent(al)
+	//Get AlertCfg
+	alertcfg, err := agent.MainConfig.Database.GetAlertIDCfgByID(al.ID)
+	if err != nil {
+		log.Warningf("Error getting alert cfg with id: %s. Error: %s", al.ID, err)
+	}
+	//Add alert event to list of alert events
+	alertevent := makeAlertEvent(al, alertcfg)
 	AddAlertEvent(alertevent)
 
-	strouthttp := ctx.Params(":outhttp")
-	log.Debugf("outhttp: %s", strouthttp)
-	if len(strouthttp) > 0 {
-		arouthttp := strings.Split(strouthttp, ",")
-		for _, outhttpid := range arouthttp {
-			outhttp, err := agent.MainConfig.Database.GetOutHTTPCfgByID(outhttpid)
+	//Send alert event to related endpoints
+	arouthttp := alertcfg.OutHTTP
+	for _, outhttpid := range arouthttp {
+		outhttp, err := agent.MainConfig.Database.GetOutHTTPCfgByID(outhttpid)
+		if err != nil {
+			log.Warningf("Error getting outhttp for id %s. Error: %s.", outhttpid, err)
+		} else {
+			log.Debugf("Got outhttp: %+v", outhttp)
+			err = sendData(al, outhttp)
 			if err != nil {
-				log.Warningf("Error getting outhttp for id %s. Error: %s.", outhttpid, err)
-			} else {
-				log.Debugf("Got outhttp: %+v", outhttp)
-				err = sendData(al, outhttp)
-				if err != nil {
-					log.Warningf("Error sending data to endpoint with id %s. Error: %s.", outhttpid, err)
-				}
+				log.Warningf("Error sending data to endpoint with id %s. Error: %s.", outhttpid, err)
 			}
 		}
 	}
@@ -79,53 +83,88 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	ctx.JSON(200, "DONE")
 }
 
-func makeAlertEvent(al alert.Data) (dev config.AlertEventCfg) {
-	alertevent := config.AlertEventCfg{}
-	alertevent.UID = 0
-	alertevent.ID = al.ID
+func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg) (dev config.AlertEventHist) {
+	alertevent := config.AlertEventHist{}
+	alertevent.ID = 0
+	alertevent.AlertID = al.ID
 	alertevent.Message = al.Message
 	alertevent.Details = al.Details
 	alertevent.Time = al.Time
 	alertevent.Duration = al.Duration
 	alertevent.Level = al.Level.String()
+	alertevent.Field = alertcfg.Field
+	alertevent.ProductID = alertcfg.ProductID
+	producttag := alertcfg.ProductTag
+	tagsmap := al.Data.Series[0].Tags
+	var tagsmapsorted []string
+	var tagkeysarray []string
+	for k := range tagsmap {
+		tagkeysarray = append(tagkeysarray, k)
+	}
+	sort.Strings(tagkeysarray)
+	for _, tagkey := range tagkeysarray {
+		tagsmapsorted = append(tagsmapsorted, tagkey+":"+tagsmap[tagkey])
+		if tagkey == producttag {
+			alertevent.ProductTagValue = tagkey + ":" + tagsmap[tagkey]
+		}
+	}
+	alertevent.Tags = tagsmapsorted
+	columnsarray := al.Data.Series[0].Columns
+	valuesarray := al.Data.Series[0].Values[0]
+	for colidx, colvalue := range columnsarray {
+		if colvalue == "value" {
+			alertevent.Value = valuesarray[colidx].(float64)
+			break
+		}
+	}
 	return alertevent
 }
 
 // AddAlertEvent Inserts new alert event into the internal DB
-func AddAlertEvent(dev config.AlertEventCfg) {
-	log.Printf("ADDING alert event %+v", dev)
-	affected, err := agent.MainConfig.Database.AddAlertEventCfg(&dev)
+func AddAlertEvent(dev config.AlertEventHist) {
+	log.Debugf("ADDING alert event %+v", dev)
+	affected, err := agent.MainConfig.Database.AddAlertEventHist(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for alert event %s , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for alert event %d , affected : %+v , error: %s", dev.ID, affected, err)
 	} else {
-		log.Infof("Alert event %s successfully inserted", dev.ID)
+		log.Infof("Alert event %d successfully inserted", dev.ID)
 	}
 }
 
 func sendData(al alert.Data, outhttp config.OutHTTPCfg) error {
 	var err error
 	strouttype := outhttp.Type
-	jsonconfig := outhttp.JSONConfig
 	log.Debugf("strouttype: %s", strouttype)
 	if strouttype == "logging" {
 		err = sendDataToLog(al, outhttp)
 	} else if strouttype == "httppost" {
 		err = sendDataToHTTPPost(al, outhttp)
 	} else if strouttype == "slack" {
-		err = sendDataToSlack(al, jsonconfig)
+		err = sendDataToSlack(al, outhttp)
 	}
 	return err
 }
 
 func sendDataToHTTPPost(al alert.Data, outhttp config.OutHTTPCfg) error {
-	log.Debugf("sendDataToHTTPPost. outhttp.EndPointID: %+v, outhttp.URL: %+v", outhttp.EndPointID, outhttp.URL)
+	log.Debugf("sendDataToHTTPPost. outhttp.ID: %+v, outhttp.URL: %+v", outhttp.ID, outhttp.URL)
 
 	jsonStr, err := json.Marshal(al)
 
 	req, err := http.NewRequest("POST", outhttp.URL, bytes.NewBuffer(jsonStr))
-	req.Header.Set("X-Custom-Header", "myvalue")
+
+	//Set headers
+	for _, hkv := range outhttp.Headers {
+		kv := strings.Split(hkv, "=")
+		req.Header.Set(kv[0], kv[1])
+	}
 	req.Header.Set("Content-Type", "application/json")
 	//req.Header.Set("Content-Type", "text/plain")
+
+	//Set basic auth
+	if len(outhttp.BasicAuthUsername) > 0 && len(outhttp.BasicAuthPassword) > 0 {
+		log.Debugf("sendDataToHTTPPost. Setting BasicAuth with Username: %s and pwd: *****", outhttp.BasicAuthUsername)
+		req.SetBasicAuth(outhttp.BasicAuthUsername, outhttp.BasicAuthPassword)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -175,6 +214,7 @@ func sendDataToLog(al alert.Data, outhttp config.OutHTTPCfg) error {
 	return err
 }
 
+//Config data for Slack
 type Config struct {
 	// Whether Slack integration is enabled.
 	Enabled bool `json:"enabled" override:"enabled"`
@@ -204,6 +244,7 @@ type Config struct {
 	InsecureSkipVerify bool `json:"insecure-skip-verify" override:"insecure-skip-verify"`
 }
 
+//Diagnostic data for Slack
 type Diagnostic interface {
 	WithContext(ctx ...keyvalue.T) Diagnostic
 
@@ -212,6 +253,7 @@ type Diagnostic interface {
 	Error(msg string, err error)
 }
 
+//Service data for Slack
 type Service struct {
 	configValue atomic.Value
 	clientValue atomic.Value
@@ -219,27 +261,28 @@ type Service struct {
 	client      *http.Client
 }
 
-func sendDataToSlack(al alert.Data, jsonconfig string) error {
-	/*
-		mslackConfig := kapaSlack.Config{}
-		log.Debugf("Getting json: %+v", mslackConfig)
-		mPostConf := kapaPost.Config{}
-		log.Debugf("Getting json: %+v", mPostConf)
-	*/
+func sendDataToSlack(al alert.Data, outhttp config.OutHTTPCfg) error {
 
 	slackConfig := Config{}
-
-	err := json.Unmarshal([]byte(jsonconfig), &slackConfig)
+	slackConfig.Enabled = outhttp.SlackEnabled
+	slackConfig.URL = outhttp.URL
+	slackConfig.Channel = outhttp.Channel
+	slackConfig.Username = outhttp.SlackUsername
+	slackConfig.IconEmoji = outhttp.IconEmoji
+	slackConfig.SSLCA = outhttp.SslCa
+	slackConfig.SSLCert = outhttp.SslCert
+	slackConfig.SSLKey = outhttp.SslKey
+	slackConfig.InsecureSkipVerify = outhttp.InsecureSkipVerify
 	log.Debugf("slackConfig: %+v", slackConfig)
 	var diag Diagnostic
 	s, err := NewService(slackConfig, diag)
-	log.Debugf("s: %+v, diag: %+v", s, diag)
 	if slackConfig.Enabled {
 		s.Alert(slackConfig.Channel, al.Message, slackConfig.Username, slackConfig.IconEmoji, al.Level)
 	}
 	return err
 }
 
+//NewService function for Slack
 func NewService(c Config, d Diagnostic) (*Service, error) {
 	tlsConfig, err := Create(c.SSLCA, c.SSLCert, c.SSLKey, c.InsecureSkipVerify)
 	if err != nil {
@@ -296,6 +339,7 @@ func Create(
 	return t, nil
 }
 
+//Alert function for Slack
 func (s *Service) Alert(channel, message, username, iconEmoji string, level alert.Level) error {
 	url, post, err := s.preparePost(channel, message, username, iconEmoji, level)
 	if err != nil {

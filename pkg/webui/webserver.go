@@ -176,9 +176,10 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewAPICfgImportExport(m)
 
 	NewAPIRtAgent(m)
-	NewAPIRtKapFilter(m) //Webservice for alert filtering
-	NewAPIRtKapProxy(m)  //Kapacitor proxy
-	NewAPIRtKapacitor(m) //Kapacitor tasks
+	NewAPIRtKapFilter(m)  //Webservice for alert filtering
+	NewAPIRtKapProxy(m)   //Kapacitor proxy
+	NewAPIRtKapacitor(m)  //Kapacitor tasks
+	NewAPIRtAlertEvent(m) //Alert Events
 	//Catalog
 	NewAPICfgIfxServer(m) //Influx Servers
 	NewAPICfgIfxDB(m)     //Influx Databases
@@ -189,7 +190,6 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	//Config
 
 	NewAPICfgAlertID(m)      //Alert Admin
-	NewAPICfgAlertEvent(m)   //Alert Events
 	NewAPICfgProduct(m)      //Product Admin
 	NewAPICfgProductGroup(m) //Product Group Admin
 	NewAPICfgTemplate(m)     //Alert Template

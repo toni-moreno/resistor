@@ -10,9 +10,10 @@ export const KapacitorTasksComponentRt: any =
       {'title':'Status','name':'Status' },
       {'title':'Executing','name':'Executing' },
       {'title':'Error','name':'Error','transform':'imgwtooltip' },
-      {'title':'Created','name':'Created' },
-      {'title':'Modified','name':'Modified' },
-      {'title':'LastEnabled','name':'LastEnabled' },
+      {'title':'NumErrors','name':'NumErrors' },
+      {'title':'Created','name':'Created','transform':'datetime' },
+      {'title':'Modified','name':'Modified','transform':'datetime' },
+      {'title':'LastEnabled','name':'LastEnabled','transform':'datetime' },
       /*  
       {'title':'TICKscript','name':'TICKscript' },
       {'title':'Vars','name':'Vars' },
@@ -23,7 +24,7 @@ export const KapacitorTasksComponentRt: any =
 
     'slug' : 'kapacitortasksrt'
   };
-  export const TableRole : string = 'fulledit';
+  export const TableRole : string = 'viewonly';
   export const OverrideRoleActions : Array<Object> = [
     {'name':'view', 'type':'icon', 'icon' : 'glyphicon glyphicon-eye-open text-success', 'tooltip': 'View item'},
   ]

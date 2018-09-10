@@ -89,33 +89,31 @@ export class OutHTTPComponent implements OnInit {
     let controlArray : Array<any> = [];
     switch (field) {
       case 'httppost':
-      controlArray.push({'ID': 'EndPointID', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'URL', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'Headers', 'defVal' : '' });
       controlArray.push({'ID': 'BasicAuthUsername', 'defVal' : '' });
       controlArray.push({'ID': 'BasicAuthPassword', 'defVal' : '' });
-      controlArray.push({'ID': 'AlertTemplate', 'defVal' : '' });
-      controlArray.push({'ID': 'AlertTemplateFile', 'defVal' : '' });
-      controlArray.push({'ID': 'RowTemplate', 'defVal' : '' });
-      controlArray.push({'ID': 'RowTemplateFile', 'defVal' : '' });
       break;
       case 'logging':
       controlArray.push({'ID': 'LogFile', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'LogLevel', 'defVal' : '', 'Validators' : Validators.required });
       break;
       case 'slack':
-      controlArray.push({'ID': 'JSONConfig', 'defVal' : '', 'Validators' : Validators.required });
+      controlArray.push({'ID':'SlackEnabled','defVal' :'','Validators' : Validators.required });
+      controlArray.push({'ID':'URL','defVal' :'', 'Validators' : Validators.required });
+      controlArray.push({'ID':'Channel','defVal' :'','Validators' : Validators.required });
+      controlArray.push({'ID':'SlackUsername','defVal' :'','Validators' : Validators.required });
+      controlArray.push({'ID':'IconEmoji','defVal' :'' });
+      controlArray.push({'ID':'SslCa','defVal' :'' });
+      controlArray.push({'ID':'SslCert','defVal' :'' });
+      controlArray.push({'ID':'SslKey','defVal' :'' });
+      controlArray.push({'ID':'InsecureSkipVerify','defVal' :'' });
       break;
       default: //Default mode is httppost
-      controlArray.push({'ID': 'EndPointID', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'URL', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'Headers', 'defVal' : '' });
       controlArray.push({'ID': 'BasicAuthUsername', 'defVal' : '' });
       controlArray.push({'ID': 'BasicAuthPassword', 'defVal' : '' });
-      controlArray.push({'ID': 'AlertTemplate', 'defVal' : '' });
-      controlArray.push({'ID': 'AlertTemplateFile', 'defVal' : '' });
-      controlArray.push({'ID': 'RowTemplate', 'defVal' : '' });
-      controlArray.push({'ID': 'RowTemplateFile', 'defVal' : '' });
       break;
     }
     //Reload the formGroup with new values saved on controlArray
