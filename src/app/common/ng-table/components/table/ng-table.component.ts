@@ -20,7 +20,6 @@ export class NgTableComponent {
 
   @Input() public roleActions: any;
   @Input() public tableRole : string = 'fulledit';
-  @Input() public filterColumn : string = '';
 
   @Input() public showStatus: boolean = false;
   @Input() public editMode: boolean = false;

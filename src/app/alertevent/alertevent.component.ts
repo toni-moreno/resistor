@@ -11,7 +11,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { AlertEventComponentConfig, FilterColumn, TableRole, OverrideRoleActions } from './alertevent.data';
+import { AlertEventComponentConfig, TableRole, OverrideRoleActions } from './alertevent.data';
 
 declare var _:any;
 
@@ -32,7 +32,6 @@ export class AlertEventComponent implements OnInit {
   public editmode: string; //list , create, modify
   public componentList: Array<any>;
   public filter: string;
-  public filterColumn: string = FilterColumn;
   public sampleComponentForm: any;
   public counterItems : number = null;
   public counterErrors: any = [];

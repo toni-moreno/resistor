@@ -27,12 +27,7 @@ declare var _: any;
       </ng-container>
       <!--Filtering section-->
       <label [tooltip]="'Clear Filter'" container="body" (click)="onResetFilter()" style="margin-top: 10px"><i class="glyphicon glyphicon-trash text-primary"></i></label>
-      <ng-container *ngIf="filterColumn != null && filterColumn.length > 0">
-        <select style="width:auto" [ngModel]="filterColumn" (ngModelChange)="changeFilterColumn($event)">
-          <option *ngFor="let option of columns" style="padding-left:2px" [value]="option.name">{{option.name}}</option>
-        </select>
-      </ng-container>
-      <input *ngIf="config.filtering" placeholder="{{(filterColumn != null && filterColumn.length > 0) ? 'Filter selected column' : 'Filter all columns' }}" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
+      <input *ngIf="config.filtering" placeholder="Filter all columns" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
       <span [ngClass]="length > 0 ? ['label label-info'] : ['label label-warning']" style="font-size : 100%">{{length}} Results</span>
       <!--Table Actions-->
       <ng-container *ngIf="typeComponent === 'alertevent-component' || typeComponent === 'kapacitortasks-component'">
@@ -59,7 +54,6 @@ declare var _: any;
     <ng-table *ngIf="isRequesting === false && data"
       [rows]="rows"
       [columns]="columns"
-      [filterColumn]="filterColumn"
       [sanitizeCell]="sanitizeCell"
       [config]="config"
       [(checkedItems)]="selectedArray"
@@ -82,7 +76,6 @@ export class TableListComponent implements OnInit, OnChanges {
 
   //Inputs
   @Input() typeComponent: string;
-  @Input() filterColumn: string = '';
   @Input() columns: Array<any>;
   @Input() data: Array<any>;
   @Input() counterItems: any = 0;
@@ -123,7 +116,7 @@ export class TableListComponent implements OnInit, OnChanges {
   public config: any = {
     paging: true,
     sorting: { columns: this.columns },
-    filtering: { filterString: '', columnName: this.filterColumn },
+    filtering: { filterString: '' },
     className: ['table-striped', 'table-bordered']
   };
 
@@ -197,7 +190,6 @@ export class TableListComponent implements OnInit, OnChanges {
       return filteredData;
     }
 
-    config.filtering.columnName = this.filterColumn;
     if (config.filtering.columnName && config.filtering.columnName.length > 0) {
       filteredData = filteredData.filter((item: any) => 
         (item[config.filtering.columnName] === null ? '' : item[config.filtering.columnName]).toString().match(this.config.filtering.filterString)
@@ -208,7 +200,7 @@ export class TableListComponent implements OnInit, OnChanges {
     this.columns.forEach((column: any) => {
       if (column.filtering) {
         filteredData = filteredData.filter((item: any) => {
-          return item[column.name].match(column.filtering.filterString);
+          return (item[column.name] === null ? '' : item[column.name]).toString().match(column.filtering.filterString);
         });
       }
     });
@@ -240,11 +232,6 @@ export class TableListComponent implements OnInit, OnChanges {
     this.onChangeTable(this.config);
   }
 
-  changeFilterColumn(columnName) {
-    this.filterColumn = columnName;
-    this.onChangeTable(this.config)
-  }
-
   public onChangeTable(config: any, page: any = { page: this.page, itemsPerPage: this.itemsPerPage }): any {
     if (config) {
       if (config.filtering) {
@@ -268,13 +255,13 @@ export class TableListComponent implements OnInit, OnChanges {
   onResetFilter(): void {
     this.page = 1;
     this.myFilterValue = "";
-    this.config.filtering = { filtering: { filterString: '', columnName: this.filterColumn } };
+    this.config.filtering = { filtering: { filterString: '' } };
     this.onChangeTable(this.config);
   }
 
   customClick(clicked: string, event: any = "", data: any = ""): void {
     if (clicked == "reloaddata") this.LastUpdate = new Date();
-    this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir, 'filterColumn': this.filterColumn, 'filterString': this.config.filtering.filterString });
+    this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir });
     //pending change for future, to get only the list of results to show, not all the list
     //this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir, 'page': this.page, 'itemsPerPage': this.itemsPerPage, 'maxSize': this.maxSize });
   }
