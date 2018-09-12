@@ -1,12 +1,10 @@
 package webui
 
 import (
-	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/toni-moreno/resistor/pkg/agent"
-	"github.com/toni-moreno/resistor/pkg/config"
 	"gopkg.in/macaron.v1"
 )
 
@@ -34,17 +32,11 @@ func GetAlertEventWithParams(ctx *Context) {
 	var itemsPerPage int64
 	var maxSize int64
 	filter := ""
-	filterColumn := ""
-	filterString := ""
 	sortColumn := ""
 	sortDir := ""
 	for _, paramkv := range paramsarray {
 		paramkvarray := strings.Split(paramkv, "=")
 		switch paramkvarray[0] {
-		case "filterColumn":
-			filterColumn = paramkvarray[1]
-		case "filterString":
-			filterString = paramkvarray[1]
 		case "page":
 			page, _ = strconv.ParseInt(paramkvarray[1], 10, 64)
 		case "itemsPerPage":
@@ -55,17 +47,6 @@ func GetAlertEventWithParams(ctx *Context) {
 			sortColumn = paramkvarray[1]
 		case "sortDir":
 			sortDir = paramkvarray[1]
-		}
-	}
-	if len(filterColumn) > 0 && len(filterString) > 0 {
-		t := reflect.TypeOf(config.AlertEventHist{})
-		xormTag := "xorm"
-		field, found := t.FieldByName(filterColumn)
-		if found {
-			tagname := field.Tag.Get(xormTag)
-			if len(tagname) > 0 {
-				filter = strings.Split(strings.Replace(tagname, "'", "", -1), " ")[0] + " LIKE '%" + filterString + "%'"
-			}
 		}
 	}
 	alevtarray, err := agent.MainConfig.Database.GetAlertEventHistArrayWithParams(filter, page, itemsPerPage, maxSize, sortColumn, sortDir)

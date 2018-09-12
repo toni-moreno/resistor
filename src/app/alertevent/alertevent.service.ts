@@ -24,10 +24,6 @@ export class AlertEventService {
         //Add empty parameter to avoid error on backend
         params = params + "&empty=";
         if (action != null) {
-            if (action.filterString.length > 0) {
-                params = params + "&filterColumn=" + action.filterColumn;
-                params = params + "&filterString=" + action.filterString;
-            }
             params = params + "&page=" + action.page;
             params = params + "&itemsPerPage=" + action.itemsPerPage;
             params = params + "&maxSize=" + action.maxSize;
