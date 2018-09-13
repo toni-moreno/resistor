@@ -57,24 +57,25 @@ func NewAPIRtKapacitor(m *macaron.Macaron) error {
 func GetKapacitorRtTasks(ctx *Context) {
 	var kapaTaskRtArray []KapaTaskRt
 	var kapaTaskRt KapaTaskRt
+	var kapaError = ""
 	kapaTaskRtMap := make(map[string]KapaTaskRt)
 	alertcfgarray, _ := agent.MainConfig.Database.GetAlertIDCfgArray("")
 	if len(alertcfgarray) > 0 {
 		kapaserversmap, err := agent.MainConfig.Database.GetKapacitorCfgMap("")
 		if err != nil {
-			log.Warningf("Error getting kapacitor servers: %+s", err)
-			ctx.JSON(404, err.Error())
+			kapaError = fmt.Sprintf("Error getting kapacitor servers: %+s", err)
+			log.Warningf(kapaError)
 		} else {
 			for _, kapasrv := range kapaserversmap {
 				kapaGoClient, _, _, err := kapa.GetKapaClient(*kapasrv)
 				if err != nil {
-					log.Warningf("Error getting kapacitor Go client for kapacitor server: %s. Error: %s", kapasrv.ID, err)
-					ctx.JSON(404, err.Error())
+					kapaError = fmt.Sprintf("Error getting kapacitor Go client for kapacitor server: %s. Error: %s", kapasrv.ID, err)
+					log.Warningf(kapaError)
 				} else {
 					kapaTasksArray, err := kapa.ListKapaTasks(kapaGoClient)
 					if err != nil {
-						log.Warningf("Error getting kapacitor tasks from kapacitor server: %s. Error: %s", kapasrv.ID, err)
-						ctx.JSON(404, err.Error())
+						kapaError = fmt.Sprintf("Error getting kapacitor tasks from kapacitor server: %s. Error: %s", kapasrv.ID, err)
+						log.Warningf(kapaError)
 					} else {
 						for _, kapatask := range kapaTasksArray {
 							kapaTaskRt = makeKapaTaskRt(kapasrv, kapatask)
@@ -84,7 +85,7 @@ func GetKapacitorRtTasks(ctx *Context) {
 				}
 			}
 		}
-		kapaTaskRtArray = makeKapaTaskRtArray(alertcfgarray, kapaserversmap, kapaTaskRtMap)
+		kapaTaskRtArray = makeKapaTaskRtArray(alertcfgarray, kapaserversmap, kapaTaskRtMap, kapaError)
 		log.Debugf("Got tasks list with %d tasks from kapacitor servers %+v", len(kapaTaskRtArray), &kapaTaskRtArray)
 	}
 	ctx.JSON(200, &kapaTaskRtArray)
@@ -119,13 +120,20 @@ func makeKapaTaskRt(kapasrv *config.KapacitorCfg, kapatask kapacitorClient.Task)
 	return kapaTaskRt
 }
 
-func makeKapaTaskRtArray(alertcfgarray []*config.AlertIDCfg, kapaserversmap map[string]*config.KapacitorCfg, kapaTaskRtMap map[string]KapaTaskRt) []KapaTaskRt {
+func makeKapaTaskRtArray(alertcfgarray []*config.AlertIDCfg, kapaserversmap map[string]*config.KapacitorCfg, kapaTaskRtMap map[string]KapaTaskRt, kapaError string) []KapaTaskRt {
 	var kapaTaskRtArray []KapaTaskRt
 	for _, alertcfg := range alertcfgarray {
 		kapaTaskRt, found := kapaTaskRtMap[alertcfg.ID]
 		if !found {
 			kapaTaskRt = newKapaTaskRt(alertcfg, kapaserversmap)
-			kapaTaskRt.Error = "Error when deploying task on kapacitor server"
+			if len(kapaError) > 0 {
+				kapaTaskRt.Error = kapaError
+			} else {
+				kapaTaskRt.Error = "Error when deploying task on kapacitor server"
+			}
+		}
+		if len(kapaError) > 0 {
+			kapaTaskRt.Error = kapaError
 		}
 		kapaTaskRt.AlertModified = alertcfg.Modified
 		kapaTaskRtArray = append(kapaTaskRtArray, kapaTaskRt)
