@@ -77,4 +77,4 @@ export const HomeComponentConfig: any =
     },
   ];
 
-  export const DefaultItem: any = ProductComponent;
+  export const DefaultItem: any = KapacitorTasksComponent;
