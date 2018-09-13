@@ -192,7 +192,7 @@ export class TableListComponent implements OnInit, OnChanges {
 
     if (config.filtering.columnName && config.filtering.columnName.length > 0) {
       filteredData = filteredData.filter((item: any) => 
-        (item[config.filtering.columnName] === null ? '' : item[config.filtering.columnName]).toString().match(this.config.filtering.filterString)
+        (item[config.filtering.columnName] == null ? '' : item[config.filtering.columnName]).toString().match(this.config.filtering.filterString)
       );
       return filteredData;
     }
@@ -200,7 +200,7 @@ export class TableListComponent implements OnInit, OnChanges {
     this.columns.forEach((column: any) => {
       if (column.filtering) {
         filteredData = filteredData.filter((item: any) => {
-          return (item[column.name] === null ? '' : item[column.name]).toString().match(column.filtering.filterString);
+          return (item[column.name] == null ? '' : item[column.name]).toString().match(column.filtering.filterString);
         });
       }
     });
@@ -209,7 +209,7 @@ export class TableListComponent implements OnInit, OnChanges {
     filteredData.forEach((item: any) => {
       let flag = false;
       this.columns.forEach((column: any) => {
-        if (item[column.name] === null) {
+        if (item[column.name] == null) {
           item[column.name] = ''
         }
         if (item[column.name].toString().match(this.config.filtering.filterString)) {

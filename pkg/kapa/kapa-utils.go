@@ -395,11 +395,13 @@ func GetKapaTask(dev *config.AlertIDCfg) (int, int, []string) {
 //     - the number of kapacitor servers where the task will be deployed
 //     - the number of kapacitor servers where the task is      deployed with the last version
 //     - the list   of kapacitor servers where the task is NOT  deployed with the last version
-func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string) {
+//     - the last Deployment Time of the task
+func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string, time.Time) {
 	log.Debugf("SetKapaTask. Trying to create or update task with id: %s and info: %+v into kapacitor servers: %+v", dev.ID, dev, devcfgarray)
 	iNumKapaServers := len(devcfgarray)
 	iNumLastDeployed := 0
 	sKapaSrvsNotOK := make([]string, 0)
+	var lastDeploymentTime time.Time
 
 	// Ensure the template used for the task has the last deployment into all kapacitor servers
 	sTemplateID := getTemplateID(dev)
@@ -414,7 +416,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 		} else {
 			//Getting DBRPs
 			DBRPs := make([]kapacitorClient.DBRP, 1)
-			DBRPs[0].Database = getIfxDBNameByID(dev.InfluxDB)
+			DBRPs[0].Database = GetIfxDBNameByID(dev.InfluxDB)
 			DBRPs[0].RetentionPolicy = dev.InfluxRP
 
 			taskType := kapacitorClient.StreamTask
@@ -444,7 +446,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 						log.Debugf("Kapacitor task %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 					}
 					if t.ID == "" {
-						_, err := kapaClient.CreateTask(kapacitorClient.CreateTaskOptions{
+						t, err = kapaClient.CreateTask(kapacitorClient.CreateTaskOptions{
 							ID:         dev.ID,
 							TemplateID: sTemplateID,
 							Type:       taskType,
@@ -460,6 +462,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							log.Debugf("Kapacitor task %s created into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 							if dev.Active == false {
 								iNumLastDeployed++
+								lastDeploymentTime = t.Modified
 							} else {
 								//Kapacitor task has been created or updated Disabled
 								//Enable Kapacitor task if Active=true has been selected on form
@@ -467,7 +470,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 								log.Debugf("Enabling kapacitor task")
 								taskStatus = kapacitorClient.Enabled
 								l := kapaClient.TaskLink(dev.ID)
-								_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
+								t, err = kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
 									ID:         dev.ID,
 									TemplateID: sTemplateID,
 									Type:       taskType,
@@ -481,11 +484,12 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 									sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 								} else {
 									iNumLastDeployed++
+									lastDeploymentTime = t.Modified
 								}
 							}
 						}
 					} else {
-						_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
+						t, err = kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
 							ID:         dev.ID,
 							TemplateID: sTemplateID,
 							Type:       taskType,
@@ -501,6 +505,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							log.Debugf("Kapacitor task %s updated into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 							if dev.Active == false {
 								iNumLastDeployed++
+								lastDeploymentTime = t.Modified
 							} else {
 								//Kapacitor task has been created or updated Disabled
 								//Enable Kapacitor task if Active=true has been selected on form
@@ -508,7 +513,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 								log.Debugf("Enabling kapacitor task")
 								taskStatus = kapacitorClient.Enabled
 								l := kapaClient.TaskLink(dev.ID)
-								_, err := kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
+								t, err = kapaClient.UpdateTask(l, kapacitorClient.UpdateTaskOptions{
 									ID:         dev.ID,
 									TemplateID: sTemplateID,
 									Type:       taskType,
@@ -522,6 +527,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 									sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 								} else {
 									iNumLastDeployed++
+									lastDeploymentTime = t.Modified
 								}
 							}
 						}
@@ -532,7 +538,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 	}
 
 	log.Debugf("SetKapaTask. END.")
-	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK
+	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK, lastDeploymentTime
 }
 
 func getKapaCfgIDArray(devcfgarray []*config.KapacitorCfg) []string {
@@ -614,7 +620,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	vars["OUT_HTTP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: strings.Join(dev.Endpoint, ",")}
 	//KapacitorID
 	//Data Origin Settings
-	vars["INFLUX_BD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getIfxDBNameByID(dev.InfluxDB)}
+	vars["INFLUX_BD"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: GetIfxDBNameByID(dev.InfluxDB)}
 	vars["INFLUX_RP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxRP}
 	vars["INFLUX_MEAS"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.InfluxMeasurement}
 	if dev.IsCustomExpression == true {
@@ -695,8 +701,8 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	return vars
 }
 
-// getIfxDBNameByID
-func getIfxDBNameByID(id int64) string {
+// GetIfxDBNameByID
+func GetIfxDBNameByID(id int64) string {
 	name := ""
 	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(id)
 	if err != nil {
@@ -793,23 +799,24 @@ func GetResTemplateCfgByID(id string) (config.TemplateCfg, error) {
 }
 
 // DeployKapaTask Deploys the task related to this alert into the kapacitor server
-func DeployKapaTask(dev config.AlertIDCfg) ([]string, error) {
+func DeployKapaTask(dev config.AlertIDCfg) ([]string, time.Time, error) {
 	log.Debugf("Trying to deploy the task: %s.", dev.ID)
 	sKapaSrvsNotOK := make([]string, 0)
+	var lastDeploymentTime time.Time
 	var err error
 	kapaserversarray, err := GetKapaServers(dev.KapacitorID)
 
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = SetKapaTask(dev, kapaserversarray)
+		_, _, sKapaSrvsNotOK, lastDeploymentTime = SetKapaTask(dev, kapaserversarray)
 		if len(sKapaSrvsNotOK) > 0 {
 			log.Warningf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
 		} else {
 			log.Infof("Task %s deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
 		}
 	}
-	return sKapaSrvsNotOK, err
+	return sKapaSrvsNotOK, lastDeploymentTime, err
 }
 
 // DeployKapaTemplate Deploys template into the kapacitor servers

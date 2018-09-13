@@ -232,6 +232,7 @@ type AlertIDCfg struct {
 	Endpoint                []string  `xorm:"-"` //relation with endpointcfgs
 	Modified                time.Time `xorm:"modified"`
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
+	LastDeploymentTime      time.Time `xorm:"last_deployment_time"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"

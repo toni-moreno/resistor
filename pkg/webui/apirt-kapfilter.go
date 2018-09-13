@@ -149,6 +149,7 @@ func sendDataToHTTPPost(al alert.Data, endpoint config.EndpointCfg) error {
 	log.Debugf("sendDataToHTTPPost. endpoint.ID: %+v, endpoint.URL: %+v", endpoint.ID, endpoint.URL)
 
 	jsonStr, err := json.Marshal(al)
+	log.Debugf("sendDataToHTTPPost. Sending jsonStr: %v", string(jsonStr))
 
 	req, err := http.NewRequest("POST", endpoint.URL, bytes.NewBuffer(jsonStr))
 

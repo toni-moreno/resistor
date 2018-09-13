@@ -47,7 +47,8 @@ func GetAlertID(ctx *Context) {
 // AddAlertID Inserts new alert into the internal DB and into the kapacitor servers
 func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	kapa.DeployKapaTask(dev)
+	_, lastDeploymentTime, _ := kapa.DeployKapaTask(dev)
+	dev.LastDeploymentTime = lastDeploymentTime
 	log.Printf("ADDING alert %+v", dev)
 	affected, err := agent.MainConfig.Database.AddAlertIDCfg(&dev)
 	if err != nil {
@@ -62,7 +63,8 @@ func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 // UpdateAlertID Updates alert into the internal DB and into the kapacitor servers
 func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	kapa.DeployKapaTask(dev)
+	_, lastDeploymentTime, _ := kapa.DeployKapaTask(dev)
+	dev.LastDeploymentTime = lastDeploymentTime
 	id := ctx.Params(":id") //oldID from form
 	log.Debugf("Trying to update alert with id: %s and info: %+v", id, dev)
 	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, &dev)
@@ -76,8 +78,8 @@ func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 			//the kapacitor task with the old name must be deleted.
 			_, _, sKapaSrvsNotOK := DeleteKapaTask(id)
 			if len(sKapaSrvsNotOK) > 0 {
-				log.Warningf("Error deleting task %s from kapacitor servers: %s", id, sKapaSrvsNotOK)
-				ctx.JSON(404, err.Error())
+				log.Warningf("Alert succesfully updated, but with errors on deleting task %s from kapacitor servers: %s", id, sKapaSrvsNotOK)
+				ctx.JSON(404, fmt.Sprintf("Alert succesfully updated, but with errors on deleting task %s from kapacitor servers: %s", id, sKapaSrvsNotOK))
 			}
 		}
 		//TODO: review if needed return device data
@@ -88,7 +90,7 @@ func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 // DeployAlertID Deploys the task related to this alert into the kapacitor server and returns the result in context
 func DeployAlertID(ctx *Context, dev config.AlertIDCfg) {
 	if len(dev.ServersWOLastDeployment) > 0 {
-		sKapaSrvsNotOK, err := kapa.DeployKapaTask(dev)
+		sKapaSrvsNotOK, _, err := kapa.DeployKapaTask(dev)
 		if err != nil {
 			ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers: %+s", err))
 		} else if len(sKapaSrvsNotOK) > 0 {
