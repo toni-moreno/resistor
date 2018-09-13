@@ -78,7 +78,7 @@ export class ValidationService {
     }
 
     static uintegerNotZeroValidator(control) {
-        if (control.value){
+        if (control.value != null){
             if (control.value.toString().match(/^[1-9]+\d*$/)) {
                 return null;
             } else {

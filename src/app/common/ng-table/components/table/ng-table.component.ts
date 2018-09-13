@@ -106,11 +106,14 @@ export class NgTableComponent {
       else return html;
     }
     if  (transform === "datetime") {
-      if (html) {
+      if (html && Date.parse(html) > 0) {
         let trf = new DatePipe("es-ES").transform(html,'dd/MM/yyyy HH:mm:ss');
         return trf;
       }
-      else return html;
+      else {
+        console.log(html + " cannot be transformed to datetime");
+        return "";
+      }
     }
     if  (transform === "color") {
       let color: string = "green";

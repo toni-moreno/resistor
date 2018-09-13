@@ -96,7 +96,7 @@ export class AlertComponent implements OnInit {
       BaselineID: [this.sampleComponentForm ? this.sampleComponentForm.value.BaselineID : '', Validators.required],
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
       AlertGroup: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertGroup : '', Validators.required],
-      NumAlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.NumAlertID : '', Validators.required],
+      NumAlertID: [this.sampleComponentForm ? this.sampleComponentForm.value.NumAlertID : '', Validators.compose([Validators.required, ValidationService.uintegerNotZeroValidator])],
       TriggerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TriggerType : 'THRESHOLD', Validators.required],
       InfluxDB: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxDB : null, Validators.required],
       InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : null, Validators.required],
