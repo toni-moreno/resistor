@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-macaron/binding"
@@ -24,6 +25,7 @@ import (
 	//kapaSlack "github.com/influxdata/kapacitor/services/slack"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
+	"github.com/toni-moreno/resistor/pkg/kapa"
 	//"github.com/toni-moreno/resistor/pkg/data/alertfilter"
 
 	"gopkg.in/macaron.v1"
@@ -71,7 +73,7 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 			log.Warningf("Error getting endpoint for id %s. Error: %s.", endpointid, err)
 		} else {
 			log.Debugf("Got endpoint: %+v", endpoint)
-			err = sendData(al, endpoint)
+			err = sendData(al, alertcfg, endpoint)
 			if err != nil {
 				log.Warningf("Error sending data to endpoint with id %s. Error: %s.", endpointid, err)
 			}
@@ -131,21 +133,84 @@ func AddAlertEvent(dev config.AlertEventHist) {
 	}
 }
 
-func sendData(al alert.Data, endpoint config.EndpointCfg) error {
+func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg) (TaskAlertInfo, error) {
+	var taskAlertInfo = TaskAlertInfo{}
+	var err error
+
+	//from alertkapa to taskalert
+	jsonArByt, err := json.Marshal(alertkapa)
+	if err != nil {
+		log.Warningf("makeTaskAlertInfo. Error Marshalling alertkapa. Error: %s", err)
+	}
+	log.Debugf("makeTaskAlertInfo. alertkapa to jsonArByt: %v", string(jsonArByt))
+	err = json.Unmarshal(jsonArByt, &taskAlertInfo)
+	if err != nil {
+		log.Warningf("makeTaskAlertInfo. Error Unmarshalling alertkapa. Error: %s", err)
+	}
+
+	//from alert to taskalert
+	jsonArByt, err = json.Marshal(alertcfg)
+	if err != nil {
+		log.Warningf("makeTaskAlertInfo. Error Marshalling alertcfg. Error: %s", err)
+	}
+	log.Debugf("makeTaskAlertInfo. alertcfg to jsonArByt: %v", string(jsonArByt))
+	err = json.Unmarshal(jsonArByt, &taskAlertInfo.ResistorAlertInfo)
+	if err != nil {
+		log.Warningf("makeTaskAlertInfo. Error Unmarshalling alertcfg. Error: %s", err)
+	}
+
+	//calculated fields
+	taskAlertInfo.ResistorAlertInfo.InfluxDBName = kapa.GetIfxDBNameByID(alertcfg.InfluxDB)
+	taskAlertInfo.Origin = "resistor"
+	taskAlertInfo.ResistorProductTagName = alertcfg.ProductTag
+	taskAlertInfo.ResistorProductTagValue = alertkapa.Data.Series[0].Tags[alertcfg.ProductTag]
+	taskAlertInfo.ResistorAlertTags = alertkapa.Data.Series[0].Tags
+	taskAlertInfo.ResistorAlertFields = makeResistorAlertFields(alertkapa)
+	taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = %v", alertcfg.InfluxMeasurement, alertcfg.Field, taskAlertInfo.ResistorAlertFields["value"])
+
+	//log json
+	jsonArByt, err = json.Marshal(taskAlertInfo)
+	if err != nil {
+		log.Warningf("makeTaskAlertInfo. Error Marshalling taskAlertInfo. Error: %s", err)
+	}
+	log.Debugf("makeTaskAlertInfo. taskAlertInfo to jsonArByt: %v", string(jsonArByt))
+
+	return taskAlertInfo, err
+}
+
+func makeResistorAlertFields(alertkapa alert.Data) map[string]interface{} {
+	raf := make(map[string]interface{})
+	//var fieldvaluesarray []interface{}
+	//var fieldvalue interface{}
+	for idx, fieldname := range alertkapa.Data.Series[0].Columns {
+		//fieldvaluesarray = alertkapa.Data.Series[0].Values[0]
+		//fieldvalue = fieldvaluesarray[idx]
+		raf[fieldname] = alertkapa.Data.Series[0].Values[0][idx]
+	}
+	return raf
+}
+
+func sendData(al alert.Data, alertcfg config.AlertIDCfg, endpoint config.EndpointCfg) error {
 	var err error
 	strouttype := endpoint.Type
 	log.Debugf("strouttype: %s", strouttype)
+	//makeTaskAlertInfo
+	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg)
+	if err != nil {
+		log.Warningf("sendData. Error making taskAlertInfo. Error: %s", err)
+	}
+
 	if strouttype == "logging" {
-		err = sendDataToLog(al, endpoint)
+		err = sendDataToLog(taskAlertInfo, endpoint)
 	} else if strouttype == "httppost" {
-		err = sendDataToHTTPPost(al, endpoint)
+		err = sendDataToHTTPPost(taskAlertInfo, endpoint)
 	} else if strouttype == "slack" {
 		err = sendDataToSlack(al, endpoint)
 	}
 	return err
 }
 
-func sendDataToHTTPPost(al alert.Data, endpoint config.EndpointCfg) error {
+func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	log.Debugf("sendDataToHTTPPost. endpoint.ID: %+v, endpoint.URL: %+v", endpoint.ID, endpoint.URL)
 
 	jsonStr, err := json.Marshal(al)
@@ -181,7 +246,7 @@ func sendDataToHTTPPost(al alert.Data, endpoint config.EndpointCfg) error {
 	return err
 }
 
-func sendDataToLog(al alert.Data, endpoint config.EndpointCfg) error {
+func sendDataToLog(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 
 	var err error
 	log.Debugf("sendDataToLog. endpoint.LogLevel: %+v, endpoint.LogFile: %+v", endpoint.LogLevel, endpoint.LogFile)
@@ -213,6 +278,23 @@ func sendDataToLog(al alert.Data, endpoint config.EndpointCfg) error {
 		}
 	}
 	return err
+}
+
+// TaskAlertInfo represents the info of a kapacitor alert event completed with the info of the related resistor alert
+type TaskAlertInfo struct {
+	ID                      string                 `json:"id"`
+	Message                 string                 `json:"message"`
+	Details                 string                 `json:"details"`
+	Time                    time.Time              `json:"time"`
+	Level                   alert.Level            `json:"level"`
+	CorrelationID           string                 `json:"correlationid"`
+	Origin                  string                 `json:"origin"`
+	ResistorProductTagName  string                 `json:"resistor-product-tag-name"`
+	ResistorProductTagValue string                 `json:"resistor-product-tag-value"`
+	ResistorAlertTriggered  string                 `json:"resistor-alert-triggered"`
+	ResistorAlertTags       map[string]string      `json:"resistor-alert-tags,omitempty"`
+	ResistorAlertFields     map[string]interface{} `json:"resistor-alert-fields,omitempty"`
+	ResistorAlertInfo       config.AlertIDCfg      `json:"resistor-alert-info,omitempty"`
 }
 
 //Config data for Slack
