@@ -6,6 +6,7 @@ import (
 	"time"
 
 	kapacitorClient "github.com/influxdata/kapacitor/client/v1"
+	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
 	"github.com/toni-moreno/resistor/pkg/kapa"
 	"gopkg.in/macaron.v1"
@@ -13,23 +14,24 @@ import (
 
 //KapaTaskRt Structure with Kapacitor server info and Task info
 type KapaTaskRt struct {
-	ServerID       string                         `json:"ServerID"`
-	URL            string                         `json:"URL"`
-	Description    string                         `json:"Description"`
 	ID             string                         `json:"ID"`
-	Type           kapacitorClient.TaskType       `json:"Type"`
-	DBRPs          []kapacitorClient.DBRP         `json:"DBRPs"`
-	TICKscript     string                         `json:"script"`
-	Vars           kapacitorClient.Vars           `json:"vars"`
-	Dot            string                         `json:"Dot"`
-	Status         kapacitorClient.TaskStatus     `json:"Status"`
-	Executing      bool                           `json:"Executing"`
-	Error          string                         `json:"Error"`
-	NumErrors      int64                          `json:"NumErrors"`
-	ExecutionStats kapacitorClient.ExecutionStats `json:"stats"`
-	Created        time.Time                      `json:"Created"`
-	Modified       time.Time                      `json:"Modified"`
+	ServerID       string                         `json:"ServerID"`
+	URL            string                         `json:"URL,omitempty"`
+	Description    string                         `json:"Description,omitempty"`
+	Type           kapacitorClient.TaskType       `json:"Type,omitempty"`
+	DBRPs          string                         `json:"DBRPs,omitempty"`
+	TICKscript     string                         `json:"script,omitempty"`
+	Vars           kapacitorClient.Vars           `json:"vars,omitempty"`
+	Dot            string                         `json:"Dot,omitempty"`
+	Status         kapacitorClient.TaskStatus     `json:"Status,omitempty"`
+	Executing      bool                           `json:"Executing,omitempty"`
+	Error          string                         `json:"Error,omitempty"`
+	NumErrors      int64                          `json:"NumErrors,omitempty"`
+	ExecutionStats kapacitorClient.ExecutionStats `json:"stats,omitempty"`
+	Created        time.Time                      `json:"Created,omitempty"`
+	Modified       time.Time                      `json:"Modified,omitempty"`
 	LastEnabled    time.Time                      `json:"LastEnabled,omitempty"`
+	AlertModified  time.Time                      `json:"AlertModified,omitempty"`
 }
 
 // NewAPIRtKapacitor Kapacitor ouput
@@ -55,42 +57,47 @@ func NewAPIRtKapacitor(m *macaron.Macaron) error {
 func GetKapacitorRtTasks(ctx *Context) {
 	var kapaTaskRtArray []KapaTaskRt
 	var kapaTaskRt KapaTaskRt
-	kapaserversarray, err := kapa.GetKapaServers("")
-	if err != nil {
-		log.Warningf("Error getting kapacitor servers: %+s", err)
-		ctx.JSON(404, err.Error())
-	} else {
-		for _, kapasrv := range kapaserversarray {
-			kapaGoClient, _, _, err := kapa.GetKapaClient(*kapasrv)
-			if err != nil {
-				log.Warningf("Error getting kapacitor Go client for kapacitor server: %s. Error: %s", kapasrv.ID, err)
-				ctx.JSON(404, err.Error())
-			} else {
-				kapaTasksArray, err := kapa.ListKapaTasks(kapaGoClient)
+	kapaTaskRtMap := make(map[string]KapaTaskRt)
+	alertcfgarray, _ := agent.MainConfig.Database.GetAlertIDCfgArray("")
+	if len(alertcfgarray) > 0 {
+		kapaserversmap, err := agent.MainConfig.Database.GetKapacitorCfgMap("")
+		if err != nil {
+			log.Warningf("Error getting kapacitor servers: %+s", err)
+			ctx.JSON(404, err.Error())
+		} else {
+			for _, kapasrv := range kapaserversmap {
+				kapaGoClient, _, _, err := kapa.GetKapaClient(*kapasrv)
 				if err != nil {
-					log.Warningf("Error getting kapacitor tasks from kapacitor server: %s. Error: %s", kapasrv.ID, err)
+					log.Warningf("Error getting kapacitor Go client for kapacitor server: %s. Error: %s", kapasrv.ID, err)
 					ctx.JSON(404, err.Error())
 				} else {
-					for _, kapatask := range kapaTasksArray {
-						kapaTaskRt = makeKapaTaskRt(kapasrv, kapatask)
-						kapaTaskRtArray = append(kapaTaskRtArray, kapaTaskRt)
+					kapaTasksArray, err := kapa.ListKapaTasks(kapaGoClient)
+					if err != nil {
+						log.Warningf("Error getting kapacitor tasks from kapacitor server: %s. Error: %s", kapasrv.ID, err)
+						ctx.JSON(404, err.Error())
+					} else {
+						for _, kapatask := range kapaTasksArray {
+							kapaTaskRt = makeKapaTaskRt(kapasrv, kapatask)
+							kapaTaskRtMap[kapaTaskRt.ID] = kapaTaskRt
+						}
 					}
 				}
 			}
 		}
+		kapaTaskRtArray = makeKapaTaskRtArray(alertcfgarray, kapaserversmap, kapaTaskRtMap)
+		log.Debugf("Got tasks list with %d tasks from kapacitor servers %+v", len(kapaTaskRtArray), &kapaTaskRtArray)
 	}
-	log.Debugf("Got tasks list with %d tasks from kapacitor servers %+v", len(kapaTaskRtArray), &kapaTaskRtArray)
 	ctx.JSON(200, &kapaTaskRtArray)
 }
 
 func makeKapaTaskRt(kapasrv *config.KapacitorCfg, kapatask kapacitorClient.Task) KapaTaskRt {
 	var kapaTaskRt KapaTaskRt
+	kapaTaskRt.ID = kapatask.ID
+	kapaTaskRt.Type = kapatask.Type
 	kapaTaskRt.ServerID = kapasrv.ID
 	kapaTaskRt.URL = kapasrv.URL
 	kapaTaskRt.Description = kapasrv.Description
-	kapaTaskRt.ID = kapatask.ID
-	kapaTaskRt.Type = kapatask.Type
-	kapaTaskRt.DBRPs = kapatask.DBRPs
+	kapaTaskRt.DBRPs = kapatask.DBRPs[0].Database + "." + kapatask.DBRPs[0].RetentionPolicy
 	kapaTaskRt.TICKscript = kapatask.TICKscript
 	kapaTaskRt.Vars = kapatask.Vars
 	kapaTaskRt.Dot = kapatask.Dot
@@ -109,5 +116,32 @@ func makeKapaTaskRt(kapasrv *config.KapacitorCfg, kapatask kapacitorClient.Task)
 		}
 	}
 	kapaTaskRt.NumErrors = numErrors
+	return kapaTaskRt
+}
+
+func makeKapaTaskRtArray(alertcfgarray []*config.AlertIDCfg, kapaserversmap map[string]*config.KapacitorCfg, kapaTaskRtMap map[string]KapaTaskRt) []KapaTaskRt {
+	var kapaTaskRtArray []KapaTaskRt
+	for _, alertcfg := range alertcfgarray {
+		kapaTaskRt, found := kapaTaskRtMap[alertcfg.ID]
+		if !found {
+			kapaTaskRt = newKapaTaskRt(alertcfg, kapaserversmap)
+			kapaTaskRt.Error = "Error when deploying task on kapacitor server"
+		}
+		kapaTaskRt.AlertModified = alertcfg.Modified
+		kapaTaskRtArray = append(kapaTaskRtArray, kapaTaskRt)
+	}
+	return kapaTaskRtArray
+}
+
+func newKapaTaskRt(alertcfg *config.AlertIDCfg, kapaserversmap map[string]*config.KapacitorCfg) KapaTaskRt {
+	var kapaTaskRt KapaTaskRt
+	kapaTaskRt.ID = alertcfg.ID
+	kapaTaskRt.ServerID = alertcfg.KapacitorID
+	kapaserverCfg, found := kapaserversmap[alertcfg.KapacitorID]
+	if found {
+		kapaTaskRt.URL = kapaserverCfg.URL
+		kapaTaskRt.Description = kapaserverCfg.Description
+	}
+	kapaTaskRt.DBRPs = kapa.GetIfxDBNameByID(alertcfg.InfluxDB) + "." + alertcfg.InfluxRP
 	return kapaTaskRt
 }

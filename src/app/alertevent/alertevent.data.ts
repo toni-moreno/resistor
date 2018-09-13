@@ -2,7 +2,7 @@ export const AlertEventComponentConfig: any =
   {
     'name' : 'Alert Events',
     'table-columns' : [
-      {'title':'ID','name':'ID',filtering: {filterString: '', placeholder: 'Filter by ID'}},
+      {'title':'ID','name':'ID',filtering: {filterString: '', placeholder: 'Filter by ID'},sort:'desc'},
       {'title':'AlertID','name':'AlertID',filtering: {filterString: '', placeholder: 'Filter by AlertID'}},
       {'title':'ProductID','name':'ProductID',filtering: {filterString: '', placeholder: 'Filter by ProductID'}},
       {'title':'ProductTag:Value','name':'ProductTagValue',filtering: {filterString: '', placeholder: 'Filter by ProductTagValue'}},

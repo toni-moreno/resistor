@@ -348,7 +348,8 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			if err == nil { //value exist already in the database
 				if overwrite == true {
 					data.Modified = time.Now().UTC()
-					kapa.DeployKapaTask(data)
+					_, lastDeploymentTime, _ := kapa.DeployKapaTask(data)
+					data.LastDeploymentTime = lastDeploymentTime
 					_, err2 := dbc.UpdateAlertIDCfg(o.ObjectID, &data)
 					if err2 != nil {
 						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
@@ -360,7 +361,8 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 				data.ID = data.ID + suffix
 			}
 			data.Modified = time.Now().UTC()
-			kapa.DeployKapaTask(data)
+			_, lastDeploymentTime, _ := kapa.DeployKapaTask(data)
+			data.LastDeploymentTime = lastDeploymentTime
 			_, err = dbc.AddAlertIDCfg(&data)
 			if err != nil {
 				return err

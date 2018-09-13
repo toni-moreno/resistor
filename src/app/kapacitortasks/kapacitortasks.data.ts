@@ -2,7 +2,7 @@ export const KapacitorTasksComponentRt: any =
   {
     'name' : 'Kapacitor Tasks',
     'table-columns' : [
-      {'title':'TaskID','name':'ID',filtering: {filterString: '', placeholder: 'Filter by TaskID'} },
+      {'title':'TaskID','name':'ID',filtering: {filterString: '', placeholder: 'Filter by TaskID'}, sort: 'asc' },
       {'title':'ServerID','name':'ServerID',filtering: {filterString: '', placeholder: 'Filter by ServerID'} },
       {'title':'URL','name':'URL',filtering: {filterString: '', placeholder: 'Filter by URL'} },
       {'title':'Type','name':'Type',filtering: {filterString: '', placeholder: 'Filter by Type'} },
@@ -14,6 +14,7 @@ export const KapacitorTasksComponentRt: any =
       {'title':'Created','name':'Created','transform':'datetime' },
       {'title':'Modified','name':'Modified','transform':'datetime' },
       {'title':'LastEnabled','name':'LastEnabled','transform':'datetime' },
+      {'title':'AlertModified','name':'AlertModified','transform':'datetime' },
       /*  
       {'title':'TICKscript','name':'TICKscript' },
       {'title':'Vars','name':'Vars' },
