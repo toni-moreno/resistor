@@ -169,7 +169,11 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	taskAlertInfo.ResistorProductTagValue = alertkapa.Data.Series[0].Tags[alertcfg.ProductTag]
 	taskAlertInfo.ResistorAlertTags = alertkapa.Data.Series[0].Tags
 	taskAlertInfo.ResistorAlertFields = makeResistorAlertFields(alertkapa)
-	taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = %v", alertcfg.InfluxMeasurement, alertcfg.Field, taskAlertInfo.ResistorAlertFields["value"])
+	taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = %.2f", alertcfg.InfluxMeasurement, alertcfg.Field, taskAlertInfo.ResistorAlertFields["value"])
+	monExc := fmt.Sprintf("%v", taskAlertInfo.ResistorAlertFields["mon_exc"])
+	taskAlertInfo.ResistorAlertInfo.ThCrit = getResistorAlertTh("crit", monExc, alertcfg)
+	taskAlertInfo.ResistorAlertInfo.ThWarn = getResistorAlertTh("warn", monExc, alertcfg)
+	taskAlertInfo.ResistorAlertInfo.ThInfo = getResistorAlertTh("info", monExc, alertcfg)
 
 	//log json
 	jsonArByt, err = json.Marshal(taskAlertInfo)
@@ -179,6 +183,36 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	log.Debugf("makeTaskAlertInfo. taskAlertInfo to jsonArByt: %v", string(jsonArByt))
 
 	return taskAlertInfo, err
+}
+
+func getResistorAlertTh(level string, monExc string, alertcfg config.AlertIDCfg) float64 {
+	var value float64
+	if level == "crit" {
+		if monExc == "0" {
+			value = alertcfg.ThCritDef
+		} else if monExc == "1" {
+			value = alertcfg.ThCritEx1
+		} else if monExc == "2" {
+			value = alertcfg.ThCritEx2
+		}
+	} else if level == "warn" {
+		if monExc == "0" {
+			value = alertcfg.ThWarnDef
+		} else if monExc == "1" {
+			value = alertcfg.ThWarnEx1
+		} else if monExc == "2" {
+			value = alertcfg.ThWarnEx2
+		}
+	} else if level == "info" {
+		if monExc == "0" {
+			value = alertcfg.ThInfoDef
+		} else if monExc == "1" {
+			value = alertcfg.ThInfoEx1
+		} else if monExc == "2" {
+			value = alertcfg.ThInfoEx2
+		}
+	}
+	return value
 }
 
 func makeResistorAlertFields(alertkapa alert.Data) map[string]interface{} {
@@ -293,7 +327,7 @@ type TaskAlertInfo struct {
 	ResistorAlertTriggered  string                 `json:"resistor-alert-triggered"`
 	ResistorAlertTags       map[string]string      `json:"resistor-alert-tags,omitempty"`
 	ResistorAlertFields     map[string]interface{} `json:"resistor-alert-fields,omitempty"`
-	ResistorAlertInfo       config.AlertIDCfg2     `json:"resistor-alert-info,omitempty"`
+	ResistorAlertInfo       config.AlertIDCfgJSON  `json:"resistor-alert-info,omitempty"`
 }
 
 //Config data for Slack
