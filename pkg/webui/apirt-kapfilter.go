@@ -61,8 +61,9 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	if err != nil {
 		log.Warningf("Error getting alert cfg with id: %s. Error: %s", al.ID, err)
 	}
+	sortedtagsarray := sortTagsMap(al.Data.Series[0].Tags)
 	//Add alert event to list of alert events
-	alertevent := makeAlertEvent(al, alertcfg)
+	alertevent := makeAlertEvent(al, alertcfg, sortedtagsarray)
 	AddAlertEvent(alertevent)
 
 	//Send alert event to related endpoints
@@ -73,7 +74,7 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 			log.Warningf("Error getting endpoint for id %s. Error: %s.", endpointid, err)
 		} else {
 			log.Debugf("Got endpoint: %+v", endpoint)
-			err = sendData(al, alertcfg, endpoint)
+			err = sendData(al, alertcfg, sortedtagsarray, endpoint)
 			if err != nil {
 				log.Warningf("Error sending data to endpoint with id %s. Error: %s.", endpointid, err)
 			}
@@ -85,7 +86,20 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	ctx.JSON(200, "DONE")
 }
 
-func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg) (dev config.AlertEventHist) {
+func sortTagsMap(tagsmap map[string]string) []string {
+	var sortedtagsarray []string
+	var tagkeysarray []string
+	for k := range tagsmap {
+		tagkeysarray = append(tagkeysarray, k)
+	}
+	sort.Strings(tagkeysarray)
+	for _, tagkey := range tagkeysarray {
+		sortedtagsarray = append(sortedtagsarray, tagkey+":"+tagsmap[tagkey])
+	}
+	return sortedtagsarray
+}
+
+func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (dev config.AlertEventHist) {
 	alertevent := config.AlertEventHist{}
 	alertevent.ID = 0
 	alertevent.AlertID = al.ID
@@ -96,21 +110,8 @@ func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg) (dev config.Alert
 	alertevent.Level = al.Level.String()
 	alertevent.Field = alertcfg.Field
 	alertevent.ProductID = alertcfg.ProductID
-	producttag := alertcfg.ProductTag
-	tagsmap := al.Data.Series[0].Tags
-	var tagsmapsorted []string
-	var tagkeysarray []string
-	for k := range tagsmap {
-		tagkeysarray = append(tagkeysarray, k)
-	}
-	sort.Strings(tagkeysarray)
-	for _, tagkey := range tagkeysarray {
-		tagsmapsorted = append(tagsmapsorted, tagkey+":"+tagsmap[tagkey])
-		if tagkey == producttag {
-			alertevent.ProductTagValue = tagkey + ":" + tagsmap[tagkey]
-		}
-	}
-	alertevent.Tags = tagsmapsorted
+	alertevent.Tags = sortedtagsarray
+	alertevent.ProductTagValue = alertcfg.ProductTag + ":" + al.Data.Series[0].Tags[alertcfg.ProductTag]
 	columnsarray := al.Data.Series[0].Columns
 	valuesarray := al.Data.Series[0].Values[0]
 	for colidx, colvalue := range columnsarray {
@@ -133,7 +134,7 @@ func AddAlertEvent(dev config.AlertEventHist) {
 	}
 }
 
-func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg) (TaskAlertInfo, error) {
+func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (TaskAlertInfo, error) {
 	var taskAlertInfo = TaskAlertInfo{}
 	var err error
 
@@ -160,8 +161,10 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg) (TaskAl
 	}
 
 	//calculated fields
+	taskAlertInfo.ResistorAlertInfo.ID = alertcfg.ID
 	taskAlertInfo.ResistorAlertInfo.InfluxDBName = kapa.GetIfxDBNameByID(alertcfg.InfluxDB)
 	taskAlertInfo.Origin = "resistor"
+	taskAlertInfo.CorrelationID = "[" + alertcfg.ID + "]|" + strings.Join(sortedtagsarray, ",")
 	taskAlertInfo.ResistorProductTagName = alertcfg.ProductTag
 	taskAlertInfo.ResistorProductTagValue = alertkapa.Data.Series[0].Tags[alertcfg.ProductTag]
 	taskAlertInfo.ResistorAlertTags = alertkapa.Data.Series[0].Tags
@@ -180,22 +183,18 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg) (TaskAl
 
 func makeResistorAlertFields(alertkapa alert.Data) map[string]interface{} {
 	raf := make(map[string]interface{})
-	//var fieldvaluesarray []interface{}
-	//var fieldvalue interface{}
 	for idx, fieldname := range alertkapa.Data.Series[0].Columns {
-		//fieldvaluesarray = alertkapa.Data.Series[0].Values[0]
-		//fieldvalue = fieldvaluesarray[idx]
 		raf[fieldname] = alertkapa.Data.Series[0].Values[0][idx]
 	}
 	return raf
 }
 
-func sendData(al alert.Data, alertcfg config.AlertIDCfg, endpoint config.EndpointCfg) error {
+func sendData(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, endpoint config.EndpointCfg) error {
 	var err error
 	strouttype := endpoint.Type
 	log.Debugf("strouttype: %s", strouttype)
 	//makeTaskAlertInfo
-	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg)
+	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, sortedtagsarray)
 	if err != nil {
 		log.Warningf("sendData. Error making taskAlertInfo. Error: %s", err)
 	}
@@ -294,7 +293,7 @@ type TaskAlertInfo struct {
 	ResistorAlertTriggered  string                 `json:"resistor-alert-triggered"`
 	ResistorAlertTags       map[string]string      `json:"resistor-alert-tags,omitempty"`
 	ResistorAlertFields     map[string]interface{} `json:"resistor-alert-fields,omitempty"`
-	ResistorAlertInfo       config.AlertIDCfg      `json:"resistor-alert-info,omitempty"`
+	ResistorAlertInfo       config.AlertIDCfg2     `json:"resistor-alert-info,omitempty"`
 }
 
 //Config data for Slack
