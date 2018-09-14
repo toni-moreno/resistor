@@ -111,7 +111,7 @@ export class NgTableComponent {
         return trf;
       }
       else {
-        console.log(html + " cannot be transformed to datetime");
+        //console.log(html + " cannot be transformed to datetime");
         return "";
       }
     }
