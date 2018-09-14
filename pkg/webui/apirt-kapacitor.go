@@ -1,6 +1,7 @@
 package webui
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -14,24 +15,24 @@ import (
 
 //KapaTaskRt Structure with Kapacitor server info and Task info
 type KapaTaskRt struct {
-	ID             string                         `json:"ID"`
-	ServerID       string                         `json:"ServerID"`
-	URL            string                         `json:"URL,omitempty"`
-	Description    string                         `json:"Description,omitempty"`
-	Type           kapacitorClient.TaskType       `json:"Type,omitempty"`
-	DBRPs          string                         `json:"DBRPs,omitempty"`
-	TICKscript     string                         `json:"script,omitempty"`
-	Vars           kapacitorClient.Vars           `json:"vars,omitempty"`
-	Dot            string                         `json:"Dot,omitempty"`
-	Status         kapacitorClient.TaskStatus     `json:"Status,omitempty"`
-	Executing      bool                           `json:"Executing,omitempty"`
-	Error          string                         `json:"Error,omitempty"`
-	NumErrors      int64                          `json:"NumErrors,omitempty"`
-	ExecutionStats kapacitorClient.ExecutionStats `json:"stats,omitempty"`
-	Created        time.Time                      `json:"Created,omitempty"`
-	Modified       time.Time                      `json:"Modified,omitempty"`
-	LastEnabled    time.Time                      `json:"LastEnabled,omitempty"`
-	AlertModified  time.Time                      `json:"AlertModified,omitempty"`
+	ID             string                     `json:"ID"`
+	ServerID       string                     `json:"ServerID"`
+	URL            string                     `json:"URL,omitempty"`
+	Description    string                     `json:"Description,omitempty"`
+	Type           kapacitorClient.TaskType   `json:"Type,omitempty"`
+	DBRPs          string                     `json:"DBRPs,omitempty"`
+	TICKscript     string                     `json:"script,omitempty"`
+	Vars           string                     `json:"vars,omitempty"`
+	Dot            string                     `json:"Dot,omitempty"`
+	Status         kapacitorClient.TaskStatus `json:"Status,omitempty"`
+	Executing      bool                       `json:"Executing,omitempty"`
+	Error          string                     `json:"Error,omitempty"`
+	NumErrors      int64                      `json:"NumErrors,omitempty"`
+	ExecutionStats string                     `json:"stats,omitempty"`
+	Created        time.Time                  `json:"Created,omitempty"`
+	Modified       time.Time                  `json:"Modified,omitempty"`
+	LastEnabled    time.Time                  `json:"LastEnabled,omitempty"`
+	AlertModified  time.Time                  `json:"AlertModified,omitempty"`
 }
 
 // NewAPIRtKapacitor Kapacitor ouput
@@ -100,12 +101,20 @@ func makeKapaTaskRt(kapasrv *config.KapacitorCfg, kapatask kapacitorClient.Task)
 	kapaTaskRt.Description = kapasrv.Description
 	kapaTaskRt.DBRPs = kapatask.DBRPs[0].Database + "." + kapatask.DBRPs[0].RetentionPolicy
 	kapaTaskRt.TICKscript = kapatask.TICKscript
-	kapaTaskRt.Vars = kapatask.Vars
+	jsonArByt, err := json.Marshal(kapatask.Vars)
+	if err != nil {
+		log.Warningf("makeKapaTaskRt. Error Marshalling kapatask.Vars. Error: %s", err)
+	}
+	kapaTaskRt.Vars = string(jsonArByt)
 	kapaTaskRt.Dot = kapatask.Dot
 	kapaTaskRt.Status = kapatask.Status
 	kapaTaskRt.Executing = kapatask.Executing
 	kapaTaskRt.Error = kapatask.Error
-	kapaTaskRt.ExecutionStats = kapatask.ExecutionStats
+	jsonArByt, err = json.Marshal(kapatask.ExecutionStats)
+	if err != nil {
+		log.Warningf("makeKapaTaskRt. Error Marshalling kapatask.ExecutionStats. Error: %s", err)
+	}
+	kapaTaskRt.ExecutionStats = string(jsonArByt)
 	kapaTaskRt.Created = kapatask.Created
 	kapaTaskRt.Modified = kapatask.Modified
 	kapaTaskRt.LastEnabled = kapatask.LastEnabled
