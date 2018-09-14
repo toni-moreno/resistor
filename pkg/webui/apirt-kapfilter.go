@@ -174,6 +174,7 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	taskAlertInfo.ResistorAlertInfo.ThCrit = getResistorAlertTh("crit", monExc, alertcfg)
 	taskAlertInfo.ResistorAlertInfo.ThWarn = getResistorAlertTh("warn", monExc, alertcfg)
 	taskAlertInfo.ResistorAlertInfo.ThInfo = getResistorAlertTh("info", monExc, alertcfg)
+	taskAlertInfo.ResistorAlertInfo.ProductGroup = getResistorAlertProdGrp(alertcfg.ProductID)
 
 	//log json
 	jsonArByt, err = json.Marshal(taskAlertInfo)
@@ -183,6 +184,23 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	log.Debugf("makeTaskAlertInfo. taskAlertInfo to jsonArByt: %v", string(jsonArByt))
 
 	return taskAlertInfo, err
+}
+
+func getResistorAlertProdGrp(productid string) string {
+	productgroup := ""
+	filter := "products LIKE '%\"" + productid + "\"%'"
+	cfgarray, err := agent.MainConfig.Database.GetProductGroupCfgArray(filter)
+	if err != nil {
+		log.Warningf("getResistorAlertProdGrp. Error getting ProductGroupCfgArray. Error: %s", err)
+	} else {
+		for _, pg := range cfgarray {
+			productgroup = productgroup + pg.ID + ","
+		}
+		if len(productgroup) > 0 {
+			productgroup = productgroup[:len(productgroup)-1]
+		}
+	}
+	return productgroup
 }
 
 func getResistorAlertTh(level string, monExc string, alertcfg config.AlertIDCfg) float64 {
@@ -254,7 +272,13 @@ func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	//Set headers
 	for _, hkv := range endpoint.Headers {
 		kv := strings.Split(hkv, "=")
-		req.Header.Set(kv[0], kv[1])
+		if len(kv) > 0 {
+			headervalue := ""
+			if len(kv) > 1 {
+				headervalue = kv[1]
+			}
+			req.Header.Set(kv[0], headervalue)
+		}
 	}
 	req.Header.Set("Content-Type", "application/json")
 	//req.Header.Set("Content-Type", "text/plain")
