@@ -1,3 +1,12 @@
+# v 0.5.5  (17/09/2018)
+### New features.
+
+### fixes
+* Management of errors on communication with endpoints improved.
+
+### breaking changes
+
+
 # v 0.5.4  (14/09/2018)
 ### New features.
 * Vars and ExecutionStats of kapacitor tasks changed to json strings.
