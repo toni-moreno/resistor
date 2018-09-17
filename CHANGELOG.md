@@ -1,25 +1,73 @@
-# v 0.5.0  (unreleased )
+# v 0.5.4  (14/09/2018)
+### New features.
+* Vars and ExecutionStats of kapacitor tasks changed to json strings.
+
+### fixes
+
+### breaking changes
+
+
+# v 0.5.3  (14/09/2018)
+### New features.
+* ProductGroup added in TaskAlertInfo sent to logfile and httppost.
+
+### fixes
+* Fixed error with headers sent to httppost.
+
+### breaking changes
+
+
+# v 0.5.2  (14/09/2018)
+### New features.
+* Thresholds with their value added in TaskAlertInfo sent to logfile and httppost.
+
+### fixes
+
+### breaking changes
+
+
+# v 0.5.1  (14/09/2018)
+### New features.
+* Add correlationid to taskAlertInfo sent to logfile and httppost.
+
+### fixes
+* Fixed error when showing Alert Definition List.
+
+### breaking changes
+
+
+# v 0.5.0  (14/09/2018)
 ### New features.
 * 'Enable/Disable Edit' button on filtering section moved to left, text changed to 'Show/Hide multiselect', text removed and shown as tooltip.
 * First and Last buttons shown on pagination section.
 * Selector fields modified to include the possibility of adding custom items on list.
 * Changes on Device Stats component:
     * Selector for fields: ProductID, AlertID, DeviceID, BaseLine and FilterTagKey modified to include the possibility of adding custom items on list.
+    * Some tooltips have been modified.
 * Changes on Alert Events component:
     * New columns on list: ProductID, ProductTagValue, Field, Tags and Value.
     * Datetime format applied on column Time.
+    * Alert Events sorted by ID desc on init.
     * Added the possibility of single and multiple deletion.
-    * New field added on filtering section to select the column used to filter.
+    * Management of filter column modified to add filter column field on each column.
     * New field included indicating the time of the last refresh.
     * New button included to refresh the list.
 * Changes on Kapacitor Tasks component:
+    * Set Kapacitor Tasks component as initial component when login.
+    * Alerts not deployed on kapacitor shown on kapacitor tasks list.
     * New column NumErrors included on list.
     * Datetime format applied on columns Created, Modified and LastEnabled.
+    * Management of filter column modified to add filter column field on each column.
+    * Columns reordered.
     * New field included indicating the time of the last refresh.
     * New button included to refresh the list.
 * Changes on Alerting Endpoints component:
     * Configuration of HTTP Post endpoint modified to take into account Headers and BasicAuth form fields.
     * Form fields added to configure Slack endpoint.
+    * More information sent to logfile and httppost.
+* Changes on Alert Definition component:
+    * 0 not allowed on NumAlertID.
+    * LastDeploymentTime added to Alerts list.
 
 ### fixes
 * Fixed error when deleting a range time related to an alert.
@@ -28,13 +76,18 @@
 * Table alert_event_cfg changed to alert_event_hist. Some fields of the table also changed.
 * Execute the following sql if you want to copy data from alert_event_cfg to alert_event_hist:
     * insert into alert_event_hist (id, alertid, message, details, eventtime, duration, level, previousLevel) select uid, id, message, details, eventtime, duration, level, previousLevel from alert_event_cfg;
+* Execute the following sql to drop old table alert_event_cfg:
+    * DROP TABLE alert_event_cfg;
 * Table out_http_cfg changed to endpoint_cfg.
 * Table alert_http_out_rel changed to alert_endpoint_rel.
 * Execute the following sqls if you want to copy data from old tables to new tables:
     * insert into endpoint_cfg (id, type, description, url, headers, basicauthusername, basicauthpassword, logfile, loglevel, slackenabled, channel, slackusername, iconemoji, sslca, sslcert, sslkey, insecureskipverify) select id, type, description, url, headers, basicauthusername, basicauthpassword, logfile, loglevel, slackenabled, channel, slackusername, iconemoji, sslca, sslcert, sslkey, insecureskipverify from out_http_cfg;
     * insert into alert_endpoint_rel (alert_id, endpoint_id) select alert_id, http_out_id from alert_http_out_rel;
+* Execute the following sql to drop old tables out_http_cfg and alert_http_out_rel:
+    * DROP TABLE out_http_cfg;
+    * DROP TABLE alert_http_out_rel;
 
-# v 0.4.0  (unreleased )
+# v 0.4.0  (23/08/2018)
 ### New features.
 * Changes for defining alerts depending on product and some errors fixed.
     * 'InfluxMeasurement' field filled in with data depending on selected product.
@@ -75,7 +128,7 @@
     * UPDATE template_cfg SET triggertype = trigertype, trendtype = thresholdtype
 
 
-# v 0.3.0  (unreleased )
+# v 0.3.0  (03/08/2018)
 ### New features.
 * Added udf config info.
 * The data to check on alerts can be a measurement field or a lambda expression.
@@ -99,7 +152,7 @@
 * Changes on Product component to improve configuration of products.
 * 'commontags' column changed to 'products' on 'product_group_cfg' table.
 
-# v 0.2.0  (unreleased )
+# v 0.2.0  (31/07/2018)
 ### New features.
 * Added resinjector sample file and options to build and package the UDF module.
 * Added variable period to reload DB data on resinjector sample file.
