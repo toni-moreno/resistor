@@ -21,8 +21,6 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/influxdata/kapacitor/alert"
 	"github.com/influxdata/kapacitor/keyvalue"
-	//kapaPost "github.com/influxdata/kapacitor/services/httppost"
-	//kapaSlack "github.com/influxdata/kapacitor/services/slack"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
 	"github.com/toni-moreno/resistor/pkg/kapa"
@@ -60,6 +58,7 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	alertcfg, err := agent.MainConfig.Database.GetAlertIDCfgByID(al.ID)
 	if err != nil {
 		log.Warningf("Error getting alert cfg with id: %s. Error: %s", al.ID, err)
+		return
 	}
 	sortedtagsarray := sortTagsMap(al.Data.Series[0].Tags)
 	//Add alert event to list of alert events
@@ -138,26 +137,30 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	var taskAlertInfo = TaskAlertInfo{}
 	var err error
 
-	//from alertkapa to taskalert
+	//from alertkapa to taskalertinfo
 	jsonArByt, err := json.Marshal(alertkapa)
 	if err != nil {
 		log.Warningf("makeTaskAlertInfo. Error Marshalling alertkapa. Error: %s", err)
+		return taskAlertInfo, err
 	}
 	log.Debugf("makeTaskAlertInfo. alertkapa to jsonArByt: %v", string(jsonArByt))
 	err = json.Unmarshal(jsonArByt, &taskAlertInfo)
 	if err != nil {
 		log.Warningf("makeTaskAlertInfo. Error Unmarshalling alertkapa. Error: %s", err)
+		return taskAlertInfo, err
 	}
 
-	//from alert to taskalert
+	//from alert to taskalertinfo
 	jsonArByt, err = json.Marshal(alertcfg)
 	if err != nil {
 		log.Warningf("makeTaskAlertInfo. Error Marshalling alertcfg. Error: %s", err)
+		return taskAlertInfo, err
 	}
 	log.Debugf("makeTaskAlertInfo. alertcfg to jsonArByt: %v", string(jsonArByt))
 	err = json.Unmarshal(jsonArByt, &taskAlertInfo.ResistorAlertInfo)
 	if err != nil {
 		log.Warningf("makeTaskAlertInfo. Error Unmarshalling alertcfg. Error: %s", err)
+		return taskAlertInfo, err
 	}
 
 	//calculated fields
@@ -180,6 +183,7 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	jsonArByt, err = json.Marshal(taskAlertInfo)
 	if err != nil {
 		log.Warningf("makeTaskAlertInfo. Error Marshalling taskAlertInfo. Error: %s", err)
+		return taskAlertInfo, err
 	}
 	log.Debugf("makeTaskAlertInfo. taskAlertInfo to jsonArByt: %v", string(jsonArByt))
 
@@ -249,8 +253,8 @@ func sendData(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []strin
 	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, sortedtagsarray)
 	if err != nil {
 		log.Warningf("sendData. Error making taskAlertInfo. Error: %s", err)
+		return err
 	}
-
 	if strouttype == "logging" {
 		err = sendDataToLog(taskAlertInfo, endpoint)
 	} else if strouttype == "httppost" {
@@ -258,6 +262,7 @@ func sendData(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []strin
 	} else if strouttype == "slack" {
 		err = sendDataToSlack(al, endpoint)
 	}
+
 	return err
 }
 
@@ -265,10 +270,16 @@ func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	log.Debugf("sendDataToHTTPPost. endpoint.ID: %+v, endpoint.URL: %+v", endpoint.ID, endpoint.URL)
 
 	jsonStr, err := json.Marshal(al)
+	if err != nil {
+		log.Errorf("sendDataToHTTPPost. Error Marshalling TaskAlertInfo as JSON. Error: %+v", err)
+		return err
+	}
 	log.Debugf("sendDataToHTTPPost. Sending jsonStr: %v", string(jsonStr))
-
 	req, err := http.NewRequest("POST", endpoint.URL, bytes.NewBuffer(jsonStr))
-
+	if err != nil {
+		log.Errorf("sendDataToHTTPPost. Error creating POST request: %+v", err)
+		return err
+	}
 	//Set headers
 	for _, hkv := range endpoint.Headers {
 		kv := strings.Split(hkv, "=")
@@ -289,10 +300,12 @@ func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 		req.SetBasicAuth(endpoint.BasicAuthUsername, endpoint.BasicAuthPassword)
 	}
 
+	//Send request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Errorf("sendDataToHTTPPost. Error:%+v", err)
+		log.Errorf("sendDataToHTTPPost. Error sending request: %+v", err)
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -300,6 +313,7 @@ func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	log.Debugf("sendDataToHTTPPost. response Headers:%+v", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Debugf("sendDataToHTTPPost. response Body:%+v", string(body))
+
 	return err
 }
 
@@ -323,6 +337,7 @@ func sendDataToLog(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 		err = os.MkdirAll(logConfDir, 0755)
 		if err != nil {
 			log.Warningf("sendDataToLog. Error creating logConfDir: %s. Error: %s", logConfDir, err)
+			return err
 		}
 		//Log output
 		f, err := os.OpenFile(endpoint.LogFile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
@@ -416,6 +431,10 @@ func sendDataToSlack(al alert.Data, endpoint config.EndpointCfg) error {
 	log.Debugf("slackConfig: %+v", slackConfig)
 	var diag Diagnostic
 	s, err := NewService(slackConfig, diag)
+	if err != nil {
+		log.Warningf("sendDataToSlack. Error creating slack service. Error: %v", err)
+		return err
+	}
 	if slackConfig.Enabled {
 		s.Alert(slackConfig.Channel, al.Message, slackConfig.Username, slackConfig.IconEmoji, al.Level)
 	}
