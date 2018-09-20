@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -116,7 +117,8 @@ func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray [
 	for colidx, colvalue := range columnsarray {
 		if colvalue == "value" {
 			alertevent.Value = valuesarray[colidx].(float64)
-			break
+		} else if colvalue == "mon_exc" {
+			alertevent.MonExc = fmt.Sprintf("%v", valuesarray[colidx])
 		}
 	}
 	return alertevent
@@ -300,8 +302,9 @@ func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 		req.SetBasicAuth(endpoint.BasicAuthUsername, endpoint.BasicAuthPassword)
 	}
 
+	//Get HTTP Client
+	client := &http.Client{Transport: &http.Transport{Proxy: getProxyURLFunc()}}
 	//Send request
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Errorf("sendDataToHTTPPost. Error sending request: %+v", err)
@@ -441,6 +444,21 @@ func sendDataToSlack(al alert.Data, endpoint config.EndpointCfg) error {
 	return err
 }
 
+func getProxyURLFunc() func(*http.Request) (*url.URL, error) {
+	proxyURLFunc := http.ProxyFromEnvironment
+	proxyURLStr := agent.MainConfig.HTTP.ProxyURL
+	log.Debugf("getProxyURLFunc. proxyURLStr: %s", proxyURLStr)
+	if len(proxyURLStr) > 0 {
+		proxyURL, err := url.Parse(proxyURLStr)
+		if err != nil {
+			log.Warningf("getProxyURLFunc. Error parsing proxyURLStr: %s. Error: %v", proxyURLStr, err)
+			return proxyURLFunc
+		}
+		proxyURLFunc = http.ProxyURL(proxyURL)
+	}
+	return proxyURLFunc
+}
+
 //NewService function for Slack
 func NewService(c Config, d Diagnostic) (*Service, error) {
 	tlsConfig, err := Create(c.SSLCA, c.SSLCert, c.SSLKey, c.InsecureSkipVerify)
@@ -456,7 +474,7 @@ func NewService(c Config, d Diagnostic) (*Service, error) {
 	s.configValue.Store(c)
 	s.clientValue.Store(&http.Client{
 		Transport: &http.Transport{
-			Proxy:           http.ProxyFromEnvironment,
+			Proxy:           getProxyURLFunc(),
 			TLSClientConfig: tlsConfig,
 		},
 	})
@@ -502,17 +520,20 @@ func Create(
 func (s *Service) Alert(channel, message, username, iconEmoji string, level alert.Level) error {
 	url, post, err := s.preparePost(channel, message, username, iconEmoji, level)
 	if err != nil {
+		log.Warningf("Slack Alert. Error preparing post to slack. Error: %v", err)
 		return err
 	}
 	client := s.clientValue.Load().(*http.Client)
 	resp, err := client.Post(url, "application/json", post)
 	if err != nil {
+		log.Warningf("Slack Alert. Error sending post to slack. Error: %v", err)
 		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			log.Warningf("Slack Alert. Error reading response body from slack. Error: %v", err)
 			return err
 		}
 		type response struct {
@@ -571,6 +592,7 @@ func (s *Service) preparePost(channel, message, username, iconEmoji string, leve
 	enc := json.NewEncoder(&post)
 	err := enc.Encode(postData)
 	if err != nil {
+		log.Warningf("Slack preparePost. Error encoding post data for slack. Error: %v", err)
 		return "", nil, err
 	}
 

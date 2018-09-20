@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -87,7 +88,7 @@ func (dbc *DatabaseCfg) GetIfxMeasurementCfgBySQLQuery(sqlquery string) (IfxMeas
 func (dbc *DatabaseCfg) GetIfxMeasurementCfgDistinctNamesArray(filter string) ([]*IfxMeasurementCfg, error) {
 	var err error
 	var msmts []*IfxMeasurementCfg
-	if err = dbc.x.Distinct("name").Where(filter).Find(&msmts); err != nil {
+	if err = dbc.x.Distinct("name").Where(filter).OrderBy("lower(name)").Find(&msmts); err != nil {
 		log.Warnf("Failed to get IfxMeasurementCfg data filtered with %s : %v\n", filter, err)
 		return nil, err
 	}
@@ -115,6 +116,9 @@ func (dbc *DatabaseCfg) GetIfxMeasurementTagsArray(filter string) ([]string, err
 				tags = append(tags, tag)
 			}
 		}
+	}
+	if len(tags) > 0 {
+		sort.Strings(tags)
 	}
 	log.Infof("Got Measurement Tags Successfully: %+v", tags)
 	return tags, nil

@@ -4,11 +4,10 @@ export const TemplateComponentConfig: any =
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'TriggerType', 'name': 'TriggerType' },
-      { 'title': 'StatFunc', 'name': 'StatFunc' },
       { 'title': 'CritDirection', 'name': 'CritDirection' },
       { 'title': 'TrendType', 'name': 'TrendType' },
       { 'title': 'TrendSign', 'name': 'TrendSign' },
-      //{ 'title': 'TplData', 'name': 'TplData' },
+      { 'title': 'StatFunc', 'name': 'StatFunc' },
     ],
     'slug' : 'templatecfg'
   };

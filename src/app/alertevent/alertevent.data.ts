@@ -2,6 +2,8 @@ export const AlertEventComponentConfig: any =
   {
     'name' : 'Alert Events',
     'table-columns' : [
+      {'title':'Level','name':'Level','transform':'color',filtering: {filterString: '', placeholder: 'Filter by Level'}},
+      {'title':'Time','name':'Time','transform':'datetime'},
       {'title':'ID','name':'ID',filtering: {filterString: '', placeholder: 'Filter by ID'},sort:'desc'},
       {'title':'AlertID','name':'AlertID',filtering: {filterString: '', placeholder: 'Filter by AlertID'}},
       {'title':'ProductID','name':'ProductID',filtering: {filterString: '', placeholder: 'Filter by ProductID'}},
@@ -9,9 +11,7 @@ export const AlertEventComponentConfig: any =
       {'title':'Tags','name':'Tags',filtering: {filterString: '', placeholder: 'Filter by Tags'}},
       {'title':'Field','name':'Field',filtering: {filterString: '', placeholder: 'Filter by Field'}},
       {'title':'Value','name':'Value','transform':'decimal'},
-      {'title':'Time','name':'Time','transform':'datetime'},
-      {'title':'Duration','name':'Duration','transform':'ns2s'},
-      {'title':'Level','name':'Level','transform':'color',filtering: {filterString: '', placeholder: 'Filter by Level'}},
+      {'title':'MonExc','name':'MonExc',filtering: {filterString: '', placeholder: 'Filter by MonExc'}, tooltip: 'Exception applied for this alert (Default:0)'},
       //{'title':'PreviousLevel','name':'PreviousLevel'}
     ],
     'slug' : 'alerteventhist'

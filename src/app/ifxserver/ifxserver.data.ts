@@ -5,7 +5,6 @@ export const IfxServerComponentConfig: any =
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Connection URL', 'name': 'URL' },
       { 'title': 'Admin User', 'name': 'AdminUser' },
-      { 'title': 'AdminPasswd', 'name': 'AdminPasswd' },
       { 'title': 'Description', 'name': 'Description' }
     ],
     'slug' : 'ifxservercfg'
