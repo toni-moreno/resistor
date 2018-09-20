@@ -18,7 +18,6 @@ type KapaTaskRt struct {
 	ID             string                     `json:"ID"`
 	ServerID       string                     `json:"ServerID"`
 	URL            string                     `json:"URL,omitempty"`
-	Description    string                     `json:"Description,omitempty"`
 	Type           kapacitorClient.TaskType   `json:"Type,omitempty"`
 	DBRPs          string                     `json:"DBRPs,omitempty"`
 	TICKscript     string                     `json:"script,omitempty"`
@@ -98,7 +97,6 @@ func makeKapaTaskRt(kapasrv *config.KapacitorCfg, kapatask kapacitorClient.Task)
 	kapaTaskRt.Type = kapatask.Type
 	kapaTaskRt.ServerID = kapasrv.ID
 	kapaTaskRt.URL = kapasrv.URL
-	kapaTaskRt.Description = kapasrv.Description
 	kapaTaskRt.DBRPs = kapatask.DBRPs[0].Database + "." + kapatask.DBRPs[0].RetentionPolicy
 	kapaTaskRt.TICKscript = kapatask.TICKscript
 	jsonArByt, err := json.Marshal(kapatask.Vars)
@@ -157,7 +155,6 @@ func newKapaTaskRt(alertcfg *config.AlertIDCfg, kapaserversmap map[string]*confi
 	kapaserverCfg, found := kapaserversmap[alertcfg.KapacitorID]
 	if found {
 		kapaTaskRt.URL = kapaserverCfg.URL
-		kapaTaskRt.Description = kapaserverCfg.Description
 	}
 	kapaTaskRt.DBRPs = kapa.GetIfxDBNameByID(alertcfg.InfluxDB) + "." + alertcfg.InfluxRP
 	return kapaTaskRt

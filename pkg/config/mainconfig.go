@@ -41,6 +41,7 @@ type HTTPConfig struct {
 	AdminUser     string `toml:"adminuser"`
 	AdminPassword string `toml:"adminpassword"`
 	CookieID      string `toml:"cookieid"`
+	ProxyURL      string `toml:"proxyurl"`
 }
 
 // InfluxCfg the output influx database where to store self performace metrics

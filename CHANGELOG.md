@@ -1,3 +1,28 @@
+# v 0.5.6  (20/09/2018)
+### New features.
+* New parameter 'proxyurl' added to config file to use it on Alerting Endpoints, if needed.
+    * Example: proxyurl = "http://proxyIP:proxyPort"
+* Changes on Alert Definition component:
+    * InfluxFilter field: New information added on tooltip and placeholder added.
+    * Columns on list reordered.
+* Changes on Alert Events component:
+    * New column on list: MonExc (Monitoring Exception applied).
+    * Columns on list reordered.
+* Changes on Influx DB Servers component:
+    * Column AdminPasswd removed from list.
+* Changes on Product component:
+    * Measurements field: Sorted alphabetically.
+    * Tags field: Sorted alphabetically.
+* Changes on Templates component:
+    * Columns on list reordered.
+
+### fixes
+* Changes on Templates component:
+    * TrendType field: Only shown when TriggerType is Trend.
+
+### breaking changes
+
+
 # v 0.5.5  (17/09/2018)
 ### New features.
 

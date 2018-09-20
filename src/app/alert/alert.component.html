@@ -39,7 +39,7 @@
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
-          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.Active">
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Active">
             <label class="control-label col-sm-2" for="Active">Active</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if the alert is active or not"></i>
             <div class="col-sm-9">
@@ -115,7 +115,7 @@
 
         <div class="well well-sm">
           <span class="editsection">Data Origin Settings</span>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxMeasurement">
+          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.InfluxMeasurement">
             <label class="control-label col-sm-2" for="InfluxMeasurement">InfluxMeasurement</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Measurement with the data to check"></i>
             <div class="col-sm-9">
@@ -123,7 +123,7 @@
               <control-messages [control]="sampleComponentForm.controls.InfluxMeasurement"></control-messages>
             </div>
           </div>
-          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.InfluxDB && sampleComponentForm.value.InfluxMeasurement">
+          <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxDB && sampleComponentForm.value.InfluxMeasurement">
             <label class="control-label col-sm-2" for="InfluxDB">InfluxDB</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
             <div class="col-sm-9">
@@ -184,9 +184,9 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxFilter">
             <label class="control-label col-sm-2" for="InfluxFilter">InfluxFilter</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Lambda expression to filter data from Influx"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Lambda expression to filter data from Influx (See: https://docs.influxdata.com/kapacitor/v1.5/tick/expr/#overview)"></i>
             <div class="col-sm-9">
-              <input formControlName="InfluxFilter" id="InfluxFilter" [ngModel]="sampleComponentForm.value.InfluxFilter" />
+              <input formControlName="InfluxFilter" id="InfluxFilter" [ngModel]="sampleComponentForm.value.InfluxFilter" placeholder="&quot;cpu&quot; == &apos;cpu-total&apos;" />
               <control-messages [control]="sampleComponentForm.controls.InfluxFilter"></control-messages>
             </div>
           </div>

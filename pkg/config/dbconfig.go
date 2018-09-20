@@ -289,6 +289,7 @@ type AlertEventHist struct {
 	PreviousLevel   string        `xorm:"previousLevel"`
 	Tags            []string      `xorm:"tags"`
 	Value           float64       `xorm:"value"`
+	MonExc          string        `xorm:"mon_exc"`
 	//Data     models.Result `xorm:"data"`
 }
 

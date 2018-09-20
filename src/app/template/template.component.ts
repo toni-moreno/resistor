@@ -90,20 +90,18 @@ export class TemplateComponent implements OnInit {
     let controlArray : Array<any> = [];
     switch (field) {
       case 'THRESHOLD':
-      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       break;
       case 'TREND':
-      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'TrendSign', 'defVal' : 'positive', 'Validators' : Validators.required });
       break;
       case 'DEADMAN':
       break
       default: //Default mode is THRESHOLD
-      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       break;

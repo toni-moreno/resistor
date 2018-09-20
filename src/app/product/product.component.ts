@@ -303,7 +303,7 @@ export class ProductComponent implements OnInit {
       data => {
         this.ifxms_list = data;
         this.select_ifxms = [];
-        this.select_ifxms = this.createMultiselectArray(data, 'Name', 'Name', 'ID');
+        this.select_ifxms = this.createMultiselectArray(data, 'Name', 'Name');
       },
       err => console.error(err),
       () => console.log('DONE')
