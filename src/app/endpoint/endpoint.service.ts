@@ -14,7 +14,7 @@ export class EndpointService {
         if ( key == 'Headers') {
             if(typeof value === 'string') return value.split(',');
         }
-        if ( key == 'SlackEnabled' || key == 'InsecureSkipVerify' ) {
+        if ( key == 'Enabled' || key == 'InsecureSkipVerify' ) {
             return ( value === "true" || value === true);
         }
         return value;

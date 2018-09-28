@@ -41,7 +41,6 @@ type HTTPConfig struct {
 	AdminUser     string `toml:"adminuser"`
 	AdminPassword string `toml:"adminpassword"`
 	CookieID      string `toml:"cookieid"`
-	ProxyURL      string `toml:"proxyurl"`
 }
 
 // InfluxCfg the output influx database where to store self performace metrics
@@ -58,13 +57,25 @@ type InfluxCfg struct {
 	UserAgent string `toml:"useragent"`
 }
 
+//EndpointsCfg endpoints config options
+type EndpointsCfg struct {
+	ProxyURL string `toml:"proxyurl"`
+}
+
+//AlertingCfg alerting config options
+type AlertingCfg struct {
+	CleanPeriod string `toml:"cleanperiod"`
+}
+
 // Config All resistor configuration
 type Config struct {
-	General  GeneralConfig
-	Database DatabaseCfg
-	Selfmon  SelfMonConfig
-	HTTP     HTTPConfig
-	Influxdb InfluxCfg
+	General   GeneralConfig
+	Database  DatabaseCfg
+	Selfmon   SelfMonConfig
+	HTTP      HTTPConfig
+	Influxdb  InfluxCfg
+	Endpoints EndpointsCfg
+	Alerting  AlertingCfg
 }
 
 //var MainConfig Config

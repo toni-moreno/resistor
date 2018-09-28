@@ -10,6 +10,7 @@ import { ProductGroupComponent } from '../productgroup/productgroup.component';
 import { TemplateComponent } from '../template/template.component';
 import { EndpointComponent } from '../endpoint/endpoint.component';
 import { AlertComponent } from '../alert/alert.component';
+import { AlertEventHistComponent } from '../alerteventhist/alerteventhist.component';
 import { AlertEventComponent } from '../alertevent/alertevent.component';
 import { DeviceStatComponent } from '../devicestat/devicestat.component'
 import { NavbarComponent } from './navbar/navbar.component'
@@ -42,6 +43,7 @@ export const HomeComponentConfig: any =
     {'groupName' : 'Runtime', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
       [
         {'title': 'Alert Events', 'selector' : 'alertevent-component', 'type': 'component', 'data': AlertEventComponent},
+        {'title': 'Alert Events History', 'selector' : 'alerteventhist-component', 'type': 'component', 'data': AlertEventHistComponent},
         {'title': 'Kapacitor Tasks', 'selector' : 'kapacitortasks-component', 'type': 'component', 'data': KapacitorTasksComponent},
         {'title': 'Agent status', 'selector' : 'runtime', 'data': null}
       ]
@@ -77,4 +79,4 @@ export const HomeComponentConfig: any =
     },
   ];
 
-  export const DefaultItem: any = KapacitorTasksComponent;
+  export const DefaultItem: any = AlertEventComponent;

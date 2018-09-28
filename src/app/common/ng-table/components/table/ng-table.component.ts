@@ -118,7 +118,7 @@ export class NgTableComponent {
     if  (transform === "color") {
       let color: string = "green";
       if (html === "INFO") {
-        color = "blue";
+        color = "deepskyblue";
       } else if (html === "WARNING") {
         color = "orange";
       } else if (html === "CRITICAL") {

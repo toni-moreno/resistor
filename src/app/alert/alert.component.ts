@@ -13,6 +13,7 @@ import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service'
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 import { ExportFileModal } from '../common/dataservice/export-file-modal';
+import { WindowRef } from '../common/windowref';
 
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
@@ -77,6 +78,7 @@ export class AlertComponent implements OnInit {
   public data : Array<any>;
   public isRequesting : boolean;
 
+  nativeWindow: any
   private builder;
   private oldID : string;
 
@@ -85,8 +87,13 @@ export class AlertComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(private winRef: WindowRef,public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+    this.nativeWindow = winRef.nativeWindow;
     this.builder = builder;
+  }
+
+  link(url: string) {
+    this.nativeWindow.open(url);
   }
 
   createStaticForm() {

@@ -51,6 +51,17 @@
               <control-messages [control]="sampleComponentForm.controls.Type"></control-messages>
             </div>
           </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Enabled">
+            <label class="control-label col-sm-2" for="Enabled">Enabled</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if sending to this Alerting Endpoint is enabled or not"></i>
+            <div class="col-sm-9">
+              <select formControlName="Enabled" id="Enabled" [ngModel]="sampleComponentForm.value.Enabled">
+                <option value="true">True</option>
+                <option value="false" selected="selected">False</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.Enabled"></control-messages>
+            </div>
+          </div>
         </div>
         <div class="well well-sm">
           <span class="editsection">Endpoint Settings</span>
@@ -114,18 +125,7 @@
             </div>
           </div>
           <div *ngIf="sampleComponentForm.value.Type==='slack'">
-            <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.SlackEnabled">
-              <label class="control-label col-sm-2" for="SlackEnabled">SlackEnabled</label>
-              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if Slack integration is enabled or not"></i>
-              <div class="col-sm-9">
-                <select formControlName="SlackEnabled" id="SlackEnabled" [ngModel]="sampleComponentForm.value.SlackEnabled">
-                  <option value="true">True</option>
-                  <option value="false" selected="selected">False</option>
-                </select>
-                <control-messages [control]="sampleComponentForm.controls.SlackEnabled"></control-messages>
-              </div>
-            </div>
-            <div class="form-group" *ngIf="sampleComponentForm.controls.URL">
+            <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.URL">
               <label class="control-label col-sm-2" for="URL">URL</label>
               <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="The Slack webhook URL, can be obtained by adding Incoming Webhook integration"></i>
               <div class="col-sm-9">

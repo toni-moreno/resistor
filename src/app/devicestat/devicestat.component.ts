@@ -343,26 +343,26 @@ export class DeviceStatComponent implements OnInit {
   pickProductItem(product_picked) {
     if (this.picked_product) {
       if (product_picked !== this.picked_product['ID']) {
+        if (this.select_baseline.length > 0) this.select_baseline = this.select_baseline.filter(item => item.extraData==='Custom Item');
         if (this.select_alert.length > 0) this.select_alert = this.select_alert.filter(item => item.extraData==='Custom Item');
         if (this.select_device.length > 0) this.select_device = this.select_device.filter(item => item.extraData==='Custom Item');
-        if (this.select_baseline.length > 0) this.select_baseline = this.select_baseline.filter(item => item.extraData==='Custom Item');
         if (this.select_tag.length > 0) this.select_tag = this.select_tag.filter(item => item.extraData==='Custom Item');
       }
     }
     this.picked_product = this.product_list.filter((x) => x['ID'] === product_picked)[0];
 
     if(this.picked_product) {
+      if (this.select_baseline.length > 0) this.select_baseline_custom = this.select_baseline.filter(item => item.extraData==='Custom Item');
       if (this.select_alert.length > 0) this.select_alert_custom = this.select_alert.filter(item => item.extraData==='Custom Item');
       if (this.select_device.length > 0) this.select_device_custom = this.select_device.filter(item => item.extraData==='Custom Item');
-      if (this.select_baseline.length > 0) this.select_baseline_custom = this.select_baseline.filter(item => item.extraData==='Custom Item');
       if (this.select_tag.length > 0) this.select_tag_custom = this.select_tag.filter(item => item.extraData==='Custom Item');
+      this.select_baseline = [];
       this.select_alert = [];
       this.select_device = [];
-      this.select_baseline = [];
       this.select_tag = [];
+      this.getBaseLineItem();
       this.getAlertItem(this.picked_product['ID']);
       this.getDeviceItemByProductId(this.picked_product['ID']);
-      this.getBaseLineItem();
       this.getFilterTagKeyItem();
     }
   }
@@ -374,6 +374,23 @@ export class DeviceStatComponent implements OnInit {
     //add select_baseline_custom to select_baseline
     this.select_baseline = this.select_baseline_custom.concat(this.select_baseline);
   }
+
+  /*
+  pickBaseLineItem(baseline_picked) {
+    if (this.picked_baseline) {
+      if (baseline_picked !== this.picked_baseline['ID']) {
+        if (this.select_alert.length > 0) this.select_alert = this.select_alert.filter(item => item.extraData==='Custom Item');
+      }
+    }
+    this.picked_baseline = this.baseline_list.filter((x) => x['ID'] === baseline_picked)[0];
+
+    if(this.picked_baseline) {
+      if (this.select_alert.length > 0) this.select_alert_custom = this.select_alert.filter(item => item.extraData==='Custom Item');
+      this.select_alert = [];
+      this.getAlertItem(this.picked_product['ID']);
+    }
+  }
+  */
 
   getFilterTagKeyItem() {
     let tagsarray : string[] = [this.picked_product['ProductTag']];
@@ -450,14 +467,14 @@ export class DeviceStatComponent implements OnInit {
 
   setInitValues() {
     this.select_product = this.setSelectInitValues(this.sampleComponentForm.value.ProductID, this.select_product);
+    this.select_baseline = this.setSelectInitValues(this.sampleComponentForm.value.BaseLine, this.select_baseline);
     this.select_alert = this.setSelectInitValues(this.sampleComponentForm.value.AlertID, this.select_alert);
     this.select_device = this.setSelectInitValues(this.sampleComponentForm.value.DeviceID, this.select_device);
-    this.select_baseline = this.setSelectInitValues(this.sampleComponentForm.value.BaseLine, this.select_baseline);
     this.select_tag = this.setSelectInitValues(this.sampleComponentForm.value.FilterTagKey, this.select_tag);
     if (this.select_product.length > 0) this.select_product_custom = this.select_product.filter(item => item.extraData==='Custom Item');
+    if (this.select_baseline.length > 0) this.select_baseline_custom = this.select_baseline.filter(item => item.extraData==='Custom Item');
     if (this.select_alert.length > 0) this.select_alert_custom = this.select_alert.filter(item => item.extraData==='Custom Item');
     if (this.select_device.length > 0) this.select_device_custom = this.select_device.filter(item => item.extraData==='Custom Item');
-    if (this.select_baseline.length > 0) this.select_baseline_custom = this.select_baseline.filter(item => item.extraData==='Custom Item');
     if (this.select_tag.length > 0) this.select_tag_custom = this.select_tag.filter(item => item.extraData==='Custom Item');
   }
 

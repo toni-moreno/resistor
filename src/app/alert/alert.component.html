@@ -184,7 +184,9 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxFilter">
             <label class="control-label col-sm-2" for="InfluxFilter">InfluxFilter</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Lambda expression to filter data from Influx (See: https://docs.influxdata.com/kapacitor/v1.5/tick/expr/#overview)"></i>
+            <a href="javaScript:void(0);" (click)="link('https://docs.influxdata.com/kapacitor/v1.5/tick/expr/#overview')" class="text-link">
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Lambda expression to filter data from Influx (See: https://docs.influxdata.com/kapacitor/v1.5/tick/expr/#overview)"></i>
+            </a>
             <div class="col-sm-9">
               <input formControlName="InfluxFilter" id="InfluxFilter" [ngModel]="sampleComponentForm.value.InfluxFilter" placeholder="&quot;cpu&quot; == &apos;cpu-total&apos;" />
               <control-messages [control]="sampleComponentForm.controls.InfluxFilter"></control-messages>

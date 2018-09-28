@@ -144,7 +144,7 @@ type EndpointCfg struct {
 	BasicAuthPassword  string   `xorm:"basicauthpassword"`
 	LogFile            string   `xorm:"logfile"`
 	LogLevel           string   `xorm:"loglevel"`
-	SlackEnabled       bool     `xorm:"slackenabled"`
+	Enabled            bool     `xorm:"enabled"`
 	Channel            string   `xorm:"channel"`
 	SlackUsername      string   `xorm:"slackusername"`
 	IconEmoji          string   `xorm:"iconemoji"`
@@ -276,21 +276,21 @@ func (AlertIDCfg) TableName() string {
 // AlertEventHist is a structure that contains relevant data about an alert event.
 // The structure is intended to be JSON encoded, providing a consistent data format.
 type AlertEventHist struct {
-	ID              int64         `xorm:"'id' pk autoincr"`
+	ID              int64         `xorm:"'id' pk"`
+	CorrelationID   string        `xorm:"correlationid"`
 	AlertID         string        `xorm:"alertid"`
 	ProductID       string        `xorm:"productid"`
 	ProductTagValue string        `xorm:"producttagvalue"`
 	Field           string        `xorm:"field"`
 	Message         string        `xorm:"message"`
 	Details         string        `xorm:"details"`
-	Time            time.Time     `xorm:"eventtime"`
+	EventTime       time.Time     `xorm:"eventtime"`
 	Duration        time.Duration `xorm:"duration"`
 	Level           string        `xorm:"level"`
 	PreviousLevel   string        `xorm:"previousLevel"`
 	Tags            []string      `xorm:"tags"`
 	Value           float64       `xorm:"value"`
 	MonExc          string        `xorm:"mon_exc"`
-	//Data     models.Result `xorm:"data"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -298,16 +298,42 @@ func (AlertEventHist) TableName() string {
 	return "alert_event_hist"
 }
 
+// AlertEvent is a structure that contains relevant data about an alert event.
+// The structure is intended to be JSON encoded, providing a consistent data format.
+type AlertEvent struct {
+	ID              int64         `xorm:"'id' pk autoincr"`
+	CorrelationID   string        `xorm:"correlationid"`
+	AlertID         string        `xorm:"alertid"`
+	ProductID       string        `xorm:"productid"`
+	ProductTagValue string        `xorm:"producttagvalue"`
+	Field           string        `xorm:"field"`
+	Message         string        `xorm:"message"`
+	Details         string        `xorm:"details"`
+	EventTime       time.Time     `xorm:"eventtime"`
+	Duration        time.Duration `xorm:"duration"`
+	Level           string        `xorm:"level"`
+	PreviousLevel   string        `xorm:"previousLevel"`
+	Tags            []string      `xorm:"tags"`
+	Value           float64       `xorm:"value"`
+	MonExc          string        `xorm:"mon_exc"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (AlertEvent) TableName() string {
+	return "alert_event"
+}
+
 // DBConfig read from DB
 type DBConfig struct {
-	DeviceStat map[int64]*DeviceStatCfg
-	RangeTime  map[string]*RangeTimeCfg
-	Product    map[string]*ProductCfg
-	Kapacitor  map[string]*KapacitorCfg
-	AlertID    map[string]*AlertIDCfg
-	AlertEvent map[int64]*AlertEventHist
-	Template   map[string]*TemplateCfg
-	Endpoint   map[string]*EndpointCfg
+	DeviceStat        map[int64]*DeviceStatCfg
+	RangeTime         map[string]*RangeTimeCfg
+	Product           map[string]*ProductCfg
+	Kapacitor         map[string]*KapacitorCfg
+	AlertID           map[string]*AlertIDCfg
+	AlertEventHistMap map[int64]*AlertEventHist
+	AlertEventMap     map[int64]*AlertEvent
+	Template          map[string]*TemplateCfg
+	Endpoint          map[string]*EndpointCfg
 }
 
 // Init initialices the DB

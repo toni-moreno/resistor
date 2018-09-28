@@ -59,6 +59,7 @@ export class EndpointComponent implements OnInit {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       Type: [this.sampleComponentForm ? this.sampleComponentForm.value.Type : '', Validators.required],
+      Enabled: [this.sampleComponentForm ? this.sampleComponentForm.value.Enabled : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
@@ -99,7 +100,6 @@ export class EndpointComponent implements OnInit {
       controlArray.push({'ID': 'LogLevel', 'defVal' : '', 'Validators' : Validators.required });
       break;
       case 'slack':
-      controlArray.push({'ID':'SlackEnabled','defVal' :'','Validators' : Validators.required });
       controlArray.push({'ID':'URL','defVal' :'', 'Validators' : Validators.required });
       controlArray.push({'ID':'Channel','defVal' :'','Validators' : Validators.required });
       controlArray.push({'ID':'SlackUsername','defVal' :'','Validators' : Validators.required });

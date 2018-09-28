@@ -96,3 +96,18 @@
  adminpassword = "adm1pass"
  #When more than one instance you will need customize the cookie_id allowing navigate to all instances
  cookieid ="my_instance_cookie"
+
+############################
+# Endpoints Config
+############################
+[endpoints]
+ #Proxy URL, if needed 
+ #proxyurl = "http://proxyip:proxyport"
+
+
+############################
+# Alerting Config
+############################
+[alerting]
+ #Period used to move alert events with status OK from alert_avent to alert_event_hist
+ cleanperiod = "3m"

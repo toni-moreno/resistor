@@ -30,7 +30,14 @@ declare var _: any;
       <input *ngIf="config.filtering" placeholder="Filter all columns" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
       <span [ngClass]="length > 0 ? ['label label-info'] : ['label label-warning']" style="font-size : 100%">{{length}} Results</span>
       <!--Table Actions-->
-      <ng-container *ngIf="typeComponent === 'alertevent-component' || typeComponent === 'kapacitortasks-component'">
+      <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component'">
+        <button style ="margin-top: -5px;" type="button" title="OK" (click)="onFilterColumn('Level', 'OK')" class="label label-success"><i class="glyphicon glyphicon-ok-sign"> <span class="badge">{{counterOKs}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Open" (click)="onFilterColumn('Level', 'I')" class="label label-default"><i class="glyphicon glyphicon-eye-open"> <span class="badge">{{counterNOKs}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Critical" (click)="onFilterColumn('Level', 'CRITICAL')" class="label label-danger"><i class="glyphicon glyphicon-remove-sign"> <span class="badge">{{counterCrits}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Warning" (click)="onFilterColumn('Level', 'WARNING')" class="label label-warning"><i class="glyphicon glyphicon-warning-sign"> <span class="badge">{{counterWarns}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Info" (click)="onFilterColumn('Level', 'INFO')" class="label label-info"><i class="glyphicon glyphicon-info-sign"> <span class="badge">{{counterInfos}}</span></i></button>
+      </ng-container>
+      <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component' || typeComponent === 'kapacitortasks-component'">
         <button style ="margin-top: -5px;" type="button" title="Refresh" (click)="customClick('reloaddata')" class="btn btn-primary"><i class="glyphicon glyphicon-refresh"></i></button>
         <span [ngClass]="['label label-info']" style="font-size : 100%">Last Refresh: {{this.LastUpdate | date : 'HH:mm:ss - Z'}}</span>
       </ng-container>
@@ -48,7 +55,9 @@ declare var _: any;
     </div>
     <br>
     <!--Table available actions-->
-    <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="customClick('tableaction',$event,selectedArray)"></table-actions>
+    <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="customClick('tableaction',$event,selectedArray)"
+    [counterTotal]="counterTotal" [counterOKs]="counterOKs" [counterNOKs]="counterNOKs" 
+    [counterCrits]="counterCrits" [counterWarns]="counterWarns" [counterInfos]="counterInfos"></table-actions>
     <my-spinner [isRunning]="isRequesting"></my-spinner>
     <!--Table with data -->
     <ng-table *ngIf="isRequesting === false && data"
@@ -80,6 +89,12 @@ export class TableListComponent implements OnInit, OnChanges {
   @Input() data: Array<any>;
   @Input() counterItems: any = 0;
   @Input() counterErrors: any = [];
+  @Input() counterTotal: any = 0;
+  @Input() counterOKs: any = 0;
+  @Input() counterNOKs: any = 0;
+  @Input() counterCrits: any = 0;
+  @Input() counterWarns: any = 0;
+  @Input() counterInfos: any = 0;
   @Input() selectedArray: any = [];
   @Input() isRequesting: boolean = false;
 
@@ -205,24 +220,23 @@ export class TableListComponent implements OnInit, OnChanges {
       }
     });
 
+    return this.filterData(filteredData, this.config.filtering.filterString);
+  }
+
+  filterData(srcArray: Array<any>, filterString: string): Array<any> {
     let tempArray: Array<any> = [];
-    filteredData.forEach((item: any) => {
+    srcArray.forEach((item: any) => {
       let flag = false;
       this.columns.forEach((column: any) => {
-        if (item[column.name] == null) {
-          item[column.name] = ''
-        }
-        if (item[column.name].toString().match(this.config.filtering.filterString)) {
+        if ((item[column.name] == null ? '' : item[column.name]).toString().match(filterString)) {
           flag = true;
         }
-
       });
       if (flag) {
         tempArray.push(item);
       }
     });
-    filteredData = tempArray;
-    return filteredData;
+    return tempArray;
   }
 
   changeItemsPerPage(items) {
@@ -256,6 +270,24 @@ export class TableListComponent implements OnInit, OnChanges {
     this.page = 1;
     this.myFilterValue = "";
     this.config.filtering = { filtering: { filterString: '' } };
+    this.onResetFilterColumns();
+    this.onChangeTable(this.config);
+  }
+
+  onResetFilterColumns(): void {
+    this.columns.forEach((column: any) => {
+      if (column.filtering) {
+        column.filtering.filterString = '';
+      }
+    });
+  }
+
+  onFilterColumn(columnName: string, filterString: string): void {
+    this.columns.forEach((column: any) => {
+      if (column.filtering && column.name == columnName) {
+        column.filtering.filterString = filterString;
+      }
+    });
     this.onChangeTable(this.config);
   }
 

@@ -4,8 +4,8 @@ export const EndpointComponentConfig: any =
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Type', 'name': 'Type' },
+      { 'title': 'Enabled', 'name': 'Enabled' },
       { 'title': 'URL', 'name': 'URL' },
-      { 'title': 'SlackEnabled', 'name': 'SlackEnabled' },
       { 'title': 'Channel', 'name': 'Channel' },
       { 'title': 'LogFile', 'name': 'LogFile' },
       { 'title': 'LogLevel', 'name': 'LogLevel' },

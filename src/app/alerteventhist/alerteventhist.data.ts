@@ -1,6 +1,6 @@
-export const AlertEventComponentConfig: any =
+export const AlertEventHistComponentConfig: any =
   {
-    'name' : 'Alert Events',
+    'name' : 'Alert Events History',
     'table-columns' : [
       {'title':'Level','name':'Level','transform':'color',filtering: {filterString: '', placeholder: 'Filter by Level'}},
       {'title':'EventTime','name':'EventTime','transform':'datetime'},
@@ -14,7 +14,7 @@ export const AlertEventComponentConfig: any =
       {'title':'MonExc','name':'MonExc',filtering: {filterString: '', placeholder: 'Filter by MonExc'}, tooltip: 'Exception applied for this alert (Default:0)'},
       //{'title':'PreviousLevel','name':'PreviousLevel'}
     ],
-    'slug' : 'alertevent'
+    'slug' : 'alerteventhist'
   };
   export const TableRole : string = 'viewdelete';
   export const OverrideRoleActions : Array<Object> = [

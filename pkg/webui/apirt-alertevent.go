@@ -8,13 +8,13 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// NewAPIRtAlertEvent creates an Alert Events management API
+// NewAPIRtAlertEvent creates an Alert Event management API
 func NewAPIRtAlertEvent(m *macaron.Macaron) error {
 
 	// Data sources
 	m.Group("/api/rt/alertevent", func() {
 		m.Get("/", reqSignedIn, GetAlertEvent)
-		m.Get("/:id", reqSignedIn, GetAlertEventHistByID)
+		m.Get("/:id", reqSignedIn, GetAlertEventByID)
 		m.Delete("/:id", reqSignedIn, DeleteAlertEvent)
 		m.Get("/checkondel/:id", reqSignedIn, GetAlertEventAffectOnDel)
 		m.Get("/withparams/:params", reqSignedIn, GetAlertEventWithParams)
@@ -49,10 +49,10 @@ func GetAlertEventWithParams(ctx *Context) {
 			sortDir = paramkvarray[1]
 		}
 	}
-	alevtarray, err := agent.MainConfig.Database.GetAlertEventHistArrayWithParams(filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
+	alevtarray, err := agent.MainConfig.Database.GetAlertEventArrayWithParams(filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error getting AlertEvents:%+s", err)
+		log.Errorf("Error getting AlertEvent:%+s", err)
 		return
 	}
 	ctx.JSON(200, &alevtarray)
@@ -60,19 +60,19 @@ func GetAlertEventWithParams(ctx *Context) {
 
 // GetAlertEvent Returns Alert Events list to frontend
 func GetAlertEvent(ctx *Context) {
-	alevtarray, err := agent.MainConfig.Database.GetAlertEventHistArray("")
+	alevtarray, err := agent.MainConfig.Database.GetAlertEventArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error getting AlertEvents:%+s", err)
+		log.Errorf("Error getting AlertEvent:%+s", err)
 		return
 	}
 	ctx.JSON(200, &alevtarray)
 }
 
-//GetAlertEventHistByID Returns Alert Event to frontend
-func GetAlertEventHistByID(ctx *Context) {
+//GetAlertEventByID Returns Alert Event to frontend
+func GetAlertEventByID(ctx *Context) {
 	id, _ := strconv.ParseInt(ctx.Params(":id"), 10, 64)
-	dev, err := agent.MainConfig.Database.GetAlertEventHistByID(id)
+	dev, err := agent.MainConfig.Database.GetAlertEventByID(id)
 	if err != nil {
 		log.Warningf("Error getting AlertEvent with id %d , error: %s", id, err)
 		ctx.JSON(404, err.Error())
@@ -97,7 +97,7 @@ func GetAlertEventAffectOnDel(ctx *Context) {
 func DeleteAlertEvent(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("DeleteAlertEvent. Trying to delete: %+v", id)
-	affected, err := agent.MainConfig.Database.DelAlertEventHist(id)
+	affected, err := agent.MainConfig.Database.DelAlertEvent(id)
 	if err != nil {
 		log.Warningf("Error deleting alert event %s, affected: %+v, error: %s", id, affected, err)
 		ctx.JSON(404, err.Error())

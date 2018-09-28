@@ -169,7 +169,7 @@ export class ValidationService {
 
     static durationValidator(control) {
         if (control.value){
-            if (control.value.toString().match(/[-+]?([0-9]*(\.[0-9]*)?((ns(?!.))|(us(?!.))|(µs(?!.))|(ms(?!.))|(s(?!.))|(m(?!.))|(h(?!.))){1}?)/)) {
+            if (control.value.toString().match(/(?:[+-]?(?:(?:[0-9]+)(?:\.[0-9]+)?(?:(?:h)|(?:m)|(?:s)|(?:ms)|(?:us)|(?:µs)|(?:ns))))+$/)) {
                 return null;
             } else {
                 return { 'invalidDuration': true };

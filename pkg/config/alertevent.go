@@ -6,31 +6,31 @@ import (
 )
 
 /***************************
-	AlertEventHist Alert events
-	-GetAlertEventHistByID(struct)
-	-GetAlertEventHistMap (map - for interna config use
-	-GetAlertEventHistArray(Array - for web ui use )
+	AlertEvent Alert events
+	-GetAlertEventByID(struct)
+	-GetAlertEventMap (map - for interna config use
+	-GetAlertEventArray(Array - for web ui use )
 ***********************************/
 
-/*GetAlertEventHistByID get device data by id*/
-func (dbc *DatabaseCfg) GetAlertEventHistByID(id int64) (AlertEventHist, error) {
-	alevtarray, err := dbc.GetAlertEventHistArray("id='" + strconv.FormatInt(id, 10) + "'")
+/*GetAlertEventByID get device data by id*/
+func (dbc *DatabaseCfg) GetAlertEventByID(id int64) (AlertEvent, error) {
+	alevtarray, err := dbc.GetAlertEventArray("id='" + strconv.FormatInt(id, 10) + "'")
 	if err != nil {
-		return AlertEventHist{}, err
+		return AlertEvent{}, err
 	}
 	if len(alevtarray) > 1 {
-		return AlertEventHist{}, fmt.Errorf("Error %d results on get AlertEventHistArray by id %d", len(alevtarray), id)
+		return AlertEvent{}, fmt.Errorf("Error %d results on get AlertEventArray by id %d", len(alevtarray), id)
 	}
 	if len(alevtarray) == 0 {
-		return AlertEventHist{}, fmt.Errorf("Error no values have been returned with this id %d in the config table", id)
+		return AlertEvent{}, fmt.Errorf("Error no values have been returned with this id %d in the config table", id)
 	}
 	return *alevtarray[0], nil
 }
 
-/*GetAlertEventHistMap  return data in map format*/
-func (dbc *DatabaseCfg) GetAlertEventHistMap(filter string) (map[int64]*AlertEventHist, error) {
-	alevtarray, err := dbc.GetAlertEventHistArray(filter)
-	alevtmap := make(map[int64]*AlertEventHist)
+/*GetAlertEventMap  return data in map format*/
+func (dbc *DatabaseCfg) GetAlertEventMap(filter string) (map[int64]*AlertEvent, error) {
+	alevtarray, err := dbc.GetAlertEventArray(filter)
+	alevtmap := make(map[int64]*AlertEvent)
 	for _, val := range alevtarray {
 		alevtmap[val.ID] = val
 		log.Debugf("%+v", *val)
@@ -38,32 +38,32 @@ func (dbc *DatabaseCfg) GetAlertEventHistMap(filter string) (map[int64]*AlertEve
 	return alevtmap, err
 }
 
-/*GetAlertEventHistArray generate an array of devices with all its information */
-func (dbc *DatabaseCfg) GetAlertEventHistArray(filter string) ([]*AlertEventHist, error) {
-	log.Debugf("Getting AlertEventHist data filtered with %s", filter)
+/*GetAlertEventArray generate an array of devices with all its information */
+func (dbc *DatabaseCfg) GetAlertEventArray(filter string) ([]*AlertEvent, error) {
+	log.Debugf("Getting AlertEvent data filtered with %s", filter)
 	var err error
-	var devices []*AlertEventHist
+	var devices []*AlertEvent
 	if err = dbc.x.Where(filter).Desc("id").Find(&devices); err != nil {
-		log.Warnf("Fail to get AlertEventHist data filtered with %s : %v\n", filter, err)
+		log.Warnf("Fail to get AlertEvent data filtered with %s : %v\n", filter, err)
 		return nil, err
 	}
 	return devices, nil
 }
 
-/*GetAlertEventHistArrayWithParams generate an array of devices with all its information */
-func (dbc *DatabaseCfg) GetAlertEventHistArrayWithParams(filter string, page int64, itemsPerPage int64, maxSize int64, sortColumn string, sortDir string) ([]*AlertEventHist, error) {
-	log.Debugf("Getting AlertEventHist data filtered with filter: %s, page: %d, itemsPerPage: %d, maxSize: %d, sortColumn: %s, sortDir: %s", filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
+/*GetAlertEventArrayWithParams generate an array of devices with all its information */
+func (dbc *DatabaseCfg) GetAlertEventArrayWithParams(filter string, page int64, itemsPerPage int64, maxSize int64, sortColumn string, sortDir string) ([]*AlertEvent, error) {
+	log.Debugf("Getting AlertEvent data filtered with filter: %s, page: %d, itemsPerPage: %d, maxSize: %d, sortColumn: %s, sortDir: %s", filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
 	var err error
-	var alevts []*AlertEventHist
+	var alevts []*AlertEvent
 	/*
-		SELECT * FROM alert_event_hist
+		SELECT * FROM alert_event
 		WHERE filter
 		ORDER BY sortColumn
 		sortDir (ASC/DESC)
 		LIMIT itemsPerPage * maxSize
 		OFFSET itemsPerPage * (page - 1)
 	*/
-	sqlquery := "SELECT * FROM alert_event_hist"
+	sqlquery := "SELECT * FROM alert_event"
 	if len(filter) > 0 {
 		sqlquery = sqlquery + " WHERE " + filter
 	}
@@ -82,17 +82,17 @@ func (dbc *DatabaseCfg) GetAlertEventHistArrayWithParams(filter string, page int
 		sqlquery = sqlquery + " OFFSET " + strconv.FormatInt(offset, 10)
 	}
 
-	log.Debugf("Getting AlertEventHist data filtered with sqlquery: %s", sqlquery)
+	log.Debugf("Getting AlertEvent data filtered with sqlquery: %s", sqlquery)
 
 	if err = dbc.x.SQL(sqlquery).Find(&alevts); err != nil {
-		log.Warnf("Fail to get AlertEventHist data filtered with sqlquery: %s. Error : %s", sqlquery, err)
+		log.Warnf("Fail to get AlertEvent data filtered with sqlquery: %s. Error : %s", sqlquery, err)
 		return nil, err
 	}
 	return alevts, nil
 }
 
-/*AddAlertEventHist for adding new devices*/
-func (dbc *DatabaseCfg) AddAlertEventHist(dev *AlertEventHist) (int64, error) {
+/*AddAlertEvent for adding new devices*/
+func (dbc *DatabaseCfg) AddAlertEvent(dev *AlertEvent) (int64, error) {
 	var err error
 	var affected int64
 	session := dbc.x.NewSession()
@@ -113,15 +113,15 @@ func (dbc *DatabaseCfg) AddAlertEventHist(dev *AlertEventHist) (int64, error) {
 	return affected, nil
 }
 
-/*DelAlertEventHist for deleting alert events from list of IDs*/
-func (dbc *DatabaseCfg) DelAlertEventHist(idlist string) (int64, error) {
+/*DelAlertEvent for deleting alert events from list of IDs*/
+func (dbc *DatabaseCfg) DelAlertEvent(idlist string) (int64, error) {
 	var affected int64
 	var err error
 
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affected, err = session.Where("id IN (" + idlist + ")").Delete(&AlertEventHist{})
+	affected, err = session.Where("id IN (" + idlist + ")").Delete(&AlertEvent{})
 	if err != nil {
 		session.Rollback()
 		return 0, err
