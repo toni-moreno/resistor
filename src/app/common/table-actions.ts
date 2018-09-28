@@ -70,6 +70,12 @@ export class TableActions {
     @Input() itemsSelected : number = 0;
     @Input() tableAvailableActions: Array<any>;
     @Input() counterItems;
+    @Input() counterTotal;
+    @Input() counterOKs;
+    @Input() counterNOKs;
+    @Input() counterCrits;
+    @Input() counterWarns;
+    @Input() counterInfos;
     @Output() public actionApply:EventEmitter<any> = new EventEmitter<any>();
 
     itemsApplied: any;

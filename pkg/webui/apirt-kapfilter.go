@@ -59,22 +59,24 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	alertcfg, err := agent.MainConfig.Database.GetAlertIDCfgByID(al.ID)
 	if err != nil {
 		log.Warningf("Error getting alert cfg with id: %s. Error: %s", al.ID, err)
-		return
 	}
 	sortedtagsarray := sortTagsMap(al.Data.Series[0].Tags)
-	//Add alert event to list of alert events
-	alertevent := makeAlertEvent(al, alertcfg, sortedtagsarray)
-	AddAlertEvent(alertevent)
+	//makeTaskAlertInfo
+	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, sortedtagsarray)
+	if err != nil {
+		log.Warningf("RTAlertHandler. Error making taskAlertInfo. Error: %s", err)
+	}
+	//Save current alert event and move previous alert event
+	saveAlertEvent(taskAlertInfo, al, alertcfg, sortedtagsarray)
 
 	//Send alert event to related endpoints
-	arendpoint := alertcfg.Endpoint
-	for _, endpointid := range arendpoint {
+	for _, endpointid := range alertcfg.Endpoint {
 		endpoint, err := agent.MainConfig.Database.GetEndpointCfgByID(endpointid)
 		if err != nil {
 			log.Warningf("Error getting endpoint for id %s. Error: %s.", endpointid, err)
 		} else {
 			log.Debugf("Got endpoint: %+v", endpoint)
-			err = sendData(al, alertcfg, sortedtagsarray, endpoint)
+			err = sendData(taskAlertInfo, al, alertcfg, sortedtagsarray, endpoint)
 			if err != nil {
 				log.Warningf("Error sending data to endpoint with id %s. Error: %s.", endpointid, err)
 			}
@@ -99,13 +101,15 @@ func sortTagsMap(tagsmap map[string]string) []string {
 	return sortedtagsarray
 }
 
-func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (dev config.AlertEventHist) {
-	alertevent := config.AlertEventHist{}
+func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (dev config.AlertEvent) {
+	log.Debugf("makeAlertEvent. Making alert event with this CorrelationID %s", taskAlertInfo.CorrelationID)
+	alertevent := config.AlertEvent{}
 	alertevent.ID = 0
+	alertevent.CorrelationID = taskAlertInfo.CorrelationID
 	alertevent.AlertID = al.ID
 	alertevent.Message = al.Message
 	alertevent.Details = al.Details
-	alertevent.Time = al.Time
+	alertevent.EventTime = al.Time
 	alertevent.Duration = al.Duration
 	alertevent.Level = al.Level.String()
 	alertevent.Field = alertcfg.Field
@@ -124,15 +128,83 @@ func makeAlertEvent(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray [
 	return alertevent
 }
 
-// AddAlertEvent Inserts new alert event into the internal DB
-func AddAlertEvent(dev config.AlertEventHist) {
-	log.Debugf("ADDING alert event %+v", dev)
+func saveAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) {
+	//Move previous alert events with this correlationid from alert_event to alert_event_hist
+	filter := "correlationid = '" + taskAlertInfo.CorrelationID + "'"
+	MoveAlertEvents(filter)
+	//Make current alert event
+	alertevent := makeAlertEvent(taskAlertInfo, al, alertcfg, sortedtagsarray)
+	//Insert current alert event into alert_event
+	err := addAlertEvent(alertevent)
+	if err != nil {
+		log.Warningf("saveAlertEvent. Error inserting current alert event with this correlationid %s into alert_event. Error: %s", taskAlertInfo.CorrelationID, err)
+	}
+}
+
+//MoveAlertEvents Moves previous alert events with this filter from alert_event to alert_event_hist
+func MoveAlertEvents(filter string) {
+	log.Debugf("MoveAlertEvents. Moving previous alert event with this filter %s from alert_event to alert_event_hist.", filter)
+	//Get previous alert events with this filter from alert_event
+	prevalevtarray, err := getAlertEventArray(filter)
+	if err != nil {
+		log.Warningf("MoveAlertEvents. Error getting previous alert events with this filter %s from alert_event. Error: %s", filter, err)
+	}
+	if len(prevalevtarray) > 0 {
+		log.Debugf("MoveAlertEvents. Got previous alert events with this filter %s from alert_event.", filter)
+		for _, prevalevt := range prevalevtarray {
+			//Insert previous alert event with this filter into alert_event_hist
+			err = addAlertEventHist(config.AlertEventHist(*prevalevt))
+			if err != nil {
+				log.Warningf("MoveAlertEvents. Error inserting previous alert event with id %d into alert_event_hist. Error: %s", prevalevt.ID, err)
+			} else {
+				//Delete previous alert event with this filter from alert_event
+				err = deleteAlertEvent(*prevalevt)
+				if err != nil {
+					log.Warningf("MoveAlertEvents. Error deleting previous alert event with id %d from alert_event. Error: %s", prevalevt.ID, err)
+				}
+			}
+		}
+	}
+}
+
+// getAlertEventArray Gets alert events with filter from alert_event
+func getAlertEventArray(filter string) ([]*config.AlertEvent, error) {
+	log.Debugf("Getting alert events with filter %s", filter)
+	alevtarray, err := agent.MainConfig.Database.GetAlertEventArray(filter)
+	if err != nil {
+		log.Warningf("Error getting alert events with filter %s. Error: %s", filter, err)
+	}
+	return alevtarray, err
+}
+
+//addAlertEventHist Inserts alert event hist into alert_event_hist
+func addAlertEventHist(dev config.AlertEventHist) error {
+	log.Debugf("ADDING alert event hist %+v", dev)
 	affected, err := agent.MainConfig.Database.AddAlertEventHist(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for alert event %d , affected : %+v , error: %s", dev.ID, affected, err)
-	} else {
-		log.Infof("Alert event %d successfully inserted", dev.ID)
+		log.Warningf("Error on insert for alert event hist %d , affected : %+v , error: %s", dev.ID, affected, err)
 	}
+	return err
+}
+
+//deleteAlertEvent Deletes previous alert event from alert_event
+func deleteAlertEvent(alevt config.AlertEvent) error {
+	log.Debugf("Deleting alert event with id %v", alevt.ID)
+	_, err := agent.MainConfig.Database.DelAlertEvent(fmt.Sprintf("%v", alevt.ID))
+	if err != nil {
+		log.Warningf("Error deleting alert event with id %v. Error: %s", alevt.ID, err)
+	}
+	return err
+}
+
+//addAlertEvent Inserts current alert event into alert_event
+func addAlertEvent(dev config.AlertEvent) error {
+	log.Debugf("ADDING alert event %+v", dev)
+	affected, err := agent.MainConfig.Database.AddAlertEvent(&dev)
+	if err != nil {
+		log.Warningf("Error on insert for alert event %d , affected : %+v , error: %s", dev.ID, affected, err)
+	}
+	return err
 }
 
 func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (TaskAlertInfo, error) {
@@ -247,24 +319,18 @@ func makeResistorAlertFields(alertkapa alert.Data) map[string]interface{} {
 	return raf
 }
 
-func sendData(al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, endpoint config.EndpointCfg) error {
+func sendData(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, endpoint config.EndpointCfg) error {
 	var err error
-	strouttype := endpoint.Type
-	log.Debugf("strouttype: %s", strouttype)
-	//makeTaskAlertInfo
-	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, sortedtagsarray)
-	if err != nil {
-		log.Warningf("sendData. Error making taskAlertInfo. Error: %s", err)
-		return err
+	log.Debugf("sendData. endpoint.Type: %s, endpoint.Enabled: %v", endpoint.Type, endpoint.Enabled)
+	if endpoint.Enabled {
+		if endpoint.Type == "logging" {
+			err = sendDataToLog(taskAlertInfo, endpoint)
+		} else if endpoint.Type == "httppost" {
+			err = sendDataToHTTPPost(taskAlertInfo, endpoint)
+		} else if endpoint.Type == "slack" {
+			err = sendDataToSlack(taskAlertInfo, endpoint)
+		}
 	}
-	if strouttype == "logging" {
-		err = sendDataToLog(taskAlertInfo, endpoint)
-	} else if strouttype == "httppost" {
-		err = sendDataToHTTPPost(taskAlertInfo, endpoint)
-	} else if strouttype == "slack" {
-		err = sendDataToSlack(al, endpoint)
-	}
-
 	return err
 }
 
@@ -285,11 +351,12 @@ func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	//Set headers
 	for _, hkv := range endpoint.Headers {
 		kv := strings.Split(hkv, "=")
-		if len(kv) > 0 {
+		if len(kv) > 0 && len(kv[0]) > 0 {
 			headervalue := ""
 			if len(kv) > 1 {
 				headervalue = kv[1]
 			}
+			log.Debugf("sendDataToHTTPPost. Setting header(name:value) - (%s:%s)", kv[0], headervalue)
 			req.Header.Set(kv[0], headervalue)
 		}
 	}
@@ -372,8 +439,8 @@ type TaskAlertInfo struct {
 	ResistorAlertInfo       config.AlertIDCfgJSON  `json:"resistor-alert-info,omitempty"`
 }
 
-//Config data for Slack
-type Config struct {
+//SlackConfig data for Slack
+type SlackConfig struct {
 	// Whether Slack integration is enabled.
 	Enabled bool `json:"enabled" override:"enabled"`
 	// The Slack webhook URL, can be obtained by adding Incoming Webhook integration.
@@ -419,10 +486,10 @@ type Service struct {
 	client      *http.Client
 }
 
-func sendDataToSlack(al alert.Data, endpoint config.EndpointCfg) error {
+func sendDataToSlack(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 
-	slackConfig := Config{}
-	slackConfig.Enabled = endpoint.SlackEnabled
+	slackConfig := SlackConfig{}
+	slackConfig.Enabled = endpoint.Enabled
 	slackConfig.URL = endpoint.URL
 	slackConfig.Channel = endpoint.Channel
 	slackConfig.Username = endpoint.SlackUsername
@@ -439,14 +506,15 @@ func sendDataToSlack(al alert.Data, endpoint config.EndpointCfg) error {
 		return err
 	}
 	if slackConfig.Enabled {
-		s.Alert(slackConfig.Channel, al.Message, slackConfig.Username, slackConfig.IconEmoji, al.Level)
+		msg := al.Message + " - Triggered by: " + al.ResistorAlertTriggered
+		s.Alert(slackConfig.Channel, msg, slackConfig.Username, slackConfig.IconEmoji, al.Level)
 	}
 	return err
 }
 
 func getProxyURLFunc() func(*http.Request) (*url.URL, error) {
 	proxyURLFunc := http.ProxyFromEnvironment
-	proxyURLStr := agent.MainConfig.HTTP.ProxyURL
+	proxyURLStr := agent.MainConfig.Endpoints.ProxyURL
 	log.Debugf("getProxyURLFunc. proxyURLStr: %s", proxyURLStr)
 	if len(proxyURLStr) > 0 {
 		proxyURL, err := url.Parse(proxyURLStr)
@@ -460,7 +528,7 @@ func getProxyURLFunc() func(*http.Request) (*url.URL, error) {
 }
 
 //NewService function for Slack
-func NewService(c Config, d Diagnostic) (*Service, error) {
+func NewService(c SlackConfig, d Diagnostic) (*Service, error) {
 	tlsConfig, err := Create(c.SSLCA, c.SSLCert, c.SSLKey, c.InsecureSkipVerify)
 	if err != nil {
 		return nil, err
@@ -599,8 +667,8 @@ func (s *Service) preparePost(channel, message, username, iconEmoji string, leve
 	return c.URL, &post, nil
 }
 
-func (s *Service) config() Config {
-	return s.configValue.Load().(Config)
+func (s *Service) config() SlackConfig {
+	return s.configValue.Load().(SlackConfig)
 }
 
 // slack attachment info

@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { AlertEventService } from './alertevent.service';
+import { AlertEventHistService } from './alerteventhist.service';
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 import { ExportFileModal } from '../common/dataservice/export-file-modal';
@@ -11,18 +11,18 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { AlertEventComponentConfig, TableRole, OverrideRoleActions } from './alertevent.data';
+import { AlertEventHistComponentConfig, TableRole, OverrideRoleActions } from './alerteventhist.data';
 
 declare var _:any;
 
 @Component({
-  selector: 'alertevent-component',
-  providers: [AlertEventService, ValidationService],
-  templateUrl: './alertevent.component.html',
+  selector: 'alerteventhist-component',
+  providers: [AlertEventHistService, ValidationService],
+  templateUrl: './alerteventhist.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class AlertEventComponent implements OnInit {
+export class AlertEventHistComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
@@ -41,7 +41,7 @@ export class AlertEventComponent implements OnInit {
   public counterCrits : number = 0;
   public counterWarns : number = 0;
   public counterInfos : number = 0;
-  public defaultConfig : any = AlertEventComponentConfig;
+  public defaultConfig : any = AlertEventHistComponentConfig;
   public tableRole : any = TableRole;
   public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
@@ -57,7 +57,7 @@ export class AlertEventComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public alertEventService: AlertEventService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public alertEventHistService: AlertEventHistService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -76,7 +76,7 @@ export class AlertEventComponent implements OnInit {
 
   reloadData(action? : any) {
     this.isRequesting = true;
-    this.alertEventService.getAlertEventWithParams(action)
+    this.alertEventHistService.getAlertEventHistWithParams(action)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -169,7 +169,7 @@ export class AlertEventComponent implements OnInit {
 
   removeItem(row) {
     let id = row.ID;
-    this.alertEventService.checkOnDeleteAlertEventItem(id)
+    this.alertEventHistService.checkOnDeleteAlertEventHistItem(id)
       .subscribe(
         data => {
         this.viewModalDelete.parseObject(data)
@@ -181,7 +181,7 @@ export class AlertEventComponent implements OnInit {
 
   editSampleItem(row) {
     let id = row.ID;
-    this.alertEventService.getAlertEventItemById(id)
+    this.alertEventHistService.getAlertEventHistItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
@@ -195,13 +195,13 @@ export class AlertEventComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.alertEventService.deleteAlertEventItem(id)
+    this.alertEventHistService.deleteAlertEventHistItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.alertEventService.deleteAlertEventItem(id)
+      return this.alertEventHistService.deleteAlertEventHistItem(id)
       .do(
         (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}

@@ -14,6 +14,8 @@ export class AvailableTableActions {
         return this.getKapacitorAvailableActions();
         case 'alert-component':
         return this.getAlertAvailableActions();
+        case 'alerteventhist-component':
+        return this.getAlertEventHistAvailableActions();
         case 'alertevent-component':
         return this.getAlertEventAvailableActions();
         case 'devicestats-component':
@@ -46,6 +48,16 @@ export class AvailableTableActions {
   }
 
   getAlertAvailableActions (data ? : any) : any {
+    let tableAvailableActions = [
+    //Remove Action
+      {'title': 'Remove', 'content' :
+        {'type' : 'button','action' : 'RemoveAllSelected'}
+      }
+    ];
+    return tableAvailableActions;
+  }
+
+  getAlertEventHistAvailableActions (data ? : any) : any {
     let tableAvailableActions = [
     //Remove Action
       {'title': 'Remove', 'content' :

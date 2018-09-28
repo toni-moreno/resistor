@@ -1,3 +1,40 @@
+# v 0.5.7  (28/09/2018)
+### New features.
+* Changes on Alert Events component:
+    * Component 'Alert Events' has been divided into components 'Alert Events' and 'Alert Events History'.
+    * On 'Alert Events' component only the last alert event of each CorrelationID is shown.
+	* On 'Alert Events History' component all the previous alert events of each CorrelationID are shown.
+	* When a new alert event arrives it's added to the alert_event table and the previous alert events related are moved to the alert_event_hist table.
+	* Also a clean process is executed periodically to move to history table the alerts with status OK.
+	* Buttons for filtering by Level have been added.
+    * Set Alert Events component as initial component when login.
+* New parameter 'cleanperiod' on new section [alerting] of config file.
+    * Period used to move alert events with status OK from alert_event to alert_event_hist.
+    * Example: cleanperiod = "3m"
+* Changes on Alerting Endpoints component:
+    * SlackEnabled field has been changed to Enabled and it's used for all endpoints.
+    * 'Triggered by' information added to message for Slack.
+* Changes on Alert Definition component:
+    * InfluxFilter field: Link to lambda expressions explanation added.
+* Changes on Device Stats component:
+    * BaseLine placed before AlertID.
+* Parameter 'proxyurl' on config file moved from [http] section to new section [endpoints].
+    * Example: proxyurl = "http://proxyIP:proxyPort"
+
+### fixes
+* Changes on Alert Definition component:
+    * IntervalCheck field: Fixed the regular expression to check the data has a valid format.
+
+### breaking changes
+* Field slackenabled on table endpoint_cfg changed to enabled.
+    * Execute the following sqls to mantain the previous behaviour:
+        * UPDATE endpoint_cfg SET enabled = 1;
+        * UPDATE endpoint_cfg SET enabled = slackenabled WHERE type = 'slack';
+* New table alert_event created. This table is related with alert_event_hist table and it has the id column as PK and autoincrement.
+    * Execute the following sql to mantain the previous behaviour:
+        * UPDATE SQLITE_SEQUENCE SET seq = (SELECT seq FROM SQLITE_SEQUENCE WHERE name = 'alert_event_hist') WHERE name = 'alert_event';
+
+
 # v 0.5.6  (20/09/2018)
 ### New features.
 * New parameter 'proxyurl' added to config file to use it on Alerting Endpoints, if needed.

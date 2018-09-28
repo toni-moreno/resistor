@@ -3,6 +3,7 @@ package webui
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/session"
@@ -13,6 +14,7 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
 	"github.com/toni-moreno/resistor/pkg/kapa"
 	"gopkg.in/macaron.v1"
@@ -176,17 +178,18 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewAPICfgImportExport(m)
 
 	NewAPIRtAgent(m)
-	NewAPIRtKapFilter(m)  //Webservice for alert filtering
-	NewAPIRtKapProxy(m)   //Kapacitor proxy
-	NewAPIRtKapacitor(m)  //Kapacitor tasks
-	NewAPIRtAlertEvent(m) //Alert Events
+	NewAPIRtKapFilter(m)      //Webservice for alert filtering
+	NewAPIRtKapProxy(m)       //Kapacitor proxy
+	NewAPIRtKapacitor(m)      //Kapacitor tasks
+	NewAPIRtAlertEventHist(m) //Alert Events History
+	NewAPIRtAlertEvent(m)     //Alert Events
 	//Catalog
 	NewAPICfgIfxServer(m) //Influx Servers
 	NewAPICfgIfxDB(m)     //Influx Databases
 	//Servers
 	NewAPICfgKapacitor(m)      //Kapacitor URL's
 	NewAPICfgIfxMeasurement(m) //Influx Measurments
-	NewAPICfgEndpoint(m)        //Endpoint list
+	NewAPICfgEndpoint(m)       //Endpoint list
 	//Config
 
 	NewAPICfgAlertID(m)      //Alert Admin
@@ -197,10 +200,11 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewAPICfgDeviceStat(m)   //Device Stats
 
 	log.Printf("Server is running on localhost:%d...", port)
+	go startCleanAlertsProc()
 	httpServer := fmt.Sprintf("0.0.0.0:%d", port)
 	err := http.ListenAndServe(httpServer, m)
 	if err != nil {
-		log.Errorf("Error en starting HTTP server: %s", err)
+		log.Errorf("Error starting HTTP server: %s", err)
 	}
 }
 
@@ -228,4 +232,33 @@ func myLogoutHandler(ctx *Context) {
 	log.Printf("USER LOGOUT: USER: +%#v ", ctx.SignedInUser)
 	ctx.Session.Destory(ctx)
 	//ctx.Redirect("/login")
+}
+
+func startCleanAlertsProc() {
+	log.Debugf("startCleanAlertsProc. Init...")
+	d, err := time.ParseDuration(agent.MainConfig.Alerting.CleanPeriod)
+	if err != nil {
+		log.Warnf("startCleanAlertsProc. Error on ParseDuration with %s, using 5m. Error: %s", agent.MainConfig.Alerting.CleanPeriod, err)
+		d, err = time.ParseDuration("5m")
+	}
+	t := time.NewTicker(d)
+	for {
+		log.Debugf("startCleanAlertsProc. Starting clean process again...")
+		cleanAlertEvents()
+
+	LOOP:
+		for {
+			select {
+			case <-t.C:
+				log.Debugf("startCleanAlertsProc. tick received...")
+				break LOOP
+			}
+		}
+	}
+}
+
+func cleanAlertEvents() {
+	//Move previous alert events with level OK from alert_event to alert_event_hist
+	filter := "level = 'OK'"
+	MoveAlertEvents(filter)
 }

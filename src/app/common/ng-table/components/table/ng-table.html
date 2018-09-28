@@ -49,7 +49,7 @@
             </td>
 
             <td *ngFor="let column of columns ">
-                <input *ngIf="column.filtering " placeholder="{{column.filtering.placeholder}} " [ngTableFiltering]="column.filtering " class="form-control " style="width: auto; " (tableChanged)="onChangeTable(config) " />
+                <input *ngIf="column.filtering " id="{{column.name}}_filter" placeholder="{{column.filtering.placeholder}} " [ngTableFiltering]="column.filtering " class="form-control " style="width: auto; " (tableChanged)="onChangeTable(config) " />
             </td>
         </tr>
         <tr *ngFor="let row of rows ">
