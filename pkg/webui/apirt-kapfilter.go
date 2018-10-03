@@ -101,7 +101,7 @@ func sortTagsMap(tagsmap map[string]string) []string {
 	return sortedtagsarray
 }
 
-func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (dev config.AlertEvent) {
+func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, prevalevtarray []*config.AlertEvent) (dev config.AlertEvent) {
 	log.Debugf("makeAlertEvent. Making alert event with this CorrelationID %s", taskAlertInfo.CorrelationID)
 	alertevent := config.AlertEvent{}
 	alertevent.ID = 0
@@ -109,6 +109,14 @@ func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.
 	alertevent.AlertID = al.ID
 	alertevent.Message = al.Message
 	alertevent.Details = al.Details
+	if al.Level.String() != "OK" {
+		alertevent.FirstEventTime = al.Time
+	}
+	if len(prevalevtarray) > 0 {
+		if prevalevtarray[0].Level != "OK" {
+			alertevent.FirstEventTime = prevalevtarray[0].FirstEventTime
+		}
+	}
 	alertevent.EventTime = al.Time
 	alertevent.Duration = al.Duration
 	alertevent.Level = al.Level.String()
@@ -131,9 +139,9 @@ func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.
 func saveAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) {
 	//Move previous alert events with this correlationid from alert_event to alert_event_hist
 	filter := "correlationid = '" + taskAlertInfo.CorrelationID + "'"
-	MoveAlertEvents(filter)
+	prevalevtarray := MoveAlertEvents(filter)
 	//Make current alert event
-	alertevent := makeAlertEvent(taskAlertInfo, al, alertcfg, sortedtagsarray)
+	alertevent := makeAlertEvent(taskAlertInfo, al, alertcfg, sortedtagsarray, prevalevtarray)
 	//Insert current alert event into alert_event
 	err := addAlertEvent(alertevent)
 	if err != nil {
@@ -142,7 +150,7 @@ func saveAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.
 }
 
 //MoveAlertEvents Moves previous alert events with this filter from alert_event to alert_event_hist
-func MoveAlertEvents(filter string) {
+func MoveAlertEvents(filter string) []*config.AlertEvent {
 	log.Debugf("MoveAlertEvents. Moving previous alert event with this filter %s from alert_event to alert_event_hist.", filter)
 	//Get previous alert events with this filter from alert_event
 	prevalevtarray, err := getAlertEventArray(filter)
@@ -165,6 +173,7 @@ func MoveAlertEvents(filter string) {
 			}
 		}
 	}
+	return prevalevtarray
 }
 
 // getAlertEventArray Gets alert events with filter from alert_event

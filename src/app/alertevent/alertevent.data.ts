@@ -3,6 +3,7 @@ export const AlertEventComponentConfig: any =
     'name' : 'Alert Events',
     'table-columns' : [
       {'title':'Level','name':'Level','transform':'color',filtering: {filterString: '', placeholder: 'Filter by Level'}},
+      {'title':'FirstEventTime','name':'FirstEventTime','transform':'datetime'},
       {'title':'EventTime','name':'EventTime','transform':'datetime'},
       {'title':'ID','name':'ID',filtering: {filterString: '', placeholder: 'Filter by ID'},sort:'desc'},
       {'title':'AlertID','name':'AlertID',filtering: {filterString: '', placeholder: 'Filter by AlertID'}},

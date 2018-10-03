@@ -72,14 +72,15 @@ func (IfxDBMeasRel) TableName() string {
 
 // ProductCfg Product Catalog Config type
 type ProductCfg struct {
-	ID           string   `xorm:"'id' unique" binding:"Required"`
-	ProductTag   string   `xorm:"producttag" binding:"Required"`
-	CommonTags   []string `xorm:"commontags"`
-	ExtraTags    []string `xorm:"extratags"`
-	BaseLines    []string `xorm:"baselines"`
-	Measurements []string `xorm:"measurements"`
-	AlertGroups  []string `xorm:"alertgroups"`
-	Description  string   `xorm:"description"`
+	ID               string   `xorm:"'id' unique" binding:"Required"`
+	ProductTag       string   `xorm:"producttag" binding:"Required"`
+	CommonTags       []string `xorm:"commontags"`
+	ExtraTags        []string `xorm:"extratags"`
+	BaseLines        []string `xorm:"baselines"`
+	Measurements     []string `xorm:"measurements"`
+	AlertGroups      []string `xorm:"alertgroups"`
+	FieldResolutions []string `xorm:"fieldresolutions"`
+	Description      string   `xorm:"description"`
 }
 
 // ProductGroupCfg Product Group Catalog Config type
@@ -127,6 +128,7 @@ type TemplateCfg struct {
 	CritDirection           string    `xorm:"critdirection"`
 	TrendType               string    `xorm:"trendtype"` //Absolute/Relative
 	TrendSign               string    `xorm:"trendsign"` //Positive/Negative
+	FieldType               string    `xorm:"fieldtype"` //Counter/Gauge
 	TplData                 string    `xorm:"tpldata"`
 	Description             string    `xorm:"description"`
 	Modified                time.Time `xorm:"modified"`
@@ -188,6 +190,8 @@ type AlertIDCfg struct {
 	InfluxFilter       string `xorm:"influxfilter"`
 	TriggerType        string `xorm:"triggertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman|
 	IntervalCheck      string `xorm:"intervalcheck" binding:"Required"`
+	AlertFrequency     string `xorm:"alertfrequency"`
+	AlertNotify        int    `xorm:"alertnotify"`
 	OperationID        string `xorm:"operationid"`
 	Field              string `xorm:"field" binding:"Required"`
 	IsCustomExpression bool   `xorm:"iscustomexpression"`
@@ -198,6 +202,9 @@ type AlertIDCfg struct {
 	Shift              string `xorm:"shift"`
 	TrendType          string `xorm:"trendtype"` //Absolute/Relative
 	TrendSign          string `xorm:"trendsign"` //Positive/Negative
+	FieldType          string `xorm:"fieldtype"` //Counter/Gauge
+	Rate               bool   `xorm:"rate"`
+	FieldResolution    string `xorm:"fieldresolution"`
 	//thresholds
 	//CRITICAL
 	ThCritDef         float64 `xorm:"th_crit_def"`
@@ -250,6 +257,7 @@ type AlertIDCfgJSON struct {
 	InfluxFilter      string `json:"influxfilter,omitempty"`
 	TriggerType       string `json:"triggertype"` //deadman|
 	IntervalCheck     string `json:"intervalcheck"`
+	AlertFrequency    string `json:"alertfrequency,omitempty"`
 	OperationID       string `json:"operationid,omitempty"`
 	Field             string `json:"field"`
 	StatFunc          string `json:"statfunc,omitempty"`
@@ -257,6 +265,8 @@ type AlertIDCfgJSON struct {
 	Shift             string `json:"shift,omitempty"`
 	TrendType         string `json:"trendtype,omitempty"` //Absolute/Relative
 	TrendSign         string `json:"trendsign,omitempty"` //Positive/Negative
+	FieldType         string `json:"fieldtype,omitempty"` //Counter/Gauge
+	FieldResolution   string `json:"fieldresolution,omitempty"`
 	//thresholds
 	//APPLIED
 	ThCrit float64 `json:"th_crit"`
@@ -284,6 +294,7 @@ type AlertEventHist struct {
 	Field           string        `xorm:"field"`
 	Message         string        `xorm:"message"`
 	Details         string        `xorm:"details"`
+	FirstEventTime  time.Time     `xorm:"firsteventtime"`
 	EventTime       time.Time     `xorm:"eventtime"`
 	Duration        time.Duration `xorm:"duration"`
 	Level           string        `xorm:"level"`
@@ -309,6 +320,7 @@ type AlertEvent struct {
 	Field           string        `xorm:"field"`
 	Message         string        `xorm:"message"`
 	Details         string        `xorm:"details"`
+	FirstEventTime  time.Time     `xorm:"firsteventtime"`
 	EventTime       time.Time     `xorm:"eventtime"`
 	Duration        time.Duration `xorm:"duration"`
 	Level           string        `xorm:"level"`

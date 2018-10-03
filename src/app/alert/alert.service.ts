@@ -11,7 +11,7 @@ export class AlertService {
     }
 
     jsonParser(key,value) {
-        if ( key == 'Active' || key == 'IsCustomExpression' ) {
+        if ( key == 'Active' || key == 'IsCustomExpression' || key == 'Rate' ) {
             return ( value === "true" || value === true);
         }
         if ( key == 'ExtraData' && (value == null || value.length == 0)) {

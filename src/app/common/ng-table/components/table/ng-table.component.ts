@@ -111,7 +111,6 @@ export class NgTableComponent {
         return trf;
       }
       else {
-        //console.log(html + " cannot be transformed to datetime");
         return "";
       }
     }
@@ -154,8 +153,8 @@ export class NgTableComponent {
       if (html) return '<i class="glyphicon glyphicon-ok text-success"></i>'
       else return '<i class="glyphicon glyphicon-remove text-danger"></i>'
     }
-    else {
-      return this.sanitizer.bypassSecurityTrustHtml(html);
+    else if (html != null) {
+        return this.sanitizer.bypassSecurityTrustHtml(html);
     }
   }
 

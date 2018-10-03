@@ -1,3 +1,39 @@
+# v 0.5.8  (03/10/2018)
+### New features.
+* Changes on Templates component:
+    * New field 'FieldType'. Now you can have templates of type COUNTER or GAUGE.
+* Changes on Alert Definition component:
+    * New field 'FieldType'. Now you can have alerts for fields of type COUNTER or GAUGE.
+    * New field 'AlertFrequency'. Indicates the interval used to emit alerts.
+    * New field 'AlertNotify'. Indicates the number of cycles of AlertFrequency to force an alert is sent to endpoint.
+    * New field 'FieldResolution'. Indicates the time unit for the derivative node used in alerts for counter fields.
+    * New field 'Rate'. Used in alerts for counter fields. If true, 1s is used as unit time; else you can choose the unit with 'FieldResolution' field.
+* Changes on Product component:
+    * New field 'FieldResolutions' to indicate the list of possible time units for the derivative node used in counter templates.
+* Changes on Alert Events component:
+    * New column 'FirstEventTime' added.
+* Changes on Alert Events History component:
+    * New column 'FirstEventTime' added.
+
+### fixes
+* Changes on Import Data component:
+    * Fixed error when importing catalog from InfluxDB on MySQL database.
+	* If an error occurs when importing catalog, the spinner component is hidden.
+* Changes on lists:
+    * Fixed error: sometimes the 'undefined' word was shown.
+
+### breaking changes
+* New field fieldtype on table template_cfg.
+    * Execute the following sql to mantain the previous behaviour:
+        * UPDATE template_cfg SET fieldtype = 'GAUGE';
+* New field fieldtype on table alert_id_cfg.
+    * Execute the following sql to mantain the previous behaviour:
+        * UPDATE alert_id_cfg SET fieldtype = 'GAUGE';
+* New field alertfrequency on table alert_id_cfg.
+    * Execute the following sql to mantain the previous behaviour:
+        * UPDATE alert_id_cfg SET alertfrequency = '1m';
+
+
 # v 0.5.7  (28/09/2018)
 ### New features.
 * Changes on Alert Events component:

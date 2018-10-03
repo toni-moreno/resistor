@@ -171,23 +171,26 @@ func GetAlertIDCfgArrayByProductID(ctx *Context) {
 }
 
 //GetAlertIDCfgByTemplate Gets an array of strings with the IDs of the Alerts where this template is used.
-//The input parameters are the 5 fields needed to define a template.
-func GetAlertIDCfgByTemplate(sTriggerType string, sCritDirection string, sTrendType string, sTrendSign string, sStatFunc string) ([]string, error) {
+//The input parameters are the 6 fields needed to define a template.
+func GetAlertIDCfgByTemplate(sTriggerType string, sCritDirection string, sTrendType string, sTrendSign string, sFieldType string, sStatFunc string) ([]string, error) {
 	filter := fmt.Sprintf("triggertype = '%s'", sTriggerType)
 	if sTriggerType != "DEADMAN" {
 		if len(sCritDirection) > 0 {
 			filter += fmt.Sprintf(" and critdirection = '%s'", sCritDirection)
 		}
-		if len(sTrendType) > 0 {
-			filter += fmt.Sprintf(" and trendtype = '%s'", sTrendType)
-		}
-		if len(sStatFunc) > 0 {
-			filter += fmt.Sprintf(" and statfunc = '%s'", sStatFunc)
-		}
 		if sTriggerType == "TREND" {
+			if len(sTrendType) > 0 {
+				filter += fmt.Sprintf(" and trendtype = '%s'", sTrendType)
+			}
 			if len(sTrendSign) > 0 {
 				filter += fmt.Sprintf(" and trendsign = '%s'", sTrendSign)
 			}
+		}
+		if len(sFieldType) > 0 {
+			filter += fmt.Sprintf(" and fieldtype = '%s'", sFieldType)
+		}
+		if len(sStatFunc) > 0 {
+			filter += fmt.Sprintf(" and statfunc = '%s'", sStatFunc)
 		}
 	}
 	log.Debugf("GetAlertIDCfgByTemplate. Getting alerts with filter: %s.", filter)

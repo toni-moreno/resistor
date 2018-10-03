@@ -84,6 +84,7 @@ export class ProductComponent implements OnInit {
       ExtraTags: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTags : '', null],
       Measurements: [this.sampleComponentForm ? this.sampleComponentForm.value.Measurements : '', null],
       AlertGroups: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertGroups : '', null],
+      FieldResolutions: [this.sampleComponentForm ? this.sampleComponentForm.value.FieldResolutions : '', null],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
