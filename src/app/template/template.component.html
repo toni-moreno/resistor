@@ -51,26 +51,6 @@
               <control-messages [control]="sampleComponentForm.controls.TriggerType"></control-messages>
             </div>
           </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
-            <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Function to apply"></i>
-            <div class="col-sm-9">
-              <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
-                <option value="NONE" selected="selected">NONE</option>
-                <option value="LAST">LAST</option>
-                <option value="MAX">MAX</option>
-                <option value="MEAN">MEAN</option>
-                <option value="MEDIAN">MEDIAN</option>
-                <option value="MIN">MIN</option>
-                <option value="MOVINGAVERAGE">MOVINGAVERAGE</option>
-                <option value="PERCENTILE">PERCENTILE</option>
-                <option value="SPREAD">SPREAD</option>
-                <option value="STDDEV">STDDEV</option>
-                <option value="SUM">SUM</option>
-              </select>
-              <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
-            </div>
-          </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
             <label class="control-label col-sm-2" for="CritDirection">CritDirection</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Direction of criticality"></i>
@@ -102,6 +82,37 @@
                 <option value="negative">Negative</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.TrendSign"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.FieldType">
+            <label class="control-label col-sm-2" for="FieldType">FieldType</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates the type of metric field."></i>
+            <div class="col-sm-9">
+              <select formControlName="FieldType" id="FieldType" [ngModel]="sampleComponentForm.value.FieldType">
+                <option value="COUNTER">Counter</option>
+                <option value="GAUGE" selected="selected">Gauge</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.FieldType"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
+            <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Function to apply"></i>
+            <div class="col-sm-9">
+              <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
+                <option value="NONE" selected="selected">NONE</option>
+                <option value="LAST">LAST</option>
+                <option value="MAX">MAX</option>
+                <option value="MEAN">MEAN</option>
+                <option value="MEDIAN">MEDIAN</option>
+                <option value="MIN">MIN</option>
+                <option value="MOVINGAVERAGE">MOVINGAVERAGE</option>
+                <option value="PERCENTILE">PERCENTILE</option>
+                <option value="SPREAD">SPREAD</option>
+                <option value="STDDEV">STDDEV</option>
+                <option value="SUM">SUM</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.TplData">

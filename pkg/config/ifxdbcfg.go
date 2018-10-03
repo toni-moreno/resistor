@@ -64,7 +64,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 
 		//Measurements for each DB
 		var dbmeas []*IfxDBMeasRel
-		if err = dbc.x.Where("ifxdbid ==" + strconv.FormatInt(mVal.ID, 10)).Find(&dbmeas); err != nil {
+		if err = dbc.x.Where("ifxdbid =" + strconv.FormatInt(mVal.ID, 10)).Find(&dbmeas); err != nil {
 			log.Warnf("Fail to get MGroup Measurements relationship  data: %v\n", err)
 		}
 
@@ -72,7 +72,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 			mVal.Measurements = append(mVal.Measurements, &ItemComponent{ID: m.IfxMeasID, Name: m.IfxMeasName})
 		}
 
-		/*results, err := dbc.x.Query("select rel.ifxdbid as dbid , rel.ifxmeasid as measid , meas.name as measname  from  ifx_db_meas_rel as rel , ifx_measurement_cfg as meas  where rel.ifxmeasid  == meas.ID and rel.ifxmeasid == " + strconv.FormatInt(mVal.ID, 10))
+		/*results, err := dbc.x.Query("select rel.ifxdbid as dbid , rel.ifxmeasid as measid , meas.name as measname  from  ifx_db_meas_rel as rel , ifx_measurement_cfg as meas  where rel.ifxmeasid  = meas.ID and rel.ifxmeasid = " + strconv.FormatInt(mVal.ID, 10))
 		if err != nil {
 			log.Warnf("Fail to Query DB to Measurement : %s", err)
 		}
@@ -109,7 +109,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArrayByMeasName(filter string) ([]*IfxDBCfg, 
 
 		//Measurements for each DB
 		var dbmeas []*IfxDBMeasRel
-		if err = dbc.x.Where("ifxdbid ==" + strconv.FormatInt(mVal.ID, 10)).And("ifxmeasname = '" + filter + "'").Find(&dbmeas); err != nil {
+		if err = dbc.x.Where("ifxdbid =" + strconv.FormatInt(mVal.ID, 10)).And("ifxmeasname = '" + filter + "'").Find(&dbmeas); err != nil {
 			log.Warnf("Fail to get MGroup Measurements relationship data: %v\n", err)
 		}
 
@@ -167,7 +167,7 @@ func (dbc *DatabaseCfg) DelIfxDBCfg(id int64) (int64, error) {
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affecteddev, err = session.Where("ifxdbid ==" + strconv.FormatInt(id, 10)).Delete(&IfxDBMeasRel{})
+	affecteddev, err = session.Where("ifxdbid =" + strconv.FormatInt(id, 10)).Delete(&IfxDBMeasRel{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %d, error: %s", id, err)
@@ -190,9 +190,9 @@ func (dbc *DatabaseCfg) DelIfxDBCfg(id int64) (int64, error) {
 
 // AddOrUpdateIfxDBCfg this method insert data if not previouosly exist the tuple ifxServer.Name or update it if already exist
 func (dbc *DatabaseCfg) AddOrUpdateIfxDBCfg(dev *IfxDBCfg) (int64, error) {
-	log.Debugf("ADD OR UPDATE %+v", dev)
+	log.Debugf("AddOrUpdateIfxDBCfg. ADD OR UPDATE %+v", dev)
 	//check if exist
-	m, err := dbc.GetIfxDBCfgArray("name == '" + dev.Name + "' AND ifxserver == '" + dev.IfxServer + "'")
+	m, err := dbc.GetIfxDBCfgArray("name = '" + dev.Name + "' AND ifxserver = '" + dev.IfxServer + "'")
 	if err != nil {
 		return 0, err
 	}
@@ -215,7 +215,7 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) 
 	var affecteddev, affected int64
 	var err error
 
-	m, err := dbc.GetIfxDBCfgArray("name == '" + new.Name + "' AND ifxserver == '" + new.IfxServer + "'")
+	m, err := dbc.GetIfxDBCfgArray("name = '" + new.Name + "' AND ifxserver = '" + new.IfxServer + "'")
 	if err != nil {
 		return 0, err
 	}
@@ -235,7 +235,7 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) 
 	}
 
 	//Delete current relations
-	affecteddev, err = session.Where("ifxdbid ==" + strconv.FormatInt(old.ID, 10)).Delete(&IfxDBMeasRel{})
+	affecteddev, err = session.Where("ifxdbid =" + strconv.FormatInt(old.ID, 10)).Delete(&IfxDBMeasRel{})
 	if err != nil {
 		session.Rollback()
 		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %d, error: %s", old.ID, err)

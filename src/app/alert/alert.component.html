@@ -68,7 +68,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.AlertGroup">
             <label class="control-label col-sm-2" for="AlertGroup">AlertGroup</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the product group"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="ID of the alert group"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="select_alertgroup && select_product.length > 0" [options]="select_alertgroup" formControlName="AlertGroup" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.AlertGroup"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.AlertGroup"></control-messages>
@@ -200,6 +200,22 @@
               <control-messages [control]="sampleComponentForm.controls.IntervalCheck"></control-messages>
             </div>
           </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.AlertFrequency">
+            <label class="control-label col-sm-2" for="AlertFrequency">AlertFrequency</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Interval to emit values"></i>
+            <div class="col-sm-9">
+              <input formControlName="AlertFrequency" id="AlertFrequency" [ngModel]="sampleComponentForm.value.AlertFrequency" />
+              <control-messages [control]="sampleComponentForm.controls.AlertFrequency"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.AlertNotify">
+            <label class="control-label col-sm-2" for="AlertNotify">AlertNotify</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Number of cycles of AlertFrequency to force an alert is sent to endpoint. 0 if you don't want to force."></i>
+            <div class="col-sm-9">
+              <input type="number" formControlName="AlertNotify" id="AlertNotify" [ngModel]="sampleComponentForm.value.AlertNotify" min="0" />
+              <control-messages [control]="sampleComponentForm.controls.AlertNotify"></control-messages>
+            </div>
+          </div>
         </div>
 
         <div class="well well-sm">
@@ -214,42 +230,6 @@
                 <option value="DEADMAN">Deadman</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.TriggerType"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.Shift">
-            <label class="control-label col-sm-2" for="Shift">Shift</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Duration of the shift for the incoming points"></i>
-            <div class="col-sm-9">
-              <input formControlName="Shift" id="Shift" [ngModel]="sampleComponentForm.value.Shift" />
-              <control-messages [control]="sampleComponentForm.controls.Shift"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
-            <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Function applied to points"></i>
-            <div class="col-sm-9">
-              <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
-                <option value="NONE" selected="selected">NONE</option>
-                <option value="LAST">LAST</option>
-                <option value="MAX">MAX</option>
-                <option value="MEAN">MEAN</option>
-                <option value="MEDIAN">MEDIAN</option>
-                <option value="MIN">MIN</option>
-                <option value="MOVINGAVERAGE">MOVINGAVERAGE</option>
-                <option value="PERCENTILE">PERCENTILE</option>
-                <option value="SPREAD">SPREAD</option>
-                <option value="STDDEV">STDDEV</option>
-                <option value="SUM">SUM</option>
-              </select>
-              <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
-            </div>
-          </div>
-          <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraData && (sampleComponentForm.controls.StatFunc.value=='MOVINGAVERAGE'||sampleComponentForm.controls.StatFunc.value=='PERCENTILE')">
-            <label class="control-label col-sm-2" for="ExtraData">ExtraData</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Extra data for the selected function"></i>
-            <div class="col-sm-9">
-              <input type="number" formControlName="ExtraData" id="ExtraData" [ngModel]="sampleComponentForm.value.ExtraData" />
-              <control-messages [control]="sampleComponentForm.controls.ExtraData"></control-messages>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.CritDirection">
@@ -283,6 +263,72 @@
                 <option value="negative">Negative</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.TrendSign"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.FieldType">
+            <label class="control-label col-sm-2" for="FieldType">FieldType</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates the type of metric field."></i>
+            <div class="col-sm-9">
+              <select formControlName="FieldType" id="FieldType" [ngModel]="sampleComponentForm.value.FieldType">
+                <option value="COUNTER">Counter</option>
+                <option value="GAUGE" selected="selected">Gauge</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.FieldType"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.StatFunc">
+            <label class="control-label col-sm-2" for="StatFunc">StatFunc</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Function applied to points"></i>
+            <div class="col-sm-9">
+              <select formControlName="StatFunc" id="StatFunc" [ngModel]="sampleComponentForm.value.StatFunc">
+                <option value="NONE" selected="selected">NONE</option>
+                <option value="LAST">LAST</option>
+                <option value="MAX">MAX</option>
+                <option value="MEAN">MEAN</option>
+                <option value="MEDIAN">MEDIAN</option>
+                <option value="MIN">MIN</option>
+                <option value="MOVINGAVERAGE">MOVINGAVERAGE</option>
+                <option value="PERCENTILE">PERCENTILE</option>
+                <option value="SPREAD">SPREAD</option>
+                <option value="STDDEV">STDDEV</option>
+                <option value="SUM">SUM</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.StatFunc"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Shift">
+            <label class="control-label col-sm-2" for="Shift">Shift</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Duration of the shift for the incoming points"></i>
+            <div class="col-sm-9">
+              <input formControlName="Shift" id="Shift" [ngModel]="sampleComponentForm.value.Shift" />
+              <control-messages [control]="sampleComponentForm.controls.Shift"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.ExtraData && (sampleComponentForm.controls.StatFunc.value=='MOVINGAVERAGE'||sampleComponentForm.controls.StatFunc.value=='PERCENTILE')">
+            <label class="control-label col-sm-2" for="ExtraData">ExtraData</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Extra data for the selected function"></i>
+            <div class="col-sm-9">
+              <input type="number" formControlName="ExtraData" id="ExtraData" [ngModel]="sampleComponentForm.value.ExtraData" />
+              <control-messages [control]="sampleComponentForm.controls.ExtraData"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.Rate && sampleComponentForm.controls.FieldType.value=='COUNTER'">
+            <label class="control-label col-sm-2" for="Rate">Rate</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Rate for this counter alert"></i>
+            <div class="col-sm-9">
+              <select formControlName="Rate" id="Rate" [ngModel]="sampleComponentForm.value.Rate">
+                <option value="true">True</option>
+                <option value="false" selected="selected">False</option>
+              </select>
+              <control-messages [control]="sampleComponentForm.controls.Rate"></control-messages>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="sampleComponentForm.controls.FieldResolution && sampleComponentForm.controls.FieldType.value=='COUNTER' && (sampleComponentForm.value.Rate=='false' || sampleComponentForm.value.Rate==false)">
+            <label class="control-label col-sm-2" for="FieldResolution">FieldResolution</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field Resolution for this alert"></i>
+            <div class="col-sm-9">
+              <ss-multiselect-dropdown *ngIf="select_fieldresolution && select_product.length > 0" [options]="select_fieldresolution" formControlName="FieldResolution" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.FieldResolution"></ss-multiselect-dropdown>
+              <control-messages [control]="sampleComponentForm.controls.FieldResolution"></control-messages>
             </div>
           </div>
 

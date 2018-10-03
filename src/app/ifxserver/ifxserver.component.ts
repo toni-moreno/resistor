@@ -299,6 +299,7 @@ export class IfxServerComponent implements OnInit {
       this.alertHandler = {msg: 'Kapacitor Version: '+data['Message'], result : data['Result'], elapsed: data['Elapsed'], type: 'success', closable: true};
     },
     err => {
+        this.blocker.stop();
         let error = err.json();
         this.alertHandler = {msg: error['Message'], elapsed: error['Elapsed'], result : error['Result'], type: 'danger', closable: true}
       },

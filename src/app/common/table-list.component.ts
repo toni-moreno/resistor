@@ -30,13 +30,6 @@ declare var _: any;
       <input *ngIf="config.filtering" placeholder="Filter all columns" required = "false" [(ngModel)]="myFilterValue" [ngTableFiltering]="config.filtering" class="form-control select-pages" (tableChanged)="onChangeTable(config)" />
       <span [ngClass]="length > 0 ? ['label label-info'] : ['label label-warning']" style="font-size : 100%">{{length}} Results</span>
       <!--Table Actions-->
-      <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component'">
-        <button style ="margin-top: -5px;" type="button" title="OK" (click)="onFilterColumn('Level', 'OK')" class="label label-success"><i class="glyphicon glyphicon-ok-sign"> <span class="badge">{{counterOKs}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Open" (click)="onFilterColumn('Level', 'I')" class="label label-default"><i class="glyphicon glyphicon-eye-open"> <span class="badge">{{counterNOKs}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Critical" (click)="onFilterColumn('Level', 'CRITICAL')" class="label label-danger"><i class="glyphicon glyphicon-remove-sign"> <span class="badge">{{counterCrits}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Warning" (click)="onFilterColumn('Level', 'WARNING')" class="label label-warning"><i class="glyphicon glyphicon-warning-sign"> <span class="badge">{{counterWarns}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Info" (click)="onFilterColumn('Level', 'INFO')" class="label label-info"><i class="glyphicon glyphicon-info-sign"> <span class="badge">{{counterInfos}}</span></i></button>
-      </ng-container>
       <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component' || typeComponent === 'kapacitortasks-component'">
         <button style ="margin-top: -5px;" type="button" title="Refresh" (click)="customClick('reloaddata')" class="btn btn-primary"><i class="glyphicon glyphicon-refresh"></i></button>
         <span [ngClass]="['label label-info']" style="font-size : 100%">Last Refresh: {{this.LastUpdate | date : 'HH:mm:ss - Z'}}</span>
@@ -52,6 +45,19 @@ declare var _: any;
             <option *ngFor="let option of itemsPerPageOptions" style="padding-left:2px" [value]="option.value">{{option.title}}</option>
         </select>
       </div>
+    </div>
+    <div class="col-md-12 text-left">
+      <!--Table Actions-->
+      <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component'">
+        <br>
+        <button style ="margin-top: -5px;" type="button" title="OK" (click)="onFilterColumn('Level', 'OK')" class="btn btn-success"><i class="glyphicon glyphicon-ok-sign"> <span class="badge">{{counterOKs}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Open" (click)="onFilterColumn('Level', 'I')" class="btn"><i class="glyphicon glyphicon-eye-open"> <span class="badge">{{counterNOKs}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Critical" (click)="onFilterColumn('Level', 'CRITICAL')" class="btn btn-danger"><i class="glyphicon glyphicon-remove-sign"> <span class="badge">{{counterCrits}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Warning" (click)="onFilterColumn('Level', 'WARNING')" class="btn btn-warning"><i class="glyphicon glyphicon-warning-sign"> <span class="badge">{{counterWarns}}</span></i></button>
+        <button style ="margin-top: -5px;" type="button" title="Info" (click)="onFilterColumn('Level', 'INFO')" class="btn btn-info"><i class="glyphicon glyphicon-info-sign"> <span class="badge">{{counterInfos}}</span></i></button>
+        <br>
+        <br>
+      </ng-container>
     </div>
     <br>
     <!--Table available actions-->

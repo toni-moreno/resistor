@@ -62,6 +62,7 @@ export class AlertComponent implements OnInit {
   public select_ifxts : IMultiSelectOption[] = [];
   public select_baseline : IMultiSelectOption[] = [];
   public select_alertgroup : IMultiSelectOption[] = [];
+  public select_fieldresolution : IMultiSelectOption[] = [];
 
 
   public ifxdb_list : any = [];
@@ -111,6 +112,8 @@ export class AlertComponent implements OnInit {
       TagDescription: [this.sampleComponentForm ? this.sampleComponentForm.value.TagDescription : ''],
       InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : ''],
       IntervalCheck: [this.sampleComponentForm ? this.sampleComponentForm.value.IntervalCheck : '', Validators.compose([Validators.required, ValidationService.durationValidator])],
+      AlertFrequency: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertFrequency : '', ValidationService.durationValidator],
+      AlertNotify: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertNotify : '', ValidationService.uintegerValidator],
       OperationID: [this.sampleComponentForm ? this.sampleComponentForm.value.OperationID : ''],
       IsCustomExpression: [this.sampleComponentForm ? this.sampleComponentForm.value.IsCustomExpression : false, Validators.required],
       Field: [this.sampleComponentForm ? this.sampleComponentForm.value.Field : ''],
@@ -156,9 +159,12 @@ export class AlertComponent implements OnInit {
     let controlArray : Array<any> = [];
     switch (field) {
       case 'THRESHOLD':
+      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'FieldType', 'defVal' : 'GAUGE', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'Rate', 'defVal' : '' });
+      controlArray.push({'ID': 'FieldResolution', 'defVal' : '' });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
@@ -173,12 +179,15 @@ export class AlertComponent implements OnInit {
       controlArray.push({'ID': 'ThInfoRangeTimeID', 'defVal' : '', 'Validators' : Validators.required });
       break;
       case 'TREND':
-      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
       controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.compose([Validators.required, ValidationService.durationValidator]) });
+      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
       controlArray.push({'ID': 'TrendSign', 'defVal' : 'positive', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'FieldType', 'defVal' : 'GAUGE', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'Shift', 'defVal' : '', 'Validators' : Validators.compose([Validators.required, ValidationService.durationValidator]) });
+      controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
+      controlArray.push({'ID': 'Rate', 'defVal' : '' });
+      controlArray.push({'ID': 'FieldResolution', 'defVal' : '' });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
@@ -195,9 +204,12 @@ export class AlertComponent implements OnInit {
       case 'DEADMAN':
       break;
       default: //Default mode is THRESHOLD
+      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'FieldType', 'defVal' : 'GAUGE', 'Validators' : Validators.required });
       controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ExtraData', 'defVal' : '' });
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
+      controlArray.push({'ID': 'Rate', 'defVal' : '' });
+      controlArray.push({'ID': 'FieldResolution', 'defVal' : '' });
       controlArray.push({'ID': 'ThCritDef', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx1', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'ThCritEx2', 'defVal' : '', 'Validators' : Validators.required });
@@ -219,7 +231,7 @@ export class AlertComponent implements OnInit {
 
   reloadData() {
     // now it's a simple subscription to the observable
-  this.alertService.getAlertItem(null)
+    this.alertService.getAlertItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
@@ -569,6 +581,7 @@ export class AlertComponent implements OnInit {
         this.sampleComponentForm.controls.ProductTag.setValue(null);
         this.sampleComponentForm.controls.BaselineID.setValue(null);
         this.sampleComponentForm.controls.AlertGroup.setValue(null);
+        this.sampleComponentForm.controls.FieldResolution.setValue(null);
         this.sampleComponentForm.controls.InfluxMeasurement.setValue(null);
       }
     }
@@ -576,12 +589,14 @@ export class AlertComponent implements OnInit {
     this.picked_product = this.product_list.filter((x) => x['ID'] === product_picked)[0];
     this.select_baseline = null;
     this.select_alertgroup = null;
+    this.select_fieldresolution = null;
     this.select_ifxms = null;
 
     if(this.picked_product) {
       this.sampleComponentForm.controls.ProductTag.setValue(this.picked_product['ProductTag']);
       this.select_baseline = this.createMultiselectArray(this.picked_product['BaseLines']);
       this.select_alertgroup = this.createMultiselectArray(this.picked_product['AlertGroups']);
+      this.select_fieldresolution = this.createMultiselectArray(this.picked_product['FieldResolutions']);
       this.select_ifxms = this.createMultiselectArray(this.picked_product['Measurements']);
     }
   }

@@ -7,6 +7,7 @@ export const TemplateComponentConfig: any =
       { 'title': 'CritDirection', 'name': 'CritDirection' },
       { 'title': 'TrendType', 'name': 'TrendType' },
       { 'title': 'TrendSign', 'name': 'TrendSign' },
+      { 'title': 'FieldType', 'name': 'FieldType' },
       { 'title': 'StatFunc', 'name': 'StatFunc' },
     ],
     'slug' : 'templatecfg'

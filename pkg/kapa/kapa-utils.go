@@ -551,14 +551,14 @@ func getKapaCfgIDArray(devcfgarray []*config.KapacitorCfg) []string {
 }
 
 // getTemplateID Gets TemplateID from AlertIDCfg
-// example: "THRESHOLD_2EX_AC_TH_FMOVAVG"
-// TriggerType + _2EX_ + CritDirection + _ + TrendTypeTranslated + _F + StatFunc
+// example: "TREND_2EX_AC_RTN_COUNTER_FLAST"
+// TriggerType + _2EX_ + CritDirection + _ + TrendTypeTranslated + _ + FieldType + _F + StatFunc
 func getTemplateID(dev config.AlertIDCfg) string {
 	sRet := "DEADMAN"
 	if dev.TriggerType != "DEADMAN" {
 		sTriggerType := dev.TriggerType
 		sTrendType := translateTrendType(dev.TriggerType, dev.TrendType, dev.TrendSign)
-		sRet = fmt.Sprintf("%s_2EX_%s_%s_F%s", sTriggerType, dev.CritDirection, sTrendType, dev.StatFunc)
+		sRet = fmt.Sprintf("%s_2EX_%s_%s_%s_F%s", sTriggerType, dev.CritDirection, sTrendType, dev.FieldType, dev.StatFunc)
 	}
 	log.Debugf("getTemplateID. %s.", sRet)
 	return sRet
@@ -633,13 +633,37 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	if len(dev.InfluxFilter) > 0 {
 		vars["INFLUX_FILTER"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.InfluxFilter}
 	}
+	//IntervalCheck - INTERVAL_CHECK
 	dIntervalCheck, err := time.ParseDuration(dev.IntervalCheck)
 	if err != nil {
 		log.Warningf("Error parsing duration from interval check %s. 0 will be assigned. Error: %s", dev.IntervalCheck, err)
 	}
 	vars["INTERVAL_CHECK"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dIntervalCheck}
+	//AlertFrequency - EVERY
+	if len(dev.AlertFrequency) > 0 {
+		dAlertFrequency, err := time.ParseDuration(dev.AlertFrequency)
+		if err != nil {
+			log.Warningf("Error parsing duration from AlertFrequency %s. 1m will be assigned in tickscript. Error: %s", dev.AlertFrequency, err)
+		} else {
+			vars["EVERY"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dAlertFrequency}
+			//AlertNotify - STATECHANGES_DURATION
+			dAlertNotify := time.Duration(dev.AlertNotify) * dAlertFrequency
+			vars["STATECHANGES_DURATION"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dAlertNotify}
+		}
+	}
 	//Alert Settings
 	if dev.TriggerType != "DEADMAN" {
+		if dev.FieldType == "COUNTER" {
+			dFieldResolution, _ := time.ParseDuration("1s")
+			if dev.Rate == false {
+				dFieldResolution, err = time.ParseDuration(dev.FieldResolution)
+				if err != nil {
+					log.Warningf("Error parsing duration from Field Resolution %s. 1s will be assigned. Error: %s", dev.FieldResolution, err)
+					dFieldResolution, _ = time.ParseDuration("1s")
+				}
+			}
+			vars["UNIT_DERIV"] = kapacitorClient.Var{Type: kapacitorClient.VarDuration, Value: dFieldResolution}
+		}
 		vars["STAT_FUN"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.StatFunc}
 		if dev.StatFunc == "MOVINGAVERAGE" {
 			vars["EXTRA_DATA"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: dev.ExtraData}
@@ -839,21 +863,22 @@ func DeployKapaTemplate(dev config.TemplateCfg) ([]string, error) {
 }
 
 // GetTemplateIDParts Gets TemplateID parts from TemplateID
-// example: from: "TREND_2EX_AC_ATP_FMOVAVG" --> result: "TREND", "AC", "absolute", "positive", "MOVAVG"
-// TriggerType + CritDirection + TrendTypeTranslated + StatFunc
-func GetTemplateIDParts(sTemplateID string) (string, string, string, string, string) {
-	sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc := "DEADMAN", "", "", "", ""
+// example: from: "TREND_2EX_AC_ATP_GAUGE_FMOVAVG" --> result: "TREND", "AC", "absolute", "positive", "GAUGE", "MOVAVG"
+// TriggerType + CritDirection + TrendTypeTranslated + FieldType + StatFunc
+func GetTemplateIDParts(sTemplateID string) (string, string, string, string, string, string) {
+	sTriggerType, sCritDirection, sTrendType, sTrendSign, sFieldType, sStatFunc := "DEADMAN", "", "", "", "", ""
 	if sTemplateID != "DEADMAN" {
 		partsarray := strings.Split(sTemplateID, "_")
-		if len(partsarray) == 5 {
+		if len(partsarray) == 6 {
 			sTriggerType = partsarray[0]
 			sCritDirection = partsarray[2]
 			sTrendType, sTrendSign = getTrendDetails(partsarray[3])
-			sStatFunc = partsarray[4][1:]
+			sFieldType = partsarray[4]
+			sStatFunc = partsarray[5][1:]
 		}
 	}
-	log.Debugf("GetTemplateIDParts. %s, %s, %s, %s, %s, %s.", sTemplateID, sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc)
-	return sTriggerType, sCritDirection, sTrendType, sTrendSign, sStatFunc
+	log.Debugf("GetTemplateIDParts. %s, %s, %s, %s, %s, %s, %s.", sTemplateID, sTriggerType, sCritDirection, sTrendType, sTrendSign, sFieldType, sStatFunc)
+	return sTriggerType, sCritDirection, sTrendType, sTrendSign, sFieldType, sStatFunc
 }
 
 // getTrendDetails Gets trend details

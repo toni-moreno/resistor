@@ -41,7 +41,7 @@
           </div>
           <div class="form-group">
             <label class="control-label col-sm-2" for="BaseLines">Base Lines</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Each baseline will be a set of Alerts "></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Base Lines for this product (comma-separated)"></i>
             <div class="col-sm-9">
               <input formControlName="BaseLines" id="BaseLines" [ngModel]="sampleComponentForm.value.BaseLines" />
               <control-messages [control]="sampleComponentForm.controls.BaseLines"></control-messages>
@@ -53,6 +53,14 @@
             <div class="col-sm-9">
               <input formControlName="AlertGroups" id="AlertGroups" [ngModel]="sampleComponentForm.value.AlertGroups" />
               <control-messages [control]="sampleComponentForm.controls.AlertGroups"></control-messages>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-sm-2" for="FieldResolutions">FieldResolutions</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Field Resolutions for this product (comma-separated). Must be valid duration values (30s,5m,10m)."></i>
+            <div class="col-sm-9">
+              <input formControlName="FieldResolutions" id="FieldResolutions" [ngModel]="sampleComponentForm.value.FieldResolutions" />
+              <control-messages [control]="sampleComponentForm.controls.FieldResolutions"></control-messages>
             </div>
           </div>
         </div>
