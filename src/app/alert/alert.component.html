@@ -35,7 +35,7 @@
             <label class="control-label col-sm-2" for="ID">ID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of the alert. Autocalculated from below fields"></i>
             <div class="col-sm-9">
-              <input formControlName="ID" id="ID" disabled style="border:0px;" [ngModel]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.AlertGroup+'-'+(sampleComponentForm.value.NumAlertID | leadingZeroes)" />
+              <input formControlName="ID" id="ID" style="border:0px;" [ngModel]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.AlertGroup+'-'+(sampleComponentForm.value.NumAlertID | leadingZeroes)" />
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
