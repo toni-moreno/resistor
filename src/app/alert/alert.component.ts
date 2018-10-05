@@ -99,7 +99,7 @@ export class AlertComponent implements OnInit {
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
-      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
+      ID: [{value:this.sampleComponentForm ? this.sampleComponentForm.value.ID : '',disabled:true}, Validators.required],
       Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaselineID: [this.sampleComponentForm ? this.sampleComponentForm.value.BaselineID : '', Validators.required],
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
@@ -338,6 +338,8 @@ export class AlertComponent implements OnInit {
   }
 
   editSampleItem(row) {
+    this.picked_product = null;
+    this.picked_ifxdb = null;
     let id = row.ID;
     this.getProductItem();
     this.getRangeTimeItem();
@@ -530,10 +532,10 @@ export class AlertComponent implements OnInit {
       if (ifxdb_picked !== this.picked_ifxdb['ID']) {
         this.sampleComponentForm.controls.InfluxRP.setValue(null);
         this.sampleComponentForm.controls.Field.setValue(null);
+        this.select_ifxrp = null;
       }
     }
     //Clear Vars:
-    this.select_ifxrp = null;
     this.picked_ifxdb = this.ifxdb_list.filter((x) => x['ID'] === ifxdb_picked)[0];
 
     if(this.picked_ifxdb) {

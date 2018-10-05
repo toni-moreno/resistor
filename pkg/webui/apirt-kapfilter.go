@@ -36,6 +36,7 @@ func NewAPIRtKapFilter(m *macaron.Macaron) error {
 	bind := binding.Bind
 	m.Group("/api/rt/kapfilter", func() {
 		m.Post("/alert/:endpoint", reqAlertSignedIn, bind(alert.Data{}), RTAlertHandler)
+		m.Post("/alert/", reqAlertSignedIn, bind(alert.Data{}), RTAlertHandler)
 	})
 	return nil
 }

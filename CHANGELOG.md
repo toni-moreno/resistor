@@ -1,3 +1,15 @@
+# v 0.5.9  (05/10/2018)
+
+## New features.
+
+## fixes
+
+* Changes to fix not found error when Kapacitor post alert to Resistor.
+* Changes to fix error when editing consecutively alerts with different products.
+
+## breaking changes
+
+
 # v 0.5.8  (03/10/2018)
 ### New features.
 * Changes on Templates component:
