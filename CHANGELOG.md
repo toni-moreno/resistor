@@ -1,3 +1,14 @@
+# v 0.5.10  (08/10/2018)
+
+## New features.
+
+## fixes
+
+* Changes to fix error with empty ID of Alerts.
+
+## breaking changes
+
+
 # v 0.5.9  (05/10/2018)
 
 ## New features.

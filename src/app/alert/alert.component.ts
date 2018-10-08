@@ -99,7 +99,7 @@ export class AlertComponent implements OnInit {
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
-      ID: [{value:this.sampleComponentForm ? this.sampleComponentForm.value.ID : '',disabled:true}, Validators.required],
+      ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       Active: [this.sampleComponentForm ? this.sampleComponentForm.value.Active : '', Validators.required],
       BaselineID: [this.sampleComponentForm ? this.sampleComponentForm.value.BaselineID : '', Validators.required],
       ProductID: [this.sampleComponentForm ? this.sampleComponentForm.value.ProductID : '', Validators.required],
