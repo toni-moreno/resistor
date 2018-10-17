@@ -97,34 +97,37 @@ export class MultiSelectSearchEqualFilter {
                     </div>
                 </li>
                 <li *ngIf="settings.showCheckAll && settings.singleSelect === false">
-                <a href="javascript:;" role="menuitem" tabindex="-1" (click)="checkAll()">
-                    <span style="width: 16px;" class="glyphicon glyphicon-ok text-success"></span>
-                    {{ texts.checkAll }}
-                </a>
-            </li>
-            <li *ngIf="settings.showUncheckAll && settings.singleSelect === false">
-                <a href="javascript:;" role="menuitem" tabindex="-1" (click)="uncheckAll()">
-                    <span style="width: 16px;" class="glyphicon glyphicon-remove text-danger"></span>
-                    {{ texts.uncheckAll }}
-                </a>
-            </li>
-                <ul [style.max-height]="'200px'" style="display: block; height: auto; overflow-y: auto; z-index:1001; min-width:300px; width:500px; padding-left: 0px; list-style: none">
-                <li *ngIf="(settings.showCheckAll || settings.showUncheckAll) && settings.singleSelect === false" class="divider"></li>
-                <li *ngFor="let option of options | searchFilter:searchFilterText">
-                    <span style="block; width: 300px" role="button" tabindex="-1" (click)="setSelected($event, option)">
-                        <input *ngIf="settings.checkedStyle == 'checkboxes'" type="checkbox" [checked]="isSelected(option)" />
-                        <dl class="dl-horizontal">
-                          <dt style="width:auto">
-                            <span *ngIf="settings.checkedStyle == 'glyphicon'"  style="width: 16px; margin-left: 10px; margin-right: 10px;  border-right: 1px solid; padding-right: 25px;" [ngClass]="isSelected(option) ? ['glyphicon glyphicon-ok' , 'text-success'] : 'glyphicon'">
-                            </span>
-                            <span>{{ option.name }}</span>
-                        </dt>
-                          <dd style="margin-left:210px"><span>{{option.extraData}}</span></dd>
-                        </dl>
-                    </span>
+                    <a href="javascript:;" role="menuitem" tabindex="-1" (click)="checkAll()">
+                        <span style="width: 16px;" class="glyphicon glyphicon-ok text-success"></span>
+                        {{ texts.checkAll }}
+                    </a>
                 </li>
+                <li *ngIf="settings.showUncheckAll && settings.singleSelect === false">
+                    <a href="javascript:;" role="menuitem" tabindex="-1" (click)="uncheckAll()">
+                        <span style="width: 16px;" class="glyphicon glyphicon-remove text-danger"></span>
+                        {{ texts.uncheckAll }}
+                    </a>
+                </li>
+                <ul [style.max-height]="'200px'" style="display: block; height: auto; overflow-y: auto; z-index:1001; min-width:300px; width:500px; padding-left: 0px; list-style: none">
+                    <li *ngIf="(settings.showCheckAll || settings.showUncheckAll) && settings.singleSelect === false" class="divider"></li>
+                    <li *ngFor="let option of options | searchFilter:searchFilterText">
+                        <span style="block; width: 300px" role="button" tabindex="-1" (click)="setSelected($event, option)">
+                            <input *ngIf="settings.checkedStyle == 'checkboxes'" type="checkbox" [checked]="isSelected(option)" />
+                            <dl class="dl-horizontal">
+                                <dt style="width:auto">
+                                    <span *ngIf="settings.checkedStyle == 'glyphicon'"  style="width: 16px; margin-left: 10px; margin-right: 10px;  border-right: 1px solid; padding-right: 25px;" [ngClass]="isSelected(option) ? ['glyphicon glyphicon-ok' , 'text-success'] : 'glyphicon'">
+                                    </span>
+                                    <span>{{ option.name }}</span>
+                                </dt>
+                                <dd style="margin-left:210px"><span>{{option.extraData}}</span></dd>
+                            </dl>
+                        </span>
+                    </li>
                 </ul>
             </ul>
+            <a *ngIf="settings.singleSelect === true" href="javascript:;" role="menuitem" tabindex="-1" (click)="clearSingleSelect()" style="vertical-align: bottom;">
+                <span style="width: 16px;" class="glyphicon glyphicon-remove text-danger" title="Clear"></span>
+            </a>
         </div>
     `
 })
@@ -250,8 +253,8 @@ export class MultiselectDropdown implements OnInit, DoCheck, ControlValueAccesso
                 }
             }
         }
-        if (this.settings.closeOnSelect) {
-        this.toggleDropdown();
+        if (this.settings.closeOnSelect || this.settings.singleSelect) {
+            this.toggleDropdown();
         }
 
         this.onModelChange(this.model);
@@ -262,7 +265,7 @@ export class MultiselectDropdown implements OnInit, DoCheck, ControlValueAccesso
         this.options.push(t);
         this.ngDoCheck();
         this.setSelected(null, t);
-        this.clearSearch()
+        this.clearSearch();
     }
 
     updateNumSelected() {
@@ -302,6 +305,12 @@ export class MultiselectDropdown implements OnInit, DoCheck, ControlValueAccesso
 
     uncheckAll() {
         this.model = [];
+        this.onModelChange(this.model);
+    }
+
+    clearSingleSelect() {
+        this.model = null;
+        this.title = this.texts.defaultTitle;
         this.onModelChange(this.model);
     }
 }

@@ -25,24 +25,24 @@ func NewAPICfgProductGroup(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetProductGroup Return snmpdevice list to frontend
+// GetProductGroup Return productgroup list to frontend
 func GetProductGroup(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetProductGroupCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get ProductGroup :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting ProductGroup %+v", &devcfgarray)
 }
 
-// AddProductGroup Insert new snmpdevice to de internal BBDD --pending--
+// AddProductGroup Insert new productgroup to the internal BBDD --pending--
 func AddProductGroup(ctx *Context, dev config.ProductGroupCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING ProductGroup %+v", dev)
 	affected, err := agent.MainConfig.Database.AddProductGroupCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for ProductGroup %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data  or affected
@@ -56,7 +56,7 @@ func UpdateProductGroup(ctx *Context, dev config.ProductGroupCfg) {
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateProductGroupCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for ProductGroup %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
@@ -94,7 +94,7 @@ func GetProductGroupAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetProductGroupCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for productgroups %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)

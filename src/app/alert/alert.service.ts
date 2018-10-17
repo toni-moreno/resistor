@@ -14,8 +14,11 @@ export class AlertService {
         if ( key == 'Active' || key == 'IsCustomExpression' || key == 'Rate' ) {
             return ( value === "true" || value === true);
         }
-        if ( key == 'ExtraData' && (value == null || value.length == 0)) {
+        if ( (key == 'ExtraData' || key == 'AlertNotify')  && (value == null || value.length == 0) ) {
             return 0;
+        }
+        if ( key == 'Endpoint' ) {
+            return String(value).split(',');
         }
         return value;
     }

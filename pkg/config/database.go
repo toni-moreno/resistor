@@ -104,6 +104,9 @@ func (dbc *DatabaseCfg) InitDB() {
 	if err = dbc.x.Sync(new(KapacitorCfg)); err != nil {
 		log.Fatalf("Fail to sync database KapacitorCfg: %v\n", err)
 	}
+	if err = dbc.x.Sync(new(OperationCfg)); err != nil {
+		log.Fatalf("Fail to sync database OperationCfg: %v\n", err)
+	}
 	if err = dbc.x.Sync(new(RangeTimeCfg)); err != nil {
 		log.Fatalf("Fail to sync database RangeTimeCfg: %v\n", err)
 	}
@@ -136,6 +139,10 @@ func (dbc *DatabaseCfg) LoadDbConfig(cfg *DBConfig) {
 	cfg.Endpoint, err = dbc.GetEndpointCfgMap("")
 	if err != nil {
 		log.Warningf("Some errors on get Endpoint map :%v", err)
+	}
+	cfg.Operation, err = dbc.GetOperationCfgMap("")
+	if err != nil {
+		log.Warningf("Some errors on get Operations map :%v", err)
 	}
 	cfg.RangeTime, err = dbc.GetRangeTimeCfgMap("")
 	if err != nil {

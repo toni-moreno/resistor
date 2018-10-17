@@ -4,6 +4,7 @@ import { IfxDBComponent } from '../ifxdb/ifxdb.component';
 import { IfxMeasurementComponent } from '../ifxmeasurement/ifxmeasurement.component';
 import { KapacitorComponent } from '../kapacitor/kapacitor.component';
 import { KapacitorTasksComponent } from '../kapacitortasks/kapacitortasks.component';
+import { OperationComponent } from '../operation/operation.component';
 import { RangeTimeComponent } from '../rangetime/rangetime.component';
 import { ProductComponent } from '../product/product.component';
 import { ProductGroupComponent } from '../productgroup/productgroup.component';
@@ -63,6 +64,7 @@ export const HomeComponentConfig: any =
     }, 
     {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
       [
+        {'title': 'Operation', 'selector' : 'operation-component', 'type': 'component', 'data': OperationComponent},
         {'title': 'RangeTime', 'selector' : 'rangetime-component', 'type': 'component', 'data': RangeTimeComponent},
         {'title': 'Product', 'selector' : 'product-component', 'type': 'component', 'data': ProductComponent},
         {'title': 'Product Groups', 'selector' : 'productgroup-component', 'type': 'component', 'data': ProductGroupComponent},

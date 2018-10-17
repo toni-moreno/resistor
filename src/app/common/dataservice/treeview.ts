@@ -62,6 +62,7 @@ export class TreeView {
     "endpointcfg": 'default',
     "productcfg": 'warning',
     "productgroupcfg": 'info',
+    "operationcfg": 'success',
     "rangetimecfg": 'danger',
     "templatecfg": 'primary'
  };

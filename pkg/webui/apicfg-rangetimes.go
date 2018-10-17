@@ -25,24 +25,24 @@ func NewAPICfgRangeTime(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetRangeTime Return snmpdevice list to frontend
+// GetRangeTime Return rangetimes list to frontend
 func GetRangeTime(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetRangeTimeCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get RangeTime :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting RangeTime %+v", &devcfgarray)
 }
 
-// AddRangeTime Insert new snmpdevice to de internal BBDD --pending--
+// AddRangeTime Insert new rangetime to the internal BBDD
 func AddRangeTime(ctx *Context, dev config.RangeTimeCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING RangeTime %+v", dev)
 	affected, err := agent.MainConfig.Database.AddRangeTimeCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for RangeTime %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data  or affected
@@ -50,13 +50,13 @@ func AddRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 	}
 }
 
-// UpdateRangeTime --pending--
+// UpdateRangeTime Updates rangetime into the internal BBDD
 func UpdateRangeTime(ctx *Context, dev config.RangeTimeCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateRangeTimeCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for RangeTime %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data

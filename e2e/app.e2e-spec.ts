@@ -1,4 +1,4 @@
-import { SnmpcollectorPage } from './app.po';
+import { ResistorPage } from './app.po';
 
 describe('Resistor App', function() {
   let page: ResistorPage;

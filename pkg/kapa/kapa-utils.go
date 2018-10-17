@@ -608,6 +608,11 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 
 	vars["RESISTOR_IP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getOwnIP()}
 	vars["RESISTOR_PORT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: port}
+	sResistorURL := agent.MainConfig.Alerting.ResistorURL
+	if len(sResistorURL) > 0 {
+		sHTTPPostURL := sResistorURL + "/api/rt/kapfilter/alert/"
+		vars["http_post_url"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sHTTPPostURL}
+	}
 	//Core Settings
 	vars["ID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ID}
 	vars["ID_LINE"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.BaselineID}
@@ -629,7 +634,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 		vars["FIELD"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: strconv.Quote(dev.Field)}
 	}
 	vars["FIELD_DESC"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.FieldDesc}
-	//TagDescription
+	//InfluxFilter
 	if len(dev.InfluxFilter) > 0 {
 		vars["INFLUX_FILTER"] = kapacitorClient.Var{Type: kapacitorClient.VarLambda, Value: dev.InfluxFilter}
 	}
@@ -725,7 +730,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	return vars
 }
 
-// GetIfxDBNameByID
+// GetIfxDBNameByID Gets influx db name by id
 func GetIfxDBNameByID(id int64) string {
 	name := ""
 	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(id)

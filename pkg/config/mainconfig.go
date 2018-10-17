@@ -65,6 +65,7 @@ type EndpointsCfg struct {
 //AlertingCfg alerting config options
 type AlertingCfg struct {
 	CleanPeriod string `toml:"cleanperiod"`
+	ResistorURL string `toml:"resistorurl"`
 }
 
 // Config All resistor configuration

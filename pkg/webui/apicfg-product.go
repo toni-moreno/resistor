@@ -25,24 +25,24 @@ func NewAPICfgProduct(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetProduct Return snmpdevice list to frontend
+// GetProduct Return Product list to frontend
 func GetProduct(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetProductCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get Product :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting Product %+v", &devcfgarray)
 }
 
-// AddProduct Insert new snmpdevice to de internal BBDD --pending--
+// AddProduct Insert new Product to the internal BBDD --pending--
 func AddProduct(ctx *Context, dev config.ProductCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING Product %+v", dev)
 	affected, err := agent.MainConfig.Database.AddProductCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for Product %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data  or affected
@@ -56,7 +56,7 @@ func UpdateProduct(ctx *Context, dev config.ProductCfg) {
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateProductCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for Product %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
@@ -94,7 +94,7 @@ func GetProductAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetProductCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for Products %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)

@@ -136,23 +136,8 @@ func (dbc *DatabaseCfg) UpdateDeviceStatCfg(id int64, dev *DeviceStatCfg) (int64
 	return affected, nil
 }
 
-/*GetDeviceStatCfgAffectOnDel for deleting devices from ID*/
+/*GetDeviceStatCfgAffectOnDel for deleting devicestats from ID*/
 func (dbc *DatabaseCfg) GetDeviceStatCfgAffectOnDel(id string) ([]*DbObjAction, error) {
-	//var devices []*DeviceStatCfg
 	var obj []*DbObjAction
-	/*if err := dbc.x.Where("outdb='" + id + "'").Find(&devices); err != nil {
-		log.Warnf("Error on Get Outout db id %d for devices , error: %s", id, err)
-		return nil, err
-	}
-
-	for _, val := range devices {
-		obj = append(obj, &DbObjAction{
-			Type:     "snmpdevicecfg",
-			TypeDesc: "SNMP Devices",
-			ObID:     val.ID,
-			Action:   "Reset InfluxDB Server from SNMPDevice to 'default' InfluxDB Server",
-		})
-
-	}*/
 	return obj, nil
 }

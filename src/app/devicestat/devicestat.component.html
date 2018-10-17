@@ -2,7 +2,7 @@
 <hr>
 <ng-container [ngSwitch]="editmode">
   <ng-template ngSwitchCase="list">
-    <test-modal #viewModal titleName='InfluxDB Servers'></test-modal>
+    <test-modal #viewModal titleName='Device Stats'></test-modal>
     <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Device Stat will affect the following components','Deleting this Device Stat will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>

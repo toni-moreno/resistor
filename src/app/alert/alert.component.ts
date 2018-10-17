@@ -7,6 +7,7 @@ import { ProductService } from '../product/product.service';
 import { RangeTimeService } from '../rangetime/rangetime.service';
 import { EndpointService } from '../endpoint/endpoint.service';
 import { KapacitorService } from '../kapacitor/kapacitor.service';
+import { OperationService } from '../operation/operation.service';
 import { IfxDBService } from '../ifxdb/ifxdb.service';
 import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service';
 
@@ -28,7 +29,7 @@ declare var _:any;
 
 @Component({
   selector: 'alert-component',
-  providers: [AlertService, ProductService, RangeTimeService, EndpointService, KapacitorService, IfxDBService,IfxMeasurementService, ValidationService],
+  providers: [AlertService, ProductService, RangeTimeService, EndpointService, KapacitorService, OperationService, IfxDBService,IfxMeasurementService, ValidationService],
   templateUrl: './alert.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
@@ -55,6 +56,7 @@ export class AlertComponent implements OnInit {
   public select_rangetime : IMultiSelectOption[] = [];
   public select_endpoint : IMultiSelectOption[] = [];
   public select_kapacitor : IMultiSelectOption[] = [];
+  public select_operation : IMultiSelectOption[] = [];
   public select_ifxdb : IMultiSelectOption[] = [];
   public select_ifxrp : IMultiSelectOption[] = [];
   public select_ifxms : IMultiSelectOption[] = [];
@@ -63,6 +65,7 @@ export class AlertComponent implements OnInit {
   public select_baseline : IMultiSelectOption[] = [];
   public select_alertgroup : IMultiSelectOption[] = [];
   public select_fieldresolution : IMultiSelectOption[] = [];
+  public select_idtag : IMultiSelectOption[] = [];
 
 
   public ifxdb_list : any = [];
@@ -88,7 +91,7 @@ export class AlertComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(private winRef: WindowRef,public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(private winRef: WindowRef,public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public operationService: OperationService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.nativeWindow = winRef.nativeWindow;
     this.builder = builder;
   }
@@ -109,7 +112,6 @@ export class AlertComponent implements OnInit {
       InfluxDB: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxDB : null, Validators.required],
       InfluxRP: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxRP : null, Validators.required],
       InfluxMeasurement: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxMeasurement : null, Validators.required],
-      TagDescription: [this.sampleComponentForm ? this.sampleComponentForm.value.TagDescription : ''],
       InfluxFilter: [this.sampleComponentForm ? this.sampleComponentForm.value.InfluxFilter : ''],
       IntervalCheck: [this.sampleComponentForm ? this.sampleComponentForm.value.IntervalCheck : '', Validators.compose([Validators.required, ValidationService.durationValidator])],
       AlertFrequency: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertFrequency : '', ValidationService.durationValidator],
@@ -127,6 +129,7 @@ export class AlertComponent implements OnInit {
       ExtraTag: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraTag : ''],
       ExtraLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.ExtraLabel : ''],
       AlertExtraText: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertExtraText : ''],
+      IDTag: [this.sampleComponentForm ? this.sampleComponentForm.value.IDTag : ''],
       KapacitorID: [this.sampleComponentForm ? this.sampleComponentForm.value.KapacitorID : '', Validators.required],
       Endpoint: [this.sampleComponentForm ? this.sampleComponentForm.value.Endpoint : ''],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
@@ -329,6 +332,7 @@ export class AlertComponent implements OnInit {
     this.getRangeTimeItem();
     this.getEndpointItem();
     this.getKapacitorItem();
+    this.getOperationItem();
     if (this.sampleComponentForm) {
       this.setDynamicFields(this.sampleComponentForm.value.TriggerType);
     } else {
@@ -345,6 +349,7 @@ export class AlertComponent implements OnInit {
     this.getRangeTimeItem();
     this.getEndpointItem();
     this.getKapacitorItem();
+    this.getOperationItem();
     this.alertService.getAlertItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
@@ -392,7 +397,7 @@ export class AlertComponent implements OnInit {
   }
 
   deployItem(row) {
-    this.alertService.deployAlertItem(row)
+    this.alertService.editAlertItem(row, row.ID)
     .subscribe(data => { console.log(data) },
     err => {
       console.log(err);
@@ -513,6 +518,18 @@ export class AlertComponent implements OnInit {
       );
   }
 
+  getOperationItem() {
+    this.operationService.getOperationItem(null)
+      .subscribe(
+      data => {
+        this.select_operation = [];
+        this.select_operation = this.createMultiselectArray(data, 'ID','ID');
+      },
+      err => console.error(err),
+      () => console.log('DONE')
+      );
+  }
+
   getIfxDBItem() {
     this.ifxDBService.getIfxDBItem(null)
       .subscribe(
@@ -585,6 +602,7 @@ export class AlertComponent implements OnInit {
         this.sampleComponentForm.controls.AlertGroup.setValue(null);
         this.sampleComponentForm.controls.FieldResolution.setValue(null);
         this.sampleComponentForm.controls.InfluxMeasurement.setValue(null);
+        this.sampleComponentForm.controls.IDTag.setValue(null);
       }
     }
     //Clear Vars:
@@ -593,6 +611,7 @@ export class AlertComponent implements OnInit {
     this.select_alertgroup = null;
     this.select_fieldresolution = null;
     this.select_ifxms = null;
+    this.select_idtag = null;
 
     if(this.picked_product) {
       this.sampleComponentForm.controls.ProductTag.setValue(this.picked_product['ProductTag']);
@@ -600,6 +619,7 @@ export class AlertComponent implements OnInit {
       this.select_alertgroup = this.createMultiselectArray(this.picked_product['AlertGroups']);
       this.select_fieldresolution = this.createMultiselectArray(this.picked_product['FieldResolutions']);
       this.select_ifxms = this.createMultiselectArray(this.picked_product['Measurements']);
+      this.select_idtag = this.createMultiselectArray(this.picked_product['CommonTags']);
     }
   }
 

@@ -17,7 +17,7 @@ import { WindowRef } from '../common/windowref';
               </div>
               <div class="modal-body" *ngIf="info">
               <h4 class="text-primary"> <b>Resistor</b> </h4>
-              <span> Resistor is an basic HTTP alert Filter for InfluxData/Kapacitor Alerting system</span>
+              <span> Resistor is a basic HTTP alert Filter for InfluxData/Kapacitor Alerting system</span>
               <div class="text-right">
                 <a href="javaScript:void(0);"  (click)="link('https://github.com/toni-moreno/resistor')" class="text-link"> More info <i class="glyphicon glyphicon-plus-sign"></i></a>
               </div>
@@ -40,6 +40,10 @@ import { WindowRef } from '../common/windowref';
                   <dt>Sergio Bengoechea</dt>
                   <dd>
                     <a href="javascript:void(0);" (click)="link('http://github.com/sbengo')">GitHub</a>
+                  </dd>
+                  <dt>Raúl Solórzano</dt>
+                  <dd>
+                    <a href="javascript:void(0);" (click)="link('http://github.com/rsolorzano2410')">GitHub</a>
                   </dd>
               </dl>
               <hr>

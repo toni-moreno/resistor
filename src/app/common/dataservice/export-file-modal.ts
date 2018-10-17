@@ -13,6 +13,7 @@ import { KapacitorService } from '../../kapacitor/kapacitor.service';
 import { EndpointService } from '../../endpoint/endpoint.service';
 import { ProductService } from '../../product/product.service';
 import { ProductGroupService } from '../../productgroup/productgroup.service';
+import { OperationService } from '../../operation/operation.service';
 import { RangeTimeService } from '../../rangetime/rangetime.service';
 import { TemplateService } from '../../template/template.service';
 
@@ -150,7 +151,7 @@ import { Subscription } from 'rxjs';
           </div>
         </div>`,
         styleUrls: ['./import-modal-styles.css'],
-        providers: [IfxServerService,AlertService,DeviceStatService,KapacitorService ,EndpointService ,ProductService,ProductGroupService,RangeTimeService ,TemplateService, TreeView]
+        providers: [IfxServerService,AlertService,DeviceStatService,KapacitorService ,EndpointService ,ProductService,ProductGroupService,OperationService,RangeTimeService,TemplateService, TreeView]
 })
 
 export class ExportFileModal {
@@ -177,8 +178,8 @@ export class ExportFileModal {
     public alertService : AlertService, public ifxServerService : IfxServerService, 
     public deviceStatService : DeviceStatService, public kapacitorService : KapacitorService,
     public endpointService : EndpointService,public productService : ProductService, 
-    public productGroupService : ProductGroupService, public rangeTimeService : RangeTimeService,
-    public templateService : TemplateService) {
+    public productGroupService : ProductGroupService, public operationService : OperationService,
+    public rangeTimeService : RangeTimeService, public templateService : TemplateService) {
 
     this.builder = builder;
   }
@@ -206,6 +207,7 @@ export class ExportFileModal {
     "endpointcfg": 'default',
     "productcfg": 'warning',
     "productgroupcfg": 'info',
+    "operationcfg": 'success',
     "rangetimecfg": 'danger',
     "templatecfg": 'primary'
    };
@@ -241,6 +243,7 @@ export class ExportFileModal {
     {'Type':"endpointcfg", 'Class' : 'default', 'Visible':false},
     {'Type':"productcfg", 'Class' : 'warning', 'Visible':false},
     {'Type':"productgroupcfg", 'Class' : 'info', 'Visible':false},
+    {'Type':"operationcfg", 'Class' : 'success', 'Visible':false},
     {'Type':"rangetimecfg", 'Class' : 'danger', 'Visible':false},
     {'Type':"templatecfg", 'Class' : 'primary', 'Visible':false}
    ]
@@ -415,9 +418,11 @@ export class ExportFileModal {
        data => {
          //Load items on selection
          this.dataArray = data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -429,9 +434,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -443,9 +450,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -457,9 +466,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -471,9 +482,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -485,9 +498,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -499,11 +514,29 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
+       err => {console.log(err)},
+       () => {console.log("DONE")}
+       );
+      break;
+      case 'operationcfg':
+      this.mySubscriber = this.operationService.getOperationItem(filter)
+       .subscribe(
+       data => {
+         this.dataArray=data;
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
+         }
+      },
        err => {console.log(err)},
        () => {console.log("DONE")}
        );
@@ -513,9 +546,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},
@@ -527,9 +562,11 @@ export class ExportFileModal {
        .subscribe(
        data => {
          this.dataArray=data;
-         this.resultArray = this.dataArray;
-         for (let i in this.dataArray[0]) {
-           this.listFilterProp.push({ 'id': i, 'name': i });
+         if (this.dataArray) {
+          this.resultArray = this.dataArray;
+          for (let i in this.dataArray[0]) {
+            this.listFilterProp.push({ 'id': i, 'name': i });
+          }
          }
        },
        err => {console.log(err)},

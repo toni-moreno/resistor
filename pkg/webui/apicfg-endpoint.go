@@ -25,7 +25,7 @@ func NewAPICfgEndpoint(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetEndpoint Return snmpdevice list to frontend
+// GetEndpoint Return endpoints list to frontend
 func GetEndpoint(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetEndpointCfgArray("")
 	if err != nil {
@@ -34,10 +34,10 @@ func GetEndpoint(ctx *Context) {
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting Endpoints %+v", &devcfgarray)
 }
 
-// AddEndpoint Insert new snmpdevice to de internal BBDD --pending--
+// AddEndpoint Insert new endpoint to the internal BBDD --pending--
 func AddEndpoint(ctx *Context, dev config.EndpointCfg) {
 	log.Printf("ADDING DEVICE %+v", dev)
 	affected, err := agent.MainConfig.Database.AddEndpointCfg(&dev)
@@ -94,7 +94,7 @@ func GetEndpointAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetEndpointCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for endpoints %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)

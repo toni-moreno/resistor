@@ -1,5 +1,6 @@
 <h2>{{defaultConfig.name}}</h2>
 <hr>
+<div #blocker style="position: absolute; top: 50%;"></div>
 <ng-container [ngSwitch]="editmode">
   <ng-template ngSwitchCase="list">
     <test-modal #viewModal titleName='Alert Events'></test-modal>
