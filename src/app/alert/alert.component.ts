@@ -118,7 +118,7 @@ export class AlertComponent implements OnInit {
       AlertNotify: [this.sampleComponentForm ? this.sampleComponentForm.value.AlertNotify : '', ValidationService.uintegerValidator],
       OperationID: [this.sampleComponentForm ? this.sampleComponentForm.value.OperationID : ''],
       IsCustomExpression: [this.sampleComponentForm ? this.sampleComponentForm.value.IsCustomExpression : false, Validators.required],
-      Field: [this.sampleComponentForm ? this.sampleComponentForm.value.Field : ''],
+      Field: [this.sampleComponentForm ? this.sampleComponentForm.value.Field : '', Validators.required],
       FieldDesc: [this.sampleComponentForm ? this.sampleComponentForm.value.FieldDesc : ''],
       GrafanaServer: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaServer : ''],
       GrafanaDashLabel: [this.sampleComponentForm ? this.sampleComponentForm.value.GrafanaDashLabel : ''],

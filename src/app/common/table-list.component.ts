@@ -148,6 +148,7 @@ export class TableListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    this.onResetFilterColumns();
     this.config.sorting = { columns: this.columns };
     this.onChangeTable(this.config)
   }
@@ -298,7 +299,10 @@ export class TableListComponent implements OnInit, OnChanges {
   }
 
   customClick(clicked: string, event: any = "", data: any = ""): void {
-    if (clicked == "reloaddata") this.LastUpdate = new Date();
+    if (clicked == "reloaddata") {
+      //console.log("customClick with reloaddata");
+      this.LastUpdate = new Date();
+    }
     this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir });
     //pending change for future, to get only the list of results to show, not all the list
     //this.customClicked.emit({ 'option': clicked, 'event': event, 'data': data, 'sortColumn': this.sortColumn, 'sortDir': this.sortDir, 'page': this.page, 'itemsPerPage': this.itemsPerPage, 'maxSize': this.maxSize });

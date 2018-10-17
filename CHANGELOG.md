@@ -23,6 +23,7 @@
 * Errors 400 and 422 shown on frontend.
 * Some logs improved.
 * About modified.
+* Labels changed on Alert Definition and Product components.
 
 ### fixes
 
@@ -32,6 +33,7 @@
 * Changes to fix error if AlertNotify field on Alert Definition is empty.
 * Changes to fix error if Endpoint field on Alert Definition is empty.
 * Changes to fix error if there are no items when selecting a component on Export Data.
+* Changes to fix error when entering components with column filtering if a previous column filtering has been done.
 
 ### breaking changes
 
