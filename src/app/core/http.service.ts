@@ -118,11 +118,11 @@ export class HttpService extends Http {
         }else if (error['status'] == 0) {
             //alert('Server seems not being running...');
             this.loaderService.show('Server seems not being running...','danger');
-        } else if (error['status'] == 404) {
+        } else if (error['status'] == 404 || error['status'] == 400 || error['status'] == 422) {
             console.log(error);
             this.loaderService.show(error,'danger');
             //alert('CODE :'+error.status +'\n'+"ERROR: \t"+error['_body']);
-        }
+        } 
         return Observable.throw(error);
     }
 

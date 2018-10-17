@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
@@ -6,6 +6,7 @@ import { AlertEventService } from './alertevent.service';
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 import { ExportFileModal } from '../common/dataservice/export-file-modal';
+import { BlockUIService } from '../common/blockui/blockui-service';
 
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
@@ -26,6 +27,7 @@ export class AlertEventComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
+  @ViewChild('blocker', { read: ViewContainerRef }) container: ViewContainerRef;
   @ViewChild('exportFileModal') public exportFileModal : ExportFileModal;
 
 
@@ -57,7 +59,7 @@ export class AlertEventComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public alertEventService: AlertEventService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public alertEventService: AlertEventService, public exportServiceCfg : ExportServiceCfg, public blocker: BlockUIService, builder: FormBuilder) {
     this.builder = builder;
   }
 
@@ -75,18 +77,26 @@ export class AlertEventComponent implements OnInit {
   }
 
   reloadData(action? : any) {
+    this.blocker.start(this.container, "Loading data. Please wait...");
     this.isRequesting = true;
     this.alertEventService.getAlertEventWithParams(action)
       .subscribe(
       data => {
+        this.blocker.stop();
         this.isRequesting = false;
         this.componentList = data;
         this.data = data;
         this.setCounters();
         this.editmode = "list";
       },
-      err => console.error(err),
-      () => console.log('DONE')
+      err => {
+        this.blocker.stop();
+        console.error(err);
+      },
+      () => {
+        this.blocker.stop();
+        console.log('DONE');
+      }
       );
   }
 

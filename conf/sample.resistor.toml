@@ -111,3 +111,5 @@
 [alerting]
  #Period used to move alert events with status OK from alert_avent to alert_event_hist
  cleanperiod = "3m"
+ #Resistor URL. Kapacitor uses this URL to post alerts to Resistor
+ #resistorurl = "http://resistorip:resistorport"

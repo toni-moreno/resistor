@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
-import { TemplateService } from './template.service';
+import { OperationService } from './operation.service';
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 import { ExportFileModal } from '../common/dataservice/export-file-modal';
@@ -11,18 +11,18 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 
 import { TableListComponent } from '../common/table-list.component';
-import { TemplateComponentConfig, TableRole, OverrideRoleActions } from './template.data';
+import { OperationComponentConfig, TableRole, OverrideRoleActions } from './operation.data';
 
 declare var _:any;
 
 @Component({
-  selector: 'template-component',
-  providers: [TemplateService, ValidationService],
-  templateUrl: './template.component.html',
+  selector: 'operation-component',
+  providers: [OperationService, ValidationService],
+  templateUrl: './operation.component.html',
   styleUrls: ['../../css/component-styles.css']
 })
 
-export class TemplateComponent implements OnInit {
+export class OperationComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
@@ -33,9 +33,10 @@ export class TemplateComponent implements OnInit {
   public componentList: Array<any>;
   public filter: string;
   public sampleComponentForm: any;
+  public alertHandler : any = null;
   public counterItems : number = null;
   public counterErrors: any = [];
-  public defaultConfig : any = TemplateComponentConfig;
+  public defaultConfig : any = OperationComponentConfig;
   public tableRole : any = TableRole;
   public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
@@ -51,75 +52,26 @@ export class TemplateComponent implements OnInit {
     this.reloadData();
   }
 
-  constructor(public templateService: TemplateService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(public operationService: OperationService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
     this.builder = builder;
   }
 
   createStaticForm() {
     this.sampleComponentForm = this.builder.group({
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
-      TriggerType: [this.sampleComponentForm ? this.sampleComponentForm.value.TriggerType : 'THRESHOLD', Validators.required],
-      TplData: [this.sampleComponentForm ? this.sampleComponentForm.value.TplData : '', Validators.required],
+      URL: [this.sampleComponentForm ? this.sampleComponentForm.value.URL : '', Validators.required],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }
 
-  createDynamicForm(fieldsArray: any) : void {
-
-    //Generates the static form:
-    //Saves the actual to check later if there are shared values
-    let tmpform : any;
-    if (this.sampleComponentForm)  tmpform = this.sampleComponentForm.value;
-    this.createStaticForm();
-    //Set new values and check if we have to mantain the value!
-    for (let entry of fieldsArray) {
-      let value = entry.defVal;
-      //Check if there are common values from the previous selected item
-      if (tmpform) {
-        if (tmpform[entry.ID] && entry.override !== true) {
-          value = tmpform[entry.ID];
-        }
-      }
-      //Set different controls:
-      this.sampleComponentForm.addControl(entry.ID, new FormControl(value, entry.Validators));
-    }
-}
-
-  setDynamicFields (field : any, override? : boolean) : void  {
-    //Saves on the array all values to push into formGroup
-    let controlArray : Array<any> = [];
-    switch (field) {
-      case 'THRESHOLD':
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'FieldType', 'defVal' : 'GAUGE', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      break;
-      case 'TREND':
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'TrendType', 'defVal' : 'absolute', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'TrendSign', 'defVal' : 'positive', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'FieldType', 'defVal' : 'GAUGE', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      break;
-      case 'DEADMAN':
-      break
-      default: //Default mode is THRESHOLD
-      controlArray.push({'ID': 'CritDirection', 'defVal' : 'AC', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'FieldType', 'defVal' : 'GAUGE', 'Validators' : Validators.required });
-      controlArray.push({'ID': 'StatFunc', 'defVal' : 'MEAN', 'Validators' : Validators.required });
-      break;
-    }
-    //Reload the formGroup with new values saved on controlArray
-    this.createDynamicForm(controlArray);
-  }
-
   reloadData() {
     // now it's a simple subscription to the observable
-  this.templateService.getTemplateItem(null)
+    this.alertHandler = null;
+    this.operationService.getOperationItem(null)
       .subscribe(
       data => {
         this.isRequesting = false;
-        this.componentList = data
+        this.componentList = data;
         this.data = data;
         this.editmode = "list";
       },
@@ -147,9 +99,6 @@ export class TemplateComponent implements OnInit {
       break;
       case 'tableaction':
         this.applyAction(action.event, action.data);
-      break;
-      case 'deploy':
-        this.deployItem(action.event);
       break;
     }
   }
@@ -198,7 +147,7 @@ export class TemplateComponent implements OnInit {
   removeItem(row) {
     let id = row.ID;
     console.log('remove', id);
-    this.templateService.checkOnDeleteTemplateItem(id)
+    this.operationService.checkOnDeleteOperationItem(id)
       .subscribe(
         data => {
         this.viewModalDelete.parseObject(data)
@@ -208,23 +157,21 @@ export class TemplateComponent implements OnInit {
       );
   }
   newItem() {
-    //Check for subhidden fields
-    if (this.sampleComponentForm) {
-      this.setDynamicFields(this.sampleComponentForm.value.TriggerType);
-    } else {
-      this.setDynamicFields(null);
-    }
+    //No hidden fields, so create fixed Form
+    this.alertHandler =  null;
+    this.createStaticForm();
     this.editmode = "create";
   }
 
   editSampleItem(row) {
+    this.alertHandler =  null;
     let id = row.ID;
-    this.templateService.getTemplateItemById(id)
+    this.operationService.getOperationItemById(id)
       .subscribe(data => {
         this.sampleComponentForm = {};
         this.sampleComponentForm.value = data;
         this.oldID = data.ID
-        this.setDynamicFields(data.TriggerType);
+        this.createStaticForm();
         this.editmode = "modify";
       },
       err => console.error(err)
@@ -233,13 +180,13 @@ export class TemplateComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.templateService.deleteTemplateItem(id)
+    this.operationService.deleteOperationItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
       );
     } else {
-      return this.templateService.deleteTemplateItem(id)
+      return this.operationService.deleteOperationItem(id)
       .do(
         (test) =>  { this.counterItems++; console.log(this.counterItems)},
         (err) => { this.counterErrors.push({'ID': id, 'error' : err})}
@@ -254,7 +201,7 @@ export class TemplateComponent implements OnInit {
 
   saveSampleItem() {
     if (this.sampleComponentForm.valid) {
-      this.templateService.addTemplateItem(this.sampleComponentForm.value)
+      this.operationService.addOperationItem(this.sampleComponentForm.value)
         .subscribe(data => { console.log(data) },
         err => {
           console.log(err);
@@ -263,16 +210,6 @@ export class TemplateComponent implements OnInit {
         );
     }
   }
-
-  deployItem(row) {
-    this.templateService.editTemplateItem(row, row.ID)
-    .subscribe(data => { console.log(data) },
-    err => {
-      console.log(err);
-    },
-    () => { this.editmode = "list"; this.reloadData() }
-    );
-}
 
   updateAllSelectedItems(mySelectedArray,field,value, append?) {
     let obsArray = [];
@@ -303,10 +240,10 @@ export class TemplateComponent implements OnInit {
       if (this.sampleComponentForm.valid) {
         var r = true;
         if (this.sampleComponentForm.value.ID != this.oldID) {
-          r = confirm("Changing Template Instance ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
+          r = confirm("Changing Operation ID from " + this.oldID + " to " + this.sampleComponentForm.value.ID + ". Proceed?");
         }
         if (r == true) {
-          this.templateService.editTemplateItem(this.sampleComponentForm.value, this.oldID)
+          this.operationService.editOperationItem(this.sampleComponentForm.value, this.oldID)
             .subscribe(data => { console.log(data) },
             err => console.error(err),
             () => { this.editmode = "list"; this.reloadData() }
@@ -314,7 +251,7 @@ export class TemplateComponent implements OnInit {
         }
       }
     } else {
-      return this.templateService.editTemplateItem(component, component.ID)
+      return this.operationService.editOperationItem(component, component.ID)
       .do(
         (test) =>  { this.counterItems++ },
         (err) => { this.counterErrors.push({'ID': component['ID'], 'error' : err['_body']})}
@@ -335,10 +272,11 @@ export class TemplateComponent implements OnInit {
                 err => console.error(err),
               );
   }
+
   createMultiselectArray(tempArray) : any {
     let myarray = [];
     for (let entry of tempArray) {
-      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'description': entry.Description });
+      myarray.push({ 'id': entry.ID, 'name': entry.ID, 'extraData': entry.Description });
     }
     return myarray;
   }

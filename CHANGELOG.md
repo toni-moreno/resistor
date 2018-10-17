@@ -1,27 +1,96 @@
-# v 0.5.10  (08/10/2018)
+# CHANGELOG.md
 
-## New features.
+## v 0.5.11  (17/10/2018)
 
-## fixes
+### New features.
+
+* New component Operation added.
+  * This component is used to define the operation instructions for the operator related to the alerts.
+* Field OperationID on Alert Definition changed to select type.
+* New json fields included into the data sent to the HTTP Post endpoints.
+  * resistor-operationid: operationid related to the alert.
+  * resistor-operationurl: operationurl related to the alert.
+  * resistor-dashboardurl: dashboardurl related to the alert.
+* New field IDTag on Alert.
+  * This field and its value are included into the data sent to the HTTP Post endpoints (json fields resistor-id-tag-name and resistor-id-tag-value).
+  * If the field is empty, ProductTag field is used to sent data to the HTTP Post endpoints.  
+* The user is informed on frontend if an error occurs when deploying a task on kapacitor server.
+* The user is informed on frontend if an error occurs when deploying a template on kapacitor server.
+* The deployment of tasks and templates is always done when the user press the 'Deploy Item' button on lists.
+* Blocker added to Alert Event and Alert Event History components.
+* Added an unselect button for single select fields.
+* Added the possibility of Enable/Disable for multiple items in Alert Definition, Alerting Endpoints and Device Stats components.
+* Errors 400 and 422 shown on frontend.
+* Some logs improved.
+* About modified.
+
+### fixes
+
+* Changes to fix #88
+  * New parameter resistorurl added on config file
+* Changes to fix error when sending to slack endpoint with empty SSL fields and InsecureSkipVerify=true
+* Changes to fix error if AlertNotify field on Alert Definition is empty.
+* Changes to fix error if Endpoint field on Alert Definition is empty.
+* Changes to fix error if there are no items when selecting a component on Export Data.
+
+### breaking changes
+
+* Changes to fix error when defining a template in MySQL
+  * Column tpldata on table template_cfg modified to MEDIUMTEXT
+    * Execute the following sql:
+      * ALTER TABLE template_cfg MODIFY COLUMN tpldata MEDIUMTEXT;
+* Changes to fix error when importing a measurement with a very large number of fields in MySQL
+  * Column fields on table ifx_measurement_cfg modified to MEDIUMTEXT
+    * Execute the following sql:
+      * ALTER TABLE ifx_measurement_cfg MODIFY COLUMN fields MEDIUMTEXT;
+* Changes to avoid error when importing a measurement with a very large number of tags in MySQL
+  * Column tags on table ifx_measurement_cfg modified to TEXT
+    * Execute the following sql:
+      * ALTER TABLE ifx_measurement_cfg MODIFY COLUMN tags TEXT;
+* Changes to fix error when inserting an alert event in MySQL
+  * Column details on tables alert_event and alert_event_hist modified to TEXT
+    * Execute the following sqls:
+      * ALTER TABLE alert_event MODIFY COLUMN details TEXT;
+      * ALTER TABLE alert_event_hist MODIFY COLUMN details TEXT;
+* Changes to avoid error when inserting an entity with a very large description in MySQL
+  * Column description on all tables modified to TEXT
+    * Execute the following sqls:
+      * ALTER TABLE alert_id_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE device_stat_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE endpoint_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE ifx_db_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE ifx_measurement_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE ifx_server_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE kapacitor_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE product_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE product_group_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE range_time_cfg MODIFY COLUMN description TEXT;
+      * ALTER TABLE template_cfg MODIFY COLUMN description TEXT;
+
+## v 0.5.10  (08/10/2018)
+
+### New features.
+
+### fixes
 
 * Changes to fix error with empty ID of Alerts.
 
-## breaking changes
+### breaking changes
 
 
-# v 0.5.9  (05/10/2018)
+## v 0.5.9  (05/10/2018)
 
-## New features.
+### New features.
 
-## fixes
+### fixes
 
 * Changes to fix not found error when Kapacitor post alert to Resistor.
 * Changes to fix error when editing consecutively alerts with different products.
 
-## breaking changes
+### breaking changes
 
 
-# v 0.5.8  (03/10/2018)
+## v 0.5.8  (03/10/2018)
 ### New features.
 * Changes on Templates component:
     * New field 'FieldType'. Now you can have templates of type COUNTER or GAUGE.

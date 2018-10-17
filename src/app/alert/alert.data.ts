@@ -11,7 +11,6 @@ export const AlertComponentConfig: any =
       { 'title': 'InfluxDB', 'name': 'InfluxDB' },
       { 'title': 'InfluxRP', 'name': 'InfluxRP' },
       { 'title': 'InfluxMeasurement', 'name': 'InfluxMeasurement' },
-      { 'title': 'TagDescription', 'name': 'TagDescription' },
       { 'title': 'InfluxFilter', 'name': 'InfluxFilter' },
       { 'title': 'IntervalCheck', 'name': 'IntervalCheck' },
       { 'title': 'AlertFrequency', 'name': 'AlertFrequency' },
@@ -49,6 +48,7 @@ export const AlertComponentConfig: any =
       { 'title': 'ExtraLabel', 'name': 'ExtraLabel' },
       { 'title': 'ExtraData', 'name': 'ExtraData' },
       { 'title': 'AlertExtraText', 'name': 'AlertExtraText' },
+      { 'title': 'IDTag', 'name': 'IDTag' },
       { 'title': 'KapacitorID', 'name': 'KapacitorID' },
       { 'title': 'LastDeploymentTime', 'name':'LastDeploymentTime', 'transform':'datetime' },
       { 'title': 'Endpoint', 'name': 'Endpoint' }

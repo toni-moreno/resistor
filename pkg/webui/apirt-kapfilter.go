@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -62,13 +63,14 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 		log.Warningf("Error getting alert cfg with id: %s. Error: %s", al.ID, err)
 	}
 	sortedtagsarray := sortTagsMap(al.Data.Series[0].Tags)
+	correlationID := "[" + alertcfg.ID + "]|" + strings.Join(sortedtagsarray, ",")
+	//Save current alert event and move previous alert event
+	alertevent := saveAlertEvent(correlationID, al, alertcfg, sortedtagsarray)
 	//makeTaskAlertInfo
-	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, sortedtagsarray)
+	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, correlationID, alertevent.FirstEventTime, alertevent.EventTime)
 	if err != nil {
 		log.Warningf("RTAlertHandler. Error making taskAlertInfo. Error: %s", err)
 	}
-	//Save current alert event and move previous alert event
-	saveAlertEvent(taskAlertInfo, al, alertcfg, sortedtagsarray)
 
 	//Send alert event to related endpoints
 	for _, endpointid := range alertcfg.Endpoint {
@@ -102,21 +104,20 @@ func sortTagsMap(tagsmap map[string]string) []string {
 	return sortedtagsarray
 }
 
-func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, prevalevtarray []*config.AlertEvent) (dev config.AlertEvent) {
-	log.Debugf("makeAlertEvent. Making alert event with this CorrelationID %s", taskAlertInfo.CorrelationID)
+func makeAlertEvent(correlationID string, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, prevalevtarray []*config.AlertEvent) config.AlertEvent {
+	log.Debugf("makeAlertEvent. Making alert event with this CorrelationID %s", correlationID)
 	alertevent := config.AlertEvent{}
 	alertevent.ID = 0
-	alertevent.CorrelationID = taskAlertInfo.CorrelationID
+	alertevent.CorrelationID = correlationID
 	alertevent.AlertID = al.ID
 	alertevent.Message = al.Message
 	alertevent.Details = al.Details
-	if al.Level.String() != "OK" {
-		alertevent.FirstEventTime = al.Time
-	}
 	if len(prevalevtarray) > 0 {
 		if prevalevtarray[0].Level != "OK" {
 			alertevent.FirstEventTime = prevalevtarray[0].FirstEventTime
 		}
+	} else {
+		alertevent.FirstEventTime = al.Time
 	}
 	alertevent.EventTime = al.Time
 	alertevent.Duration = al.Duration
@@ -137,17 +138,18 @@ func makeAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.
 	return alertevent
 }
 
-func saveAlertEvent(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) {
+func saveAlertEvent(correlationID string, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) config.AlertEvent {
 	//Move previous alert events with this correlationid from alert_event to alert_event_hist
-	filter := "correlationid = '" + taskAlertInfo.CorrelationID + "'"
+	filter := "correlationid = '" + correlationID + "'"
 	prevalevtarray := MoveAlertEvents(filter)
 	//Make current alert event
-	alertevent := makeAlertEvent(taskAlertInfo, al, alertcfg, sortedtagsarray, prevalevtarray)
-	//Insert current alert event into alert_event
+	alertevent := makeAlertEvent(correlationID, al, alertcfg, sortedtagsarray, prevalevtarray)
+	//Insert current alert event into alert_event table
 	err := addAlertEvent(alertevent)
 	if err != nil {
-		log.Warningf("saveAlertEvent. Error inserting current alert event with this correlationid %s into alert_event. Error: %s", taskAlertInfo.CorrelationID, err)
+		log.Warningf("saveAlertEvent. Error inserting current alert event with this correlationid %s into alert_event. Error: %s", correlationID, err)
 	}
+	return alertevent
 }
 
 //MoveAlertEvents Moves previous alert events with this filter from alert_event to alert_event_hist
@@ -217,7 +219,7 @@ func addAlertEvent(dev config.AlertEvent) error {
 	return err
 }
 
-func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string) (TaskAlertInfo, error) {
+func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correlationID string, firsteventtime time.Time, eventtime time.Time) (TaskAlertInfo, error) {
 	var taskAlertInfo = TaskAlertInfo{}
 	var err error
 
@@ -251,17 +253,31 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	taskAlertInfo.ResistorAlertInfo.ID = alertcfg.ID
 	taskAlertInfo.ResistorAlertInfo.InfluxDBName = kapa.GetIfxDBNameByID(alertcfg.InfluxDB)
 	taskAlertInfo.Origin = "resistor"
-	taskAlertInfo.CorrelationID = "[" + alertcfg.ID + "]|" + strings.Join(sortedtagsarray, ",")
-	taskAlertInfo.ResistorProductTagName = alertcfg.ProductTag
-	taskAlertInfo.ResistorProductTagValue = alertkapa.Data.Series[0].Tags[alertcfg.ProductTag]
+	taskAlertInfo.CorrelationID = correlationID
+	sProductTagName := alertcfg.ProductTag
+	taskAlertInfo.ResistorProductTagName = sProductTagName
+	taskAlertInfo.ResistorProductTagValue = alertkapa.Data.Series[0].Tags[sProductTagName]
+	sIDTagName := alertcfg.IDTag
+	if len(sIDTagName) == 0 {
+		sIDTagName = alertcfg.ProductTag
+	}
+	taskAlertInfo.ResistorIDTagName = sIDTagName
+	taskAlertInfo.ResistorIDTagValue = alertkapa.Data.Series[0].Tags[sIDTagName]
 	taskAlertInfo.ResistorAlertTags = alertkapa.Data.Series[0].Tags
 	taskAlertInfo.ResistorAlertFields = makeResistorAlertFields(alertkapa)
-	taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = %.2f", alertcfg.InfluxMeasurement, alertcfg.Field, taskAlertInfo.ResistorAlertFields["value"])
+	taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = ", alertcfg.InfluxMeasurement, alertcfg.Field)
+	resistorAlertFieldValue := taskAlertInfo.ResistorAlertFields["value"]
+	if resistorAlertFieldValue != nil {
+		taskAlertInfo.ResistorAlertTriggered = taskAlertInfo.ResistorAlertTriggered + fmt.Sprintf("%.2f", resistorAlertFieldValue)
+	}
 	monExc := fmt.Sprintf("%v", taskAlertInfo.ResistorAlertFields["mon_exc"])
 	taskAlertInfo.ResistorAlertInfo.ThCrit = getResistorAlertTh("crit", monExc, alertcfg)
 	taskAlertInfo.ResistorAlertInfo.ThWarn = getResistorAlertTh("warn", monExc, alertcfg)
 	taskAlertInfo.ResistorAlertInfo.ThInfo = getResistorAlertTh("info", monExc, alertcfg)
 	taskAlertInfo.ResistorAlertInfo.ProductGroup = getResistorAlertProdGrp(alertcfg.ProductID)
+	taskAlertInfo.ResistorOperationID = alertcfg.OperationID
+	taskAlertInfo.ResistorOperationURL = getResistorAlertOperationURL(alertcfg.OperationID)
+	taskAlertInfo.ResistorDashboardURL = makeDashboardURL(taskAlertInfo.ResistorAlertTags, alertkapa, alertcfg, firsteventtime, eventtime)
 
 	//log json
 	jsonArByt, err = json.Marshal(taskAlertInfo)
@@ -272,6 +288,15 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, sortedt
 	log.Debugf("makeTaskAlertInfo. taskAlertInfo to jsonArByt: %v", string(jsonArByt))
 
 	return taskAlertInfo, err
+}
+
+func getResistorAlertOperationURL(operationid string) string {
+	cfg, err := agent.MainConfig.Database.GetOperationCfgByID(operationid)
+	if err != nil {
+		log.Warningf("getResistorAlertOperationURL. Error getting OperationCfg By ID. Error: %s", err)
+		return ""
+	}
+	return cfg.URL
 }
 
 func getResistorAlertProdGrp(productid string) string {
@@ -327,6 +352,52 @@ func makeResistorAlertFields(alertkapa alert.Data) map[string]interface{} {
 		raf[fieldname] = alertkapa.Data.Series[0].Values[0][idx]
 	}
 	return raf
+}
+
+func makeDashboardURL(rat map[string]string, alertkapa alert.Data, alertcfg config.AlertIDCfg, firsteventtime time.Time, eventtime time.Time) string {
+	dashboardURL := ""
+	timefrom := strconv.FormatInt(firsteventtime.Add(-2*time.Hour).Unix()*1000, 10) // firsteventtime - 2h (in ms)
+	timeto := strconv.FormatInt(eventtime.Add(15*time.Minute).Unix()*1000, 10)      // eventtime + 15m (in ms)
+	if len(alertcfg.GrafanaServer) > 0 {
+		dashboardURL = dashboardURL + alertcfg.GrafanaServer
+	} else {
+		log.Debugf("makeDashboardURL. GrafanaServer NOT informed.")
+	}
+	dashboardURL = dashboardURL + "/dashboard/db/"
+	if len(alertcfg.GrafanaDashLabel) > 0 {
+		dashboardURL = dashboardURL + alertcfg.GrafanaDashLabel
+	} else {
+		log.Debugf("makeDashboardURL. GrafanaDashLabel NOT informed.")
+	}
+	dashboardURL = dashboardURL + "?refresh=5m&orgId=2&var-time_interval=$__auto_interval"
+	if len(alertcfg.DeviceIDLabel) > 0 && len(alertcfg.ProductTag) > 0 {
+		dashboardURL = dashboardURL + "&var-" + alertcfg.DeviceIDLabel + "=" + rat[alertcfg.ProductTag]
+	} else {
+		log.Debugf("makeDashboardURL. DeviceIDLabel or ProductTag NOT informed.")
+	}
+	if len(alertcfg.ExtraLabel) > 0 && len(alertcfg.ExtraTag) > 0 {
+		dashboardURL = dashboardURL + "&var-" + alertcfg.ExtraLabel + "=" + rat[alertcfg.ExtraTag]
+	} else {
+		log.Debugf("makeDashboardURL. ExtraLabel or ExtraTag NOT informed.")
+	}
+	if len(alertcfg.GrafanaDashPanelID) > 0 {
+		dashboardURL = dashboardURL + "&panelId=" + alertcfg.GrafanaDashPanelID
+	} else {
+		log.Debugf("makeDashboardURL. GrafanaDashPanelID NOT informed.")
+	}
+	dashboardURL = dashboardURL + "&fullscreen"
+	if len(timefrom) > 0 {
+		dashboardURL = dashboardURL + "&from=" + timefrom
+	} else {
+		log.Debugf("makeDashboardURL. timefrom NOT informed.")
+	}
+	if len(timeto) > 0 {
+		dashboardURL = dashboardURL + "&to=" + timeto
+	} else {
+		log.Debugf("makeDashboardURL. timeto NOT informed.")
+	}
+	log.Debugf("makeDashboardURL. dashboardURL: %s", dashboardURL)
+	return dashboardURL
 }
 
 func sendData(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, endpoint config.EndpointCfg) error {
@@ -441,6 +512,11 @@ type TaskAlertInfo struct {
 	Level                   alert.Level            `json:"level"`
 	CorrelationID           string                 `json:"correlationid"`
 	Origin                  string                 `json:"origin"`
+	ResistorOperationID     string                 `json:"resistor-operationid"`
+	ResistorOperationURL    string                 `json:"resistor-operationurl"`
+	ResistorDashboardURL    string                 `json:"resistor-dashboardurl"`
+	ResistorIDTagName       string                 `json:"resistor-id-tag-name"`
+	ResistorIDTagValue      string                 `json:"resistor-id-tag-value"`
 	ResistorProductTagName  string                 `json:"resistor-product-tag-name"`
 	ResistorProductTagValue string                 `json:"resistor-product-tag-value"`
 	ResistorAlertTriggered  string                 `json:"resistor-alert-triggered"`
@@ -543,9 +619,11 @@ func NewService(c SlackConfig, d Diagnostic) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	if tlsConfig.InsecureSkipVerify {
+	if (len(c.SSLCA) > 0 || len(c.SSLCert) > 0) && c.InsecureSkipVerify {
+		log.Debugf("NewService. Calling d.InsecureSkipVerify()")
 		d.InsecureSkipVerify()
 	}
+	log.Debugf("NewService. Diagnostic: %v", d)
 	s := &Service{
 		diag: d,
 	}
@@ -556,6 +634,7 @@ func NewService(c SlackConfig, d Diagnostic) (*Service, error) {
 			TLSClientConfig: tlsConfig,
 		},
 	})
+	log.Debugf("NewService. Service: %+v", s)
 	return s, nil
 }
 

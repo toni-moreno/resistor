@@ -16,7 +16,12 @@ type DeviceStatCfg struct {
 	BaseLine       string `xorm:"baseline"`
 	FilterTagKey   string `xorm:"filterTagKey"`
 	FilterTagValue string `xorm:"filterTagValue"`
-	Description    string `xorm:"description"`
+	Description    string `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (DeviceStatCfg) TableName() string {
+	return "device_stat_cfg"
 }
 
 // IfxServerCfg Influx server  config
@@ -25,7 +30,12 @@ type IfxServerCfg struct {
 	URL         string `xorm:"URL" binding:"Required"`
 	AdminUser   string `xorm:"adminuser"`
 	AdminPasswd string `xorm:"adminpasswod"`
-	Description string `xorm:"description"`
+	Description string `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (IfxServerCfg) TableName() string {
+	return "ifx_server_cfg"
 }
 
 // ItemComponent for ID's/Names
@@ -40,7 +50,7 @@ type IfxDBCfg struct {
 	Name         string           `xorm:"'name'  not null unique(ifxdb)" binding:"Required"`
 	IfxServer    string           `xorm:"'ifxserver'  not null unique(ifxdb)" binding:"Required"`
 	Retention    []string         `xorm:"retention" binding:"Required"`
-	Description  string           `xorm:"description"`
+	Description  string           `xorm:"description text"`
 	Measurements []*ItemComponent `xorm:"-"`
 }
 
@@ -53,9 +63,14 @@ func (IfxDBCfg) TableName() string {
 type IfxMeasurementCfg struct {
 	ID          int64    `xorm:"'id'  pk autoincr " binding:"Required"`
 	Name        string   `xorm:"'name' not  null"`
-	Tags        []string `xorm:"tags" binding:"Required"`
-	Fields      []string `xorm:"fields" binding:"Required"`
-	Description string   `xorm:"description"`
+	Tags        []string `xorm:"tags text" binding:"Required"`
+	Fields      []string `xorm:"fields mediumtext" binding:"Required"`
+	Description string   `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (IfxMeasurementCfg) TableName() string {
+	return "ifx_measurement_cfg"
 }
 
 // IfxDBMeasRel Relationship between Ifx DB's and Its measurements
@@ -80,21 +95,48 @@ type ProductCfg struct {
 	Measurements     []string `xorm:"measurements"`
 	AlertGroups      []string `xorm:"alertgroups"`
 	FieldResolutions []string `xorm:"fieldresolutions"`
-	Description      string   `xorm:"description"`
+	Description      string   `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (ProductCfg) TableName() string {
+	return "product_cfg"
 }
 
 // ProductGroupCfg Product Group Catalog Config type
 type ProductGroupCfg struct {
 	ID          string   `xorm:"'id' unique" binding:"Required"`
 	Products    []string `xorm:"products"`
-	Description string   `xorm:"description"`
+	Description string   `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (ProductGroupCfg) TableName() string {
+	return "product_group_cfg"
 }
 
 // KapacitorCfg Kapacitor URL's config type
 type KapacitorCfg struct {
 	ID          string `xorm:"'id' unique" binding:"Required"`
 	URL         string `xorm:"URL" binding:"Required"`
-	Description string `xorm:"description"`
+	Description string `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (KapacitorCfg) TableName() string {
+	return "kapacitor_cfg"
+}
+
+// OperationCfg Operation instructions
+type OperationCfg struct {
+	ID          string `xorm:"'id' unique" binding:"Required"`
+	URL         string `xorm:"URL" binding:"Required"`
+	Description string `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (OperationCfg) TableName() string {
+	return "operation_cfg"
 }
 
 // RangeTimeCfg Range or periods Times definition config type
@@ -103,7 +145,12 @@ type RangeTimeCfg struct {
 	MaxHour     int    `xorm:"'max_hour' default 23"`
 	MinHour     int    `xorm:"'min_hour' default 0"`
 	WeekDays    string `xorm:"'weekdays' default '0123456'"`
-	Description string `xorm:"description"`
+	Description string `xorm:"description text"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (RangeTimeCfg) TableName() string {
+	return "range_time_cfg"
 }
 
 //AlertID definition for
@@ -129,17 +176,22 @@ type TemplateCfg struct {
 	TrendType               string    `xorm:"trendtype"` //Absolute/Relative
 	TrendSign               string    `xorm:"trendsign"` //Positive/Negative
 	FieldType               string    `xorm:"fieldtype"` //Counter/Gauge
-	TplData                 string    `xorm:"tpldata"`
-	Description             string    `xorm:"description"`
+	TplData                 string    `xorm:"tpldata mediumtext"`
+	Description             string    `xorm:"description text"`
 	Modified                time.Time `xorm:"modified"`
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
+}
+
+// TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
+func (TemplateCfg) TableName() string {
+	return "template_cfg"
 }
 
 // EndpointCfg Alert Destination HTTP based backends config
 type EndpointCfg struct {
 	ID                 string   `xorm:"'id' unique" binding:"Required"`
 	Type               string   `xorm:"type"`
-	Description        string   `xorm:"description"`
+	Description        string   `xorm:"description text"`
 	URL                string   `xorm:"url"`
 	Headers            []string `xorm:"headers"`
 	BasicAuthUsername  string   `xorm:"basicauthusername"`
@@ -181,7 +233,7 @@ type AlertIDCfg struct {
 	ProductID   string `xorm:"productid" binding:"Required"` //FK - > Product_devices
 	AlertGroup  string `xorm:"alertgroup" binding:"Required"`
 	NumAlertID  int    `xorm:"numalertid" binding:"Required"`
-	Description string `xorm:"description"`
+	Description string `xorm:"description text"`
 	//Alert Origin data
 	InfluxDB           int64  `xorm:"influxdb" binding:"Required"`
 	InfluxRP           string `xorm:"influxrp" binding:"Required"`
@@ -233,6 +285,7 @@ type AlertIDCfg struct {
 	ExtraTag           string `xorm:"extra_tag"`
 	ExtraLabel         string `xorm:"extra_label"`
 	AlertExtraText     string `xorm:"alert_extra_text"`
+	IDTag              string `xorm:"idtag"`
 	//Where to deploy this rule
 	KapacitorID string `xorm:"kapacitorid" binding:"Required"`
 
@@ -274,6 +327,7 @@ type AlertIDCfgJSON struct {
 	ThInfo float64 `json:"th_info"`
 
 	AlertExtraText string `json:"alert_extra_text,omitempty"`
+	IDTag          string `json:"idtag,omitempty"`
 	//Where to deploy this rule
 	KapacitorID string `json:"kapacitorid"`
 }
@@ -293,7 +347,7 @@ type AlertEventHist struct {
 	ProductTagValue string        `xorm:"producttagvalue"`
 	Field           string        `xorm:"field"`
 	Message         string        `xorm:"message"`
-	Details         string        `xorm:"details"`
+	Details         string        `xorm:"details text"`
 	FirstEventTime  time.Time     `xorm:"firsteventtime"`
 	EventTime       time.Time     `xorm:"eventtime"`
 	Duration        time.Duration `xorm:"duration"`
@@ -319,7 +373,7 @@ type AlertEvent struct {
 	ProductTagValue string        `xorm:"producttagvalue"`
 	Field           string        `xorm:"field"`
 	Message         string        `xorm:"message"`
-	Details         string        `xorm:"details"`
+	Details         string        `xorm:"details text"`
 	FirstEventTime  time.Time     `xorm:"firsteventtime"`
 	EventTime       time.Time     `xorm:"eventtime"`
 	Duration        time.Duration `xorm:"duration"`
@@ -338,6 +392,7 @@ func (AlertEvent) TableName() string {
 // DBConfig read from DB
 type DBConfig struct {
 	DeviceStat        map[int64]*DeviceStatCfg
+	Operation         map[string]*OperationCfg
 	RangeTime         map[string]*RangeTimeCfg
 	Product           map[string]*ProductCfg
 	Kapacitor         map[string]*KapacitorCfg

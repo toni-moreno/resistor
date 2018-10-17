@@ -24,6 +24,8 @@ export class AvailableTableActions {
         return this.getEndpointAvailableActions();
         case 'product-component':
         return this.getProductAvailableActions();
+        case 'operation-component':
+        return this.getOperationAvailableActions();
         case 'rangetime-component':
         return this.getRangeTimeAvailableActions();
         case 'template-component':
@@ -52,6 +54,14 @@ export class AvailableTableActions {
     //Remove Action
       {'title': 'Remove', 'content' :
         {'type' : 'button','action' : 'RemoveAllSelected'}
+      },
+      // Change Property Action
+      {'title': 'Change property', 'content' :
+        {'type' : 'selector', 'action' : 'ChangeProperty', 'options' : [
+          {'title' : 'Active', 'type':'boolean', 'options' : [
+            'true','false']
+          }
+        ]},
       }
     ];
     return tableAvailableActions;
@@ -82,6 +92,14 @@ export class AvailableTableActions {
     //Remove Action
       {'title': 'Remove', 'content' :
         {'type' : 'button','action' : 'RemoveAllSelected'}
+      },
+      // Change Property Action
+      {'title': 'Change property', 'content' :
+        {'type' : 'selector', 'action' : 'ChangeProperty', 'options' : [
+          {'title' : 'Active', 'type':'boolean', 'options' : [
+            'true','false']
+          }
+        ]},
       }
     ];
     return tableAvailableActions;
@@ -91,11 +109,28 @@ export class AvailableTableActions {
     //Remove Action
       {'title': 'Remove', 'content' :
         {'type' : 'button','action' : 'RemoveAllSelected'}
+      },
+      // Change Property Action
+      {'title': 'Change property', 'content' :
+        {'type' : 'selector', 'action' : 'ChangeProperty', 'options' : [
+          {'title' : 'Enabled', 'type':'boolean', 'options' : [
+            'true','false']
+          }
+        ]},
       }
     ];
     return tableAvailableActions;
   }
   getProductAvailableActions (data ? : any) : any {
+    let tableAvailableActions = [
+    //Remove Action
+      {'title': 'Remove', 'content' :
+        {'type' : 'button','action' : 'RemoveAllSelected'}
+      }
+    ];
+    return tableAvailableActions;
+  }
+  getOperationAvailableActions (data ? : any) : any {
     let tableAvailableActions = [
     //Remove Action
       {'title': 'Remove', 'content' :

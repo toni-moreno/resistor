@@ -41,19 +41,29 @@ func GetAlertID(ctx *Context) {
 	}
 	_ = kapa.GetKapaTasks(devcfgarray)
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting Alerts %+v", &devcfgarray)
 }
 
 // AddAlertID Inserts new alert into the internal DB and into the kapacitor servers
 func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	_, lastDeploymentTime, _ := kapa.DeployKapaTask(dev)
+	sKapaSrvsNotOK, lastDeploymentTime, kapaerr := kapa.DeployKapaTask(dev)
+	errmsg := ""
+	if kapaerr != nil {
+		errmsg = errmsg + " " + kapaerr.Error()
+	}
+	if len(sKapaSrvsNotOK) > 0 {
+		errmsg = errmsg + " " + fmt.Sprintf("Error deploying kapacitor task %s. Not deployed for kapacitor servers %s.", dev.ID, dev.KapacitorID)
+	}
 	dev.LastDeploymentTime = lastDeploymentTime
 	log.Printf("ADDING alert %+v", dev)
 	affected, err := agent.MainConfig.Database.AddAlertIDCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for alert %s  , affected : %+v , error: %s", dev.ID, affected, err)
-		ctx.JSON(404, err.Error())
+		log.Warningf("AddAlertID. Error on insert for alert %s, affected : %+v, error: %s", dev.ID, affected, err)
+		errmsg = errmsg + " " + err.Error()
+	}
+	if len(errmsg) > 0 {
+		ctx.JSON(404, errmsg)
 	} else {
 		//TODO: review if needed return data  or affected
 		ctx.JSON(200, &dev)
@@ -63,14 +73,24 @@ func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 // UpdateAlertID Updates alert into the internal DB and into the kapacitor servers
 func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	_, lastDeploymentTime, _ := kapa.DeployKapaTask(dev)
+	sKapaSrvsNotOK, lastDeploymentTime, kapaerr := kapa.DeployKapaTask(dev)
+	errmsg := ""
+	if kapaerr != nil {
+		errmsg = errmsg + " " + kapaerr.Error()
+	}
+	if len(sKapaSrvsNotOK) > 0 {
+		errmsg = errmsg + " " + fmt.Sprintf("Error deploying kapacitor task %s. Not deployed for kapacitor servers %s.", dev.ID, dev.KapacitorID)
+	}
 	dev.LastDeploymentTime = lastDeploymentTime
 	id := ctx.Params(":id") //oldID from form
 	log.Debugf("Trying to update alert with id: %s and info: %+v", id, dev)
 	affected, err := agent.MainConfig.Database.UpdateAlertIDCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for alert %s  , affected : %+v , error: %s", dev.ID, affected, err)
-		ctx.JSON(404, err.Error())
+		log.Warningf("UpdateAlertID. Error on update for alert %s, affected: %+v , error: %s", dev.ID, affected, err)
+		errmsg = errmsg + " " + err.Error()
+	}
+	if len(errmsg) > 0 {
+		ctx.JSON(404, errmsg)
 	} else {
 		if id != dev.ID {
 			//If the name of the alert has been changed,
@@ -89,18 +109,13 @@ func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 
 // DeployAlertID Deploys the task related to this alert into the kapacitor server and returns the result in context
 func DeployAlertID(ctx *Context, dev config.AlertIDCfg) {
-	if len(dev.ServersWOLastDeployment) > 0 {
-		sKapaSrvsNotOK, _, err := kapa.DeployKapaTask(dev)
-		if err != nil {
-			ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers: %+s", err))
-		} else if len(sKapaSrvsNotOK) > 0 {
-			ctx.JSON(404, fmt.Sprintf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID))
-		} else {
-			ctx.JSON(200, fmt.Sprintf("Task %s deployed for kapacitor server %s.", dev.ID, dev.KapacitorID))
-		}
+	sKapaSrvsNotOK, _, err := kapa.DeployKapaTask(dev)
+	if err != nil {
+		ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers: %+s", err))
+	} else if len(sKapaSrvsNotOK) > 0 {
+		ctx.JSON(404, fmt.Sprintf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID))
 	} else {
-		log.Debugf("Task %s is deployed with the last version on the kapacitor server: %s.", dev.ID, dev.KapacitorID)
-		ctx.JSON(200, fmt.Sprintf("Task %s is deployed with the last version on the kapacitor server: %s.", dev.ID, dev.KapacitorID))
+		ctx.JSON(200, fmt.Sprintf("Task %s deployed for kapacitor server %s.", dev.ID, dev.KapacitorID))
 	}
 }
 
@@ -219,7 +234,7 @@ func GetAlertIDAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetAlertIDCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for alerts %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)

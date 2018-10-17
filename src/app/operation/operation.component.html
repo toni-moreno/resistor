@@ -2,12 +2,12 @@
 <hr>
 <ng-container [ngSwitch]="editmode">
   <ng-template ngSwitchCase="list">
-    <test-modal #viewModal [titleName]="defaultConfig.name"></test-modal>
-    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Range Time will affect the following components','Deleting this Range Time will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
+    <test-modal #viewModal titleName='Operations'></test-modal>
+    <test-modal #viewModalDelete titleName='Deleting:' [customMessage]="['Deleting this Operation will affect the following components','Deleting this Operation will NOT affect any component. Safe delete']" [customMessageClass]="['alert alert-danger','alert alert-success']"
         [showValidation]="true" [textValidation]="'Delete'" [controlSize]="true" (validationClicked)="deleteSampleItem($event)">
     </test-modal>
     <export-file-modal #exportFileModal [showValidation]="true" [exportType]="defaultConfig['slug']" [textValidation]="'Export'" titleName='Exporting:'></export-file-modal>
-    <table-list #listTableComponent [typeComponent]="'rangetime-component'" [data]="data" [columns]="defaultConfig['table-columns']" [counterItems]="counterItems" [counterErrors]="counterErrors" [selectedArray]="selectedArray" [isRequesting]="isRequesting"
+    <table-list #listTableComponent [typeComponent]="'operation-component'" [data]="data" [columns]="defaultConfig['table-columns']" [counterItems]="counterItems" [counterErrors]="counterErrors" [selectedArray]="selectedArray" [isRequesting]="isRequesting"
         [tableRole]="tableRole" [roleActions]="overrideRoleActions" (customClicked)="customActions($event)"></table-list>
   </ng-template>
   <ng-template ngSwitchDefault>
@@ -30,38 +30,21 @@
       </ng-container>
       <div class="form-fixed-height">
         <div class="well well-sm">
-          <span class="editsection">Time Settings</span>
+          <span class="editsection">Connection Settings</span>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="ID">ID</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of TimeRange definition"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of Operation"></i>
             <div class="col-sm-9">
               <input formControlName="ID" id="ID" [ngModel]="sampleComponentForm.value.ID" />
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
-
           <div class="form-group">
-            <label class="control-label col-sm-2" for="MaxHour">MaxHour</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Max hour selection (0-24)"></i>
+            <label class="control-label col-sm-2" for="URL">URL</label>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="URL for Operation"></i>
             <div class="col-sm-9">
-              <input type="number" formControlName="MaxHour" id="MaxHour" [ngModel]="sampleComponentForm.value.MaxHour" />
-              <control-messages [control]="sampleComponentForm.controls.MaxHour"></control-messages>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="MinHour">MinHour</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Min hour selection (0-24)"></i>
-            <div class="col-sm-9">
-              <input type="number" formControlName="MinHour" id="MinHour" [ngModel]="sampleComponentForm.value.MinHour" />
-              <control-messages [control]="sampleComponentForm.controls.MinHour"></control-messages>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="WeekDays">WeekDays</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="WeekDay selection separated by commas"></i>
-            <div class="col-sm-9">
-              <input formControlName="WeekDays" id="WeekDays" [ngModel]="sampleComponentForm.value.WeekDays" />
-              <control-messages [control]="sampleComponentForm.controls.WeekDays"></control-messages>
+              <input formControlName="URL" id="URL" [ngModel]="sampleComponentForm.value.URL" />
+              <control-messages [control]="sampleComponentForm.controls.URL"></control-messages>
             </div>
           </div>
         </div>
@@ -69,7 +52,7 @@
           <span class="editsection">Extra Settings</span>
           <div class="form-group" style="margin-top: 25px">
             <label class="control-label col-sm-2" for="Description">Description</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the Range Time"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Description of the Operation"></i>
             <div class="col-sm-9">
               <textarea class="form-control" style="width: 50%" rows="2" formControlName="Description" id="Description" [ngModel]="sampleComponentForm.value.Description"> </textarea>
               <control-messages [control]="sampleComponentForm.controls.Description"></control-messages>
@@ -79,5 +62,4 @@
       </div>
     </form>
   </ng-template>
-
 </ng-container>

@@ -198,6 +198,7 @@ func WebServer(publicPath string, httpPort int, cfg *config.HTTPConfig, id strin
 	NewAPICfgTemplate(m)     //Alert Template
 	NewAPICfgRangeTime(m)    //RangeTime
 	NewAPICfgDeviceStat(m)   //Device Stats
+	NewAPICfgOperation(m)    //Operation
 
 	log.Printf("Server is running on localhost:%d...", port)
 	go startCleanAlertsProc()

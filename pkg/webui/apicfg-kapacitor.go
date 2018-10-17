@@ -51,19 +51,19 @@ func GetKapacitor(ctx *Context) {
 	devcfgarray, err := kapa.GetKapaServers("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get Kapacitor :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting Kapacitor %+v", &devcfgarray)
 }
 
-// AddKapacitor Insert new snmpdevice to de internal BBDD --pending--
+// AddKapacitor Insert new Kapacitor to the internal BBDD --pending--
 func AddKapacitor(ctx *Context, dev config.KapacitorCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING Kapacitor %+v", dev)
 	affected, err := agent.MainConfig.Database.AddKapacitorCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for Kapacitor %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		// Deploy the templates from resistor database into this kapacitor server
@@ -85,7 +85,7 @@ func UpdateKapacitor(ctx *Context, dev config.KapacitorCfg) {
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateKapacitorCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for Kapacitor %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
@@ -123,7 +123,7 @@ func GetKapacitorAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetKapacitorCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for Kapacitors %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)

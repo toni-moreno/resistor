@@ -29,21 +29,21 @@ func NewAPICfgDeviceStat(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetDeviceStat Return snmpdevice list to frontend
+// GetDeviceStat Return devicestats list to frontend
 func GetDeviceStat(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetDeviceStatCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get DeviceStats :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting DeviceStats %+v", &devcfgarray)
 }
 
-// AddDeviceStat Insert new snmpdevice to de internal BBDD --pending--
+// AddDeviceStat Insert new devicestat to the internal BBDD --pending--
 func AddDeviceStat(ctx *Context, dev config.DeviceStatCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING DeviceStat %+v", dev)
 	affected, err := agent.MainConfig.Database.AddDeviceStatCfg(&dev)
 	if err != nil {
 		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
@@ -109,7 +109,7 @@ func GetDeviceStatAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetDeviceStatCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for devicestats %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)

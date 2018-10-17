@@ -136,6 +136,12 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 			return err
 		}
 		e.PrependObject(&ExportObject{ObjectTypeID: "kapacitorcfg", ObjectID: id, ObjectCfg: v})
+	case "operationcfg":
+		v, err := dbc.GetOperationCfgByID(id)
+		if err != nil {
+			return err
+		}
+		e.PrependObject(&ExportObject{ObjectTypeID: "operationcfg", ObjectID: id, ObjectCfg: v})
 	case "productcfg":
 		v, err := dbc.GetProductCfgByID(id)
 		if err != nil {
@@ -175,6 +181,7 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 			e.Export("endpointcfg", val, recursive, level+1)
 		}
 		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
+		e.Export("operationcfg", v.OperationID, recursive, level+1)
 		e.Export("productcfg", v.ProductID, recursive, level+1)
 
 		if v.TriggerType != "DEADMAN" {

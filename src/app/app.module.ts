@@ -56,6 +56,7 @@ import { TableListComponent } from './common/table-list.component';
 
 import { KapacitorComponent } from './kapacitor/kapacitor.component';
 import { KapacitorTasksComponent } from './kapacitortasks/kapacitortasks.component';
+import { OperationComponent } from './operation/operation.component';
 import { RangeTimeComponent } from './rangetime/rangetime.component';
 import { IfxServerComponent } from './ifxserver/ifxserver.component';
 import { IfxDBComponent } from './ifxdb/ifxdb.component';
@@ -87,6 +88,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
     LoginComponent,
     KapacitorComponent,
     KapacitorTasksComponent,
+    OperationComponent,
     RangeTimeComponent,
     IfxServerComponent,
     IfxDBComponent,
@@ -134,6 +136,7 @@ import { DeviceStatComponent } from './devicestat/devicestat.component';
       BlockUIComponent,
       KapacitorComponent,
       KapacitorTasksComponent,
+      OperationComponent,
       RangeTimeComponent,
       IfxServerComponent,
       IfxDBComponent,

@@ -113,18 +113,13 @@ func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 
 // DeployTemplate Deploys template into the kapacitor servers and returns the result in context
 func DeployTemplate(ctx *Context, dev config.TemplateCfg) {
-	if len(dev.ServersWOLastDeployment) > 0 {
-		sKapaSrvsNotOK, err := kapa.DeployKapaTemplate(dev)
-		if err != nil {
-			ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err))
-		} else if len(sKapaSrvsNotOK) > 0 {
-			ctx.JSON(404, fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK))
-		} else {
-			ctx.JSON(200, fmt.Sprintf("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment))
-		}
+	sKapaSrvsNotOK, err := kapa.DeployKapaTemplate(dev)
+	if err != nil {
+		ctx.JSON(404, fmt.Sprintf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err))
+	} else if len(sKapaSrvsNotOK) > 0 {
+		ctx.JSON(404, fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK))
 	} else {
-		log.Debugf("Template %s is deployed with the last version on all kapacitor servers.", dev.ID)
-		ctx.JSON(200, fmt.Sprintf("Template %s is deployed with the last version on all kapacitor servers.", dev.ID))
+		ctx.JSON(200, fmt.Sprintf("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment))
 	}
 }
 
@@ -195,7 +190,7 @@ func GetTemplateAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
 	obarray, err := agent.MainConfig.Database.GetTemplateCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for Templates %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)
