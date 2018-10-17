@@ -5,7 +5,7 @@ export const ProductComponentConfig: any =
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Base Lines', 'name': 'BaseLines' },
       { 'title': 'AlertGroups', 'name': 'AlertGroups' },
-      { 'title': 'FieldResolutions', 'name': 'FieldResolutions' },
+      { 'title': 'FieldEvalPeriods', 'name': 'FieldResolutions' },
       { 'title': 'Measurements', 'name': 'Measurements' },
       { 'title': 'Product Tag', 'name': 'ProductTag' },
       { 'title': 'CommonTags', 'name': 'CommonTags' },
