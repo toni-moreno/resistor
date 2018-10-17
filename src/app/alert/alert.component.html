@@ -204,7 +204,7 @@
             <label class="control-label col-sm-2" for="AlertFrequency">Evaluation Period</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Interval to emit values"></i>
             <div class="col-sm-9">
-              <input formControlName="AlertFrequency" id="AlertFrequency" [ngModel]="sampleComponentForm.value.AlertFrequency" />
+              <ss-multiselect-dropdown *ngIf="select_fieldresolution && select_product.length > 0" [options]="select_fieldresolution" formControlName="AlertFrequency" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.AlertFrequency"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.AlertFrequency"></control-messages>
             </div>
           </div>
