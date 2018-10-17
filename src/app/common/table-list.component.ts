@@ -46,20 +46,18 @@ declare var _: any;
         </select>
       </div>
     </div>
-    <div class="col-md-12 text-left">
-      <!--Table Actions-->
-      <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component'">
-        <br>
-        <button style ="margin-top: -5px;" type="button" title="OK" (click)="onFilterColumn('Level', 'OK')" class="btn btn-success"><i class="glyphicon glyphicon-ok-sign"> <span class="badge">{{counterOKs}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Open" (click)="onFilterColumn('Level', 'I')" class="btn"><i class="glyphicon glyphicon-eye-open"> <span class="badge">{{counterNOKs}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Critical" (click)="onFilterColumn('Level', 'CRITICAL')" class="btn btn-danger"><i class="glyphicon glyphicon-remove-sign"> <span class="badge">{{counterCrits}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Warning" (click)="onFilterColumn('Level', 'WARNING')" class="btn btn-warning"><i class="glyphicon glyphicon-warning-sign"> <span class="badge">{{counterWarns}}</span></i></button>
-        <button style ="margin-top: -5px;" type="button" title="Info" (click)="onFilterColumn('Level', 'INFO')" class="btn btn-info"><i class="glyphicon glyphicon-info-sign"> <span class="badge">{{counterInfos}}</span></i></button>
-        <br>
-        <br>
-      </ng-container>
-    </div>
     <br>
+    <!--Table Actions-->
+    <ng-container *ngIf="typeComponent === 'alerteventhist-component' || typeComponent === 'alertevent-component'">
+      <div class="row well" style="margin-top: 10px; padding: 10px 0px 10px 15px;">
+        <span> Status: </span>
+        <label style="font-size:100%" [ngClass]="['label label-success']" (click)="toggleFilter('OK')" container="body" tooltip="Filter OK">{{counterOKs}} OKs <i [ngClass]="OKFilter === true ? ['glyphicon glyphicon-ok'] : ['glyphicon glyphicon-unchecked']"></i></label>
+        <label style="font-size:100%;margin-left:5px" [ngClass]="['label label-default']" (click)="toggleFilter('I')" container="body" tooltip="Filter Open">{{counterNOKs}} Open <i [ngClass]="OpenFilter === true ? ['glyphicon glyphicon-ok'] : ['glyphicon glyphicon-unchecked']"></i></label>
+        <label style="font-size:100%;margin-left:5px" [ngClass]="['label label-danger']" (click)="toggleFilter('CRITICAL')" container="body" tooltip="Filter CRITICAL">{{counterCrits}} Criticals <i [ngClass]="CritFilter === true ? ['glyphicon glyphicon-ok'] : ['glyphicon glyphicon-unchecked']"></i></label>
+        <label style="font-size:100%;margin-left:5px" [ngClass]="['label label-warning']" (click)="toggleFilter('WARNING')" container="body" tooltip="Filter WARNING">{{counterWarns}} Warnings <i [ngClass]="WarnFilter === true ? ['glyphicon glyphicon-ok'] : ['glyphicon glyphicon-unchecked']"></i></label>
+        <label style="font-size:100%;margin-left:5px" [ngClass]="['label label-info']" (click)="toggleFilter('INFO')" container="body" tooltip="Filter INFO">{{counterInfos}} Infos <i [ngClass]="InfoFilter === true ? ['glyphicon glyphicon-ok'] : ['glyphicon glyphicon-unchecked']"></i></label>
+      </div>
+    </ng-container>
     <!--Table available actions-->
     <table-actions [editEnabled]="editEnabled" [counterErrors]="counterErrors" [counterItems]="counterItems || 0" [itemsSelected]="selectedArray.length" [tableAvailableActions]="tableAvailableActions" (actionApply)="customClick('tableaction',$event,selectedArray)"
     [counterTotal]="counterTotal" [counterOKs]="counterOKs" [counterNOKs]="counterNOKs" 
@@ -132,6 +130,12 @@ export class TableListComponent implements OnInit, OnChanges {
   public sortColumn = '';
   public sortDir = '';
   public LastUpdate = new Date();
+
+  public OKFilter: boolean = false;
+  public OpenFilter: boolean = false;
+  public CritFilter: boolean = false;
+  public WarnFilter: boolean = false;
+  public InfoFilter: boolean = false;
 
   //Set config
   public config: any = {
@@ -296,6 +300,48 @@ export class TableListComponent implements OnInit, OnChanges {
       }
     });
     this.onChangeTable(this.config);
+  }
+
+  toggleFilter(filterString: string) {
+    if (this.OKFilter === false && filterString === 'OK') {
+      this.OKFilter = true;
+      this.OpenFilter = false;
+      this.CritFilter = false;
+      this.WarnFilter = false;
+      this.InfoFilter = false;
+    } else if (this.OpenFilter === false && filterString === 'I') {
+      this.OKFilter = false;
+      this.OpenFilter = true;
+      this.CritFilter = false;
+      this.WarnFilter = false;
+      this.InfoFilter = false;
+    } else if (this.CritFilter === false && filterString === 'CRITICAL') {
+      this.OKFilter = false;
+      this.OpenFilter = false;
+      this.CritFilter = true;
+      this.WarnFilter = false;
+      this.InfoFilter = false;
+    } else if (this.WarnFilter === false && filterString === 'WARNING') {
+      this.OKFilter = false;
+      this.OpenFilter = false;
+      this.CritFilter = false;
+      this.WarnFilter = true;
+      this.InfoFilter = false;
+    } else if (this.InfoFilter === false && filterString === 'INFO') {
+      this.OKFilter = false;
+      this.OpenFilter = false;
+      this.CritFilter = false;
+      this.WarnFilter = false;
+      this.InfoFilter = true;
+    } else {
+      this.OKFilter = false;
+      this.OpenFilter = false;
+      this.CritFilter = false;
+      this.WarnFilter = false;
+      this.InfoFilter = false;
+      filterString = '';
+    }
+    this.onFilterColumn('Level', filterString);
   }
 
   customClick(clicked: string, event: any = "", data: any = ""): void {
