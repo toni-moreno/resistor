@@ -24,6 +24,8 @@
 * Some logs improved.
 * About modified.
 * Labels changed on Alert Definition and Product components.
+* Status buttons row on Alert Events and Alert Events History components improved.
+* Evaluation Period field on Alert Definition component changed to select type and filled in depending on values from selected product.
 
 ### fixes
 
