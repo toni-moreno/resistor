@@ -84,17 +84,11 @@ func (dbc *DatabaseCfg) AddOperationCfg(dev *OperationCfg) (int64, error) {
 
 /*DelOperationCfg for deleting operations from ID*/
 func (dbc *DatabaseCfg) DelOperationCfg(id string) (int64, error) {
-	var affecteddev, affected int64
+	var affected int64
 	var err error
 
 	session := dbc.x.NewSession()
 	defer session.Close()
-
-	affecteddev, err = session.Where("operationid='" + id + "'").Delete(&AlertIDCfg{})
-	if err != nil {
-		session.Rollback()
-		return 0, fmt.Errorf("Error on Delete AlertIDCfg with operationid: %s, error: %s", id, err)
-	}
 
 	affected, err = session.Where("id='" + id + "'").Delete(&OperationCfg{})
 	if err != nil {
@@ -106,8 +100,8 @@ func (dbc *DatabaseCfg) DelOperationCfg(id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully operation with ID %s [ %d alerts Affected  ]", id, affecteddev)
-	dbc.addChanges(affected + affecteddev)
+	log.Infof("Deleted Successfully operation with ID %s", id)
+	dbc.addChanges(affected)
 	return affected, nil
 }
 
