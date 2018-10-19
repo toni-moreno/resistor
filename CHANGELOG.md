@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## v 0.5.11  (17/10/2018)
+## v 0.5.11  (19/10/2018)
 
 ### New features.
 
@@ -26,6 +26,7 @@
 * Labels changed on Alert Definition and Product components.
 * Status buttons row on Alert Events and Alert Events History components improved.
 * Evaluation Period field on Alert Definition component changed to select type and filled in depending on values from selected product.
+* When deleting one operation, the related alerts are not deleted.
 
 ### fixes
 
