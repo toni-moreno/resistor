@@ -23,10 +23,12 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/influxdata/kapacitor/alert"
 	"github.com/influxdata/kapacitor/keyvalue"
+	//"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
 	"github.com/toni-moreno/resistor/pkg/kapa"
 	//"github.com/toni-moreno/resistor/pkg/data/alertfilter"
+	res_smtp "github.com/toni-moreno/resistor/pkg/data/alertsvcs/smtp"
 
 	"gopkg.in/macaron.v1"
 )
@@ -265,7 +267,11 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correla
 	taskAlertInfo.ResistorIDTagValue = alertkapa.Data.Series[0].Tags[sIDTagName]
 	taskAlertInfo.ResistorAlertTags = alertkapa.Data.Series[0].Tags
 	taskAlertInfo.ResistorAlertFields = makeResistorAlertFields(alertkapa)
-	taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = ", alertcfg.InfluxMeasurement, alertcfg.Field)
+	if len(alertcfg.FieldDesc) > 0 {
+		taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = ", alertcfg.InfluxMeasurement, alertcfg.FieldDesc)
+	} else {
+		taskAlertInfo.ResistorAlertTriggered = fmt.Sprintf("%s : %s = ", alertcfg.InfluxMeasurement, alertcfg.Field)
+	}
 	resistorAlertFieldValue := taskAlertInfo.ResistorAlertFields["value"]
 	if resistorAlertFieldValue != nil {
 		taskAlertInfo.ResistorAlertTriggered = taskAlertInfo.ResistorAlertTriggered + fmt.Sprintf("%.2f", resistorAlertFieldValue)
@@ -410,9 +416,45 @@ func sendData(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertI
 			err = sendDataToHTTPPost(taskAlertInfo, endpoint)
 		} else if endpoint.Type == "slack" {
 			err = sendDataToSlack(taskAlertInfo, endpoint)
+		} else if endpoint.Type == "email" {
+			err = sendDataToEmail(taskAlertInfo, endpoint)
 		}
 	}
 	return err
+}
+
+func sendDataToEmail(al TaskAlertInfo, endpoint config.EndpointCfg) error {
+	log.Debugf("sendDataToEmail. endpoint.Type: %s, endpoint.Enabled: %v", endpoint.Type, endpoint.Enabled)
+	config := getResSMTPConfig(endpoint)
+	err := config.Validate()
+	if err != nil {
+		log.Warningf("sendDataToEmail. Error validating config data: %s", err)
+		return err
+	}
+	// Send 1 email for each To address
+	for _, itemto := range endpoint.To {
+		config.To = []string{itemto}
+		msg := al.Message + " - Triggered by: " + al.ResistorAlertTriggered
+		err = res_smtp.SendEmail(config, msg, al.Details)
+		if err != nil {
+			log.Warningf("sendDataToEmail. Error sending email to %s: %s", config.To, err)
+		} else {
+			log.Debugf("sendDataToEmail. Email successfully sent to %s", config.To)
+		}
+	}
+	return err
+}
+
+func getResSMTPConfig(endpoint config.EndpointCfg) res_smtp.Config {
+	var config res_smtp.Config
+	config.Enabled = endpoint.Enabled
+	config.Host = endpoint.Host
+	config.Port = endpoint.Port
+	config.Username = endpoint.Username
+	config.Password = endpoint.Password
+	config.From = endpoint.From
+	config.InsecureSkipVerify = endpoint.InsecureSkipVerify
+	return config
 }
 
 func sendDataToHTTPPost(al TaskAlertInfo, endpoint config.EndpointCfg) error {
@@ -593,7 +635,7 @@ func sendDataToSlack(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	}
 	if slackConfig.Enabled {
 		msg := al.Message + " - Triggered by: " + al.ResistorAlertTriggered
-		s.Alert(slackConfig.Channel, msg, slackConfig.Username, slackConfig.IconEmoji, al.Level)
+		s.Alert(al, slackConfig.Channel, msg, slackConfig.Username, slackConfig.IconEmoji, al.Level)
 	}
 	return err
 }
@@ -674,8 +716,8 @@ func Create(
 }
 
 //Alert function for Slack
-func (s *Service) Alert(channel, message, username, iconEmoji string, level alert.Level) error {
-	url, post, err := s.preparePost(channel, message, username, iconEmoji, level)
+func (s *Service) Alert(al TaskAlertInfo, channel, message, username, iconEmoji string, level alert.Level) error {
+	url, post, err := s.preparePost(al, channel, message, username, iconEmoji, level)
 	if err != nil {
 		log.Warningf("Slack Alert. Error preparing post to slack. Error: %v", err)
 		return err
@@ -705,7 +747,7 @@ func (s *Service) Alert(channel, message, username, iconEmoji string, level aler
 	return nil
 }
 
-func (s *Service) preparePost(channel, message, username, iconEmoji string, level alert.Level) (string, io.Reader, error) {
+func (s *Service) preparePost(al TaskAlertInfo, channel, message, username, iconEmoji string, level alert.Level) (string, io.Reader, error) {
 	c := s.config()
 
 	if !c.Enabled {
@@ -720,20 +762,82 @@ func (s *Service) preparePost(channel, message, username, iconEmoji string, leve
 		color = "warning"
 	case alert.Critical:
 		color = "danger"
+	case alert.Info:
+		color = "#439FE0"
 	default:
 		color = "good"
 	}
-	a := attachment{
-		Fallback: message,
-		Text:     message,
-		Color:    color,
-		MrkdwnIn: []string{"text"},
-	}
+
 	postData := make(map[string]interface{})
 	postData["as_user"] = false
 	postData["channel"] = channel
-	postData["text"] = ""
-	postData["attachments"] = []attachment{a}
+	postData["text"] = "*" + al.ID + "*"
+
+	//summaryAttachment
+	summaryAttachment := attachment{}
+	summaryAttachment.Color = color
+	summaryAttachment.Text = ""
+
+	fieldAttachLevel := attachfield{}
+	fieldAttachLevel.Title = level.String()
+	fieldAttachLevel.Value = ""
+	fieldAttachLevel.Short = false
+	summaryAttachment.Fields = append(summaryAttachment.Fields, fieldAttachLevel)
+
+	fieldAttachInfo := attachfield{}
+	fieldAttachInfo.Title = al.ResistorAlertTriggered
+	fieldAttachInfo.Value = "<" + al.ResistorDashboardURL + "|DASHBOARD LINK>"
+	fieldAttachInfo.Short = false
+	summaryAttachment.Fields = append(summaryAttachment.Fields, fieldAttachInfo)
+
+	//tagsAttachment
+	tagsAttachment := attachment{}
+	tagsAttachment.Color = color
+	tagsAttachment.Text = ""
+
+	fieldAttachTags := attachfield{}
+	fieldAttachTags.Title = "TAGS"
+	fieldAttachTags.Value = ""
+	fieldAttachTags.Short = false
+	tagsAttachment.Fields = append(tagsAttachment.Fields, fieldAttachTags)
+
+	for tagname, tagvalue := range al.ResistorAlertTags {
+		fieldAttachTag := attachfield{}
+		fieldAttachTag.Title = tagname
+		fieldAttachTag.Value = tagvalue
+		fieldAttachTag.Short = true
+		tagsAttachment.Fields = append(tagsAttachment.Fields, fieldAttachTag)
+	}
+
+	//fieldsAttachment
+	fieldsAttachment := attachment{}
+	fieldsAttachment.Color = color
+	fieldsAttachment.Text = ""
+
+	fieldAttachFields := attachfield{}
+	fieldAttachFields.Title = "FIELDS"
+	fieldAttachFields.Value = ""
+	fieldAttachFields.Short = false
+	fieldsAttachment.Fields = append(fieldsAttachment.Fields, fieldAttachFields)
+
+	for fieldname, fieldvalue := range al.ResistorAlertFields {
+		fieldAttachField := attachfield{}
+		fieldAttachField.Title = fieldname
+		if fieldname == "value" {
+			fieldAttachField.Value = fmt.Sprintf("%.2f", fieldvalue)
+		} else {
+			fieldAttachField.Value = fmt.Sprintf("%v", fieldvalue)
+		}
+		fieldAttachField.Short = true
+		fieldsAttachment.Fields = append(fieldsAttachment.Fields, fieldAttachField)
+	}
+
+	//attachmentsarray
+	attachmentsarray := []attachment{}
+	attachmentsarray = append(attachmentsarray, summaryAttachment)
+	attachmentsarray = append(attachmentsarray, tagsAttachment)
+	attachmentsarray = append(attachmentsarray, fieldsAttachment)
+	postData["attachments"] = attachmentsarray
 
 	if username == "" {
 		username = c.Username
@@ -762,8 +866,13 @@ func (s *Service) config() SlackConfig {
 
 // slack attachment info
 type attachment struct {
-	Fallback string   `json:"fallback"`
-	Color    string   `json:"color"`
-	Text     string   `json:"text"`
-	MrkdwnIn []string `json:"mrkdwn_in"`
+	Color  string        `json:"color"`
+	Text   string        `json:"text"`
+	Fields []attachfield `json:"fields"`
+}
+
+type attachfield struct {
+	Title string `json:"title"`
+	Value string `json:"value"`
+	Short bool   `json:"short"`
 }

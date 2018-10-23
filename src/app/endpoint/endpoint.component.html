@@ -47,6 +47,7 @@
                 <option value="httppost" selected="selected">httppost</option>
                 <option value="logging">logging</option>
                 <option value="slack">slack</option>
+                <option value="email">email</option>
               </select>
               <control-messages [control]="sampleComponentForm.controls.Type"></control-messages>
             </div>
@@ -184,6 +185,67 @@
             <div class="form-group" *ngIf="sampleComponentForm.controls.InsecureSkipVerify">
               <label class="control-label col-sm-2" for="InsecureSkipVerify">InsecureSkipVerify</label>
               <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Use SSL but skip chain & host verification"></i>
+              <div class="col-sm-9">
+                <select formControlName="InsecureSkipVerify" id="InsecureSkipVerify" [ngModel]="sampleComponentForm.value.InsecureSkipVerify">
+                  <option value="true">True</option>
+                  <option value="false" selected="selected">False</option>
+                </select>
+                <control-messages [control]="sampleComponentForm.controls.InsecureSkipVerify"></control-messages>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="sampleComponentForm.value.Type==='email'">
+            <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.Host">
+              <label class="control-label col-sm-2" for="Host">Host</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Host represents the host of the SMTP server"></i>
+              <div class="col-sm-9">
+                <input formControlName="Host" id="Host" [ngModel]="sampleComponentForm.value.Host" />
+                <control-messages [control]="sampleComponentForm.controls.Host"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.Port">
+              <label class="control-label col-sm-2" for="Port">Port</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Port represents the port of the SMTP server"></i>
+              <div class="col-sm-9">
+                <input type="number" formControlName="Port" id="Port" [ngModel]="sampleComponentForm.value.Port" min="1" />
+                <control-messages [control]="sampleComponentForm.controls.Port"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.Username">
+              <label class="control-label col-sm-2" for="Username">Username</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Username is the username to use to authenticate to the SMTP server"></i>
+              <div class="col-sm-9">
+                <input formControlName="Username" id="Username" [ngModel]="sampleComponentForm.value.Username" />
+                <control-messages [control]="sampleComponentForm.controls.Username"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.Password">
+              <label class="control-label col-sm-2" for="Password">Password</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Password is the password to use to authenticate to the SMTP server"></i>
+              <div class="col-sm-9">
+                <input formControlName="Password" id="Password" type="password" [ngModel]="sampleComponentForm.value.Password" />
+                <control-messages [control]="sampleComponentForm.controls.Password"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.From">
+              <label class="control-label col-sm-2" for="From">From</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="From is the From address for outgoing mail"></i>
+              <div class="col-sm-9">
+                <input formControlName="From" id="From" [ngModel]="sampleComponentForm.value.From" />
+                <control-messages [control]="sampleComponentForm.controls.From"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.To">
+              <label class="control-label col-sm-2" for="To">To</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="To is the List of default To addresses (comma-separated)"></i>
+              <div class="col-sm-9">
+                <input formControlName="To" id="To" [ngModel]="sampleComponentForm.value.To" />
+                <control-messages [control]="sampleComponentForm.controls.To"></control-messages>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="sampleComponentForm.controls.InsecureSkipVerify">
+              <label class="control-label col-sm-2" for="InsecureSkipVerify">InsecureSkipVerify</label>
+              <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Whether to skip TLS verify"></i>
               <div class="col-sm-9">
                 <select formControlName="InsecureSkipVerify" id="InsecureSkipVerify" [ngModel]="sampleComponentForm.value.InsecureSkipVerify">
                   <option value="true">True</option>

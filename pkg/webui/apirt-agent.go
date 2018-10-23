@@ -14,7 +14,7 @@ func NewAPIRtAgent(m *macaron.Macaron) error {
 	//	bind := binding.Bind
 
 	m.Group("/api/rt/agent", func() {
-		m.Get("/info/version/", reqSignedIn, RTGetVersion)
+		m.Get("/info/version/", RTGetVersion)
 	})
 
 	return nil

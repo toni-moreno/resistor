@@ -13,11 +13,12 @@ func NewAPIRtAlertEvent(m *macaron.Macaron) error {
 
 	// Data sources
 	m.Group("/api/rt/alertevent", func() {
-		m.Get("/", reqSignedIn, GetAlertEvent)
-		m.Get("/:id", reqSignedIn, GetAlertEventByID)
+		m.Get("/", GetAlertEvent)
+		m.Get("/:id", GetAlertEventByID)
 		m.Delete("/:id", reqSignedIn, DeleteAlertEvent)
 		m.Get("/checkondel/:id", reqSignedIn, GetAlertEventAffectOnDel)
-		m.Get("/withparams/:params", reqSignedIn, GetAlertEventWithParams)
+		m.Get("/withparams/:params", GetAlertEventWithParams)
+		m.Get("/groupbylevel/", GetAlertEventsByLevel)
 	})
 
 	return nil
@@ -67,6 +68,17 @@ func GetAlertEvent(ctx *Context) {
 		return
 	}
 	ctx.JSON(200, &alevtarray)
+}
+
+// GetAlertEventsByLevel Returns Alert Events grouped by level to frontend
+func GetAlertEventsByLevel(ctx *Context) {
+	alevtsummarray, err := agent.MainConfig.Database.GetAlertEventsByLevelArray("")
+	if err != nil {
+		ctx.JSON(404, err.Error())
+		log.Errorf("Error getting AlertEventsByLevel:%+s", err)
+		return
+	}
+	ctx.JSON(200, &alevtsummarray)
 }
 
 //GetAlertEventByID Returns Alert Event to frontend

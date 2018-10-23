@@ -38,19 +38,36 @@ func (dbc *DatabaseCfg) GetAlertEventHistMap(filter string) (map[int64]*AlertEve
 	return alevtmap, err
 }
 
-/*GetAlertEventHistArray generate an array of devices with all its information */
+/*GetAlertEventHistArray generate an array of Alert Events History with all their information */
 func (dbc *DatabaseCfg) GetAlertEventHistArray(filter string) ([]*AlertEventHist, error) {
 	log.Debugf("Getting AlertEventHist data filtered with %s", filter)
 	var err error
-	var devices []*AlertEventHist
-	if err = dbc.x.Where(filter).Desc("id").Find(&devices); err != nil {
+	var alevthistarray []*AlertEventHist
+	if err = dbc.x.Where(filter).Desc("id").Find(&alevthistarray); err != nil {
 		log.Warnf("Fail to get AlertEventHist data filtered with %s : %v\n", filter, err)
 		return nil, err
 	}
-	return devices, nil
+	return alevthistarray, nil
 }
 
-/*GetAlertEventHistArrayWithParams generate an array of devices with all its information */
+/*GetAlertEventsHistByLevelArray generates an array of alert events summary */
+func (dbc *DatabaseCfg) GetAlertEventsHistByLevelArray(filter string) ([]*AlertEventsSummary, error) {
+	log.Debugf("Getting AlertEventsHistSummary data filtered with %s", filter)
+	var err error
+	var alevtsummarray []*AlertEventsSummary
+	sqlquery := "SELECT level, count(*) as num FROM alert_event_hist"
+	if len(filter) > 0 {
+		sqlquery = sqlquery + " WHERE " + filter
+	}
+	sqlquery = sqlquery + " GROUP BY level"
+	if err = dbc.x.SQL(sqlquery).Find(&alevtsummarray); err != nil {
+		log.Warnf("Error getting AlertEventsHistSummary data filtered with %s: %v\n", filter, err)
+		return nil, err
+	}
+	return alevtsummarray, nil
+}
+
+/*GetAlertEventHistArrayWithParams generate an array of Alert Events History with all their information */
 func (dbc *DatabaseCfg) GetAlertEventHistArrayWithParams(filter string, page int64, itemsPerPage int64, maxSize int64, sortColumn string, sortDir string) ([]*AlertEventHist, error) {
 	log.Debugf("Getting AlertEventHist data filtered with filter: %s, page: %d, itemsPerPage: %d, maxSize: %d, sortColumn: %s, sortDir: %s", filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
 	var err error
@@ -91,7 +108,7 @@ func (dbc *DatabaseCfg) GetAlertEventHistArrayWithParams(filter string, page int
 	return alevts, nil
 }
 
-/*AddAlertEventHist for adding new devices*/
+/*AddAlertEventHist for adding new Alert Event History*/
 func (dbc *DatabaseCfg) AddAlertEventHist(dev *AlertEventHist) (int64, error) {
 	var err error
 	var affected int64
@@ -108,7 +125,7 @@ func (dbc *DatabaseCfg) AddAlertEventHist(dev *AlertEventHist) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Alert event Successfully with id %d", dev.ID)
+	log.Infof("Added new Alert event history Successfully with id %d", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }

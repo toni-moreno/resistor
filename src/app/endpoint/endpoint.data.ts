@@ -9,6 +9,10 @@ export const EndpointComponentConfig: any =
       { 'title': 'Channel', 'name': 'Channel' },
       { 'title': 'LogFile', 'name': 'LogFile' },
       { 'title': 'LogLevel', 'name': 'LogLevel' },
+      { 'title': 'Host', 'name': 'Host' },
+      { 'title': 'Port', 'name': 'Port' },
+      { 'title': 'From', 'name': 'From' },
+      { 'title': 'To', 'name': 'To' },
     ],
     'slug' : 'endpointcfg'
   };

@@ -38,19 +38,36 @@ func (dbc *DatabaseCfg) GetAlertEventMap(filter string) (map[int64]*AlertEvent, 
 	return alevtmap, err
 }
 
-/*GetAlertEventArray generate an array of devices with all its information */
+/*GetAlertEventArray generate an array of alert events with all its information */
 func (dbc *DatabaseCfg) GetAlertEventArray(filter string) ([]*AlertEvent, error) {
 	log.Debugf("Getting AlertEvent data filtered with %s", filter)
 	var err error
-	var devices []*AlertEvent
-	if err = dbc.x.Where(filter).Desc("id").Find(&devices); err != nil {
+	var alevtarray []*AlertEvent
+	if err = dbc.x.Where(filter).Desc("id").Find(&alevtarray); err != nil {
 		log.Warnf("Fail to get AlertEvent data filtered with %s : %v\n", filter, err)
 		return nil, err
 	}
-	return devices, nil
+	return alevtarray, nil
 }
 
-/*GetAlertEventArrayWithParams generate an array of devices with all its information */
+/*GetAlertEventsByLevelArray generates an array of alert events summary */
+func (dbc *DatabaseCfg) GetAlertEventsByLevelArray(filter string) ([]*AlertEventsSummary, error) {
+	log.Debugf("Getting AlertEventsSummary data filtered with %s", filter)
+	var err error
+	var alevtsummarray []*AlertEventsSummary
+	sqlquery := "SELECT level, count(*) as num FROM alert_event"
+	if len(filter) > 0 {
+		sqlquery = sqlquery + " WHERE " + filter
+	}
+	sqlquery = sqlquery + " GROUP BY level"
+	if err = dbc.x.SQL(sqlquery).Find(&alevtsummarray); err != nil {
+		log.Warnf("Error getting AlertEventsSummary data filtered with %s: %v\n", filter, err)
+		return nil, err
+	}
+	return alevtsummarray, nil
+}
+
+/*GetAlertEventArrayWithParams generate an array of alert events with all its information */
 func (dbc *DatabaseCfg) GetAlertEventArrayWithParams(filter string, page int64, itemsPerPage int64, maxSize int64, sortColumn string, sortDir string) ([]*AlertEvent, error) {
 	log.Debugf("Getting AlertEvent data filtered with filter: %s, page: %d, itemsPerPage: %d, maxSize: %d, sortColumn: %s, sortDir: %s", filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
 	var err error
@@ -91,7 +108,7 @@ func (dbc *DatabaseCfg) GetAlertEventArrayWithParams(filter string, page int64, 
 	return alevts, nil
 }
 
-/*AddAlertEvent for adding new devices*/
+/*AddAlertEvent for adding new alert events*/
 func (dbc *DatabaseCfg) AddAlertEvent(dev *AlertEvent) (int64, error) {
 	var err error
 	var affected int64

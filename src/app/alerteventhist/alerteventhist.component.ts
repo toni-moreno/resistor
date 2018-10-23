@@ -77,11 +77,14 @@ export class AlertEventHistComponent implements OnInit {
   }
 
   reloadData(action? : any) {
+    var timeStart = new Date().getTime();
     this.blocker.start(this.container, "Loading data. Please wait...");
     this.isRequesting = true;
     this.alertEventHistService.getAlertEventHistWithParams(action)
       .subscribe(
       data => {
+        var timeSpent = new Date().getTime() - timeStart;
+        console.log("reloadData.getAlertEventHistWithParams timeSpent (ms):" + timeSpent);
         this.blocker.stop();
         this.isRequesting = false;
         this.componentList = data;
@@ -98,9 +101,12 @@ export class AlertEventHistComponent implements OnInit {
         console.log('DONE');
       }
       );
+    var timeSpent = new Date().getTime() - timeStart;
+    console.log("reloadData. timeSpent (ms):" + timeSpent);
   }
 
   setCounters() {
+    var timeStart = new Date().getTime();
     this.counterTotal = 0;
     this.counterOKs = 0;
     this.counterNOKs = 0;
@@ -122,6 +128,8 @@ export class AlertEventHistComponent implements OnInit {
       }
       this.counterNOKs = this.counterTotal - this.counterOKs;
     }
+    var timeSpent = new Date().getTime() - timeStart;
+    console.log("setCounters timeSpent (ms):" + timeSpent);
   }
 
   customActions(action : any) {

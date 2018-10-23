@@ -109,6 +109,15 @@ export class EndpointComponent implements OnInit {
       controlArray.push({'ID':'SslKey','defVal' :'' });
       controlArray.push({'ID':'InsecureSkipVerify','defVal' :'' });
       break;
+      case 'email':
+      controlArray.push({'ID':'Host','defVal' :'', 'Validators' : Validators.required });
+      controlArray.push({'ID':'Port','defVal' :'','Validators' : Validators.required });
+      controlArray.push({'ID':'Username','defVal' :'' });
+      controlArray.push({'ID':'Password','defVal' :'' });
+      controlArray.push({'ID':'From','defVal' :'','Validators' : Validators.required });
+      controlArray.push({'ID':'To','defVal' :'','Validators' : Validators.required });
+      controlArray.push({'ID':'InsecureSkipVerify','defVal' :'' });
+      break;
       default: //Default mode is httppost
       controlArray.push({'ID': 'URL', 'defVal' : '', 'Validators' : Validators.required });
       controlArray.push({'ID': 'Headers', 'defVal' : '' });
