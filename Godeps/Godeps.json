@@ -228,6 +228,10 @@
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
 			"Rev": "4c78c975fe7c825c6d1466c42be594d1d6f3aba6"
+		},
+		{
+			"ImportPath": "gopkg.in/gomail.v2",
+			"Rev": "81ebce5c23dfd25c6c67194b37d3dd3f338c98b1"
 		}
 	]
 }
