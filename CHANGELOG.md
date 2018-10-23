@@ -1,5 +1,22 @@
 # CHANGELOG.md
 
+## v 0.6.0  (23/10/2018)
+
+### New features.
+
+* New information about Resistor version accessible by curl.
+  * curl http://localhost:6090/api/rt/agent/info/version/
+* New information about Alert Events and Alert Events History accessible by curl.
+  * curl http://localhost:6090/api/rt/alertevent/groupbylevel/
+  * curl http://localhost:6090/api/rt/alerteventhist/groupbylevel/
+* New endpoint type email.
+* Information of alerts sent to Slack improved.
+
+### fixes
+
+### breaking changes
+
+
 ## v 0.5.11  (19/10/2018)
 
 ### New features.

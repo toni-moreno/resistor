@@ -206,6 +206,12 @@ type EndpointCfg struct {
 	SslCert            string   `xorm:"sslcert"`
 	SslKey             string   `xorm:"sslkey"`
 	InsecureSkipVerify bool     `xorm:"insecureskipverify"`
+	Host               string   `xorm:"host"`
+	Port               int      `xorm:"port"`
+	Username           string   `xorm:"username"`
+	Password           string   `xorm:"password"`
+	From               string   `xorm:"from"`
+	To                 []string `xorm:"to"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -387,6 +393,12 @@ type AlertEvent struct {
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
 func (AlertEvent) TableName() string {
 	return "alert_event"
+}
+
+// AlertEventsSummary is a structure that contains summary data about alert events.
+type AlertEventsSummary struct {
+	Level string `json:"level"`
+	Num   int    `json:"num"`
 }
 
 // DBConfig read from DB

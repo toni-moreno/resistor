@@ -11,7 +11,7 @@ export class EndpointService {
     }
 
     jsonParser(key,value) {
-        if ( key == 'Headers') {
+        if ( key == 'Headers' || key == 'To' ) {
             if(typeof value === 'string') return value.split(',');
         }
         if ( key == 'Enabled' || key == 'InsecureSkipVerify' ) {
