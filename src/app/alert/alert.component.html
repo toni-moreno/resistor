@@ -1,5 +1,6 @@
 <h2>{{defaultConfig.name}}</h2>
 <hr>
+<div #blocker style="position: absolute; top: 50%;"></div>
 <ng-container [ngSwitch]="editmode">
   <ng-template ngSwitchCase="list">
     <test-modal #viewModal [titleName]="defaultConfig.name"></test-modal>
@@ -35,7 +36,7 @@
             <label class="control-label col-sm-2" for="ID">ID</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of the alert. Autocalculated from below fields"></i>
             <div class="col-sm-9">
-              <input formControlName="ID" id="ID" disabled style="border:0px;" [ngModel]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.AlertGroup+'-'+(sampleComponentForm.value.NumAlertID | leadingZeroes)" />
+              <input formControlName="ID" id="ID" readonly style="border:0px;" [ngModel]="sampleComponentForm.value.BaselineID+'-'+sampleComponentForm.value.ProductID+'-'+sampleComponentForm.value.AlertGroup+'-'+(sampleComponentForm.value.NumAlertID | leadingZeroes)" />
               <control-messages [control]="sampleComponentForm.controls.ID"></control-messages>
             </div>
           </div>
@@ -125,7 +126,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxDB && sampleComponentForm.value.InfluxMeasurement">
             <label class="control-label col-sm-2" for="InfluxDB">Influx Database</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Unique identifier of Influx Database"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="ifxdb_list && select_ifxdb.length > 0" [options]="select_ifxdb" formControlName="InfluxDB" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxDB" (ngModelChange)="pickDBItem($event)"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.InfluxDB"></control-messages>
@@ -133,7 +134,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.InfluxRP && sampleComponentForm.value.InfluxDB">
             <label class="control-label col-sm-2" for="InfluxRP">Influx Retention</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Retention policy of InfluxDB server"></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Retention policy of Influx Database"></i>
             <div class="col-sm-9">
               <ss-multiselect-dropdown *ngIf="select_ifxrp && select_ifxdb.length > 0" [options]="select_ifxrp" formControlName="InfluxRP" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.InfluxRP"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.InfluxRP"></control-messages>
@@ -178,7 +179,7 @@
             <label class="control-label col-sm-2" for="ProductTag">Product Tag</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to identify the device"></i>
             <div class="col-sm-9">
-              <input formControlName="ProductTag" id="ProductTag" disabled style="border:0px;" [ngModel]="sampleComponentForm.value.ProductTag" />
+              <input formControlName="ProductTag" id="ProductTag" readonly style="border:0px;" [ngModel]="sampleComponentForm.value.ProductTag" />
               <control-messages [control]="sampleComponentForm.controls.ProductTag"></control-messages>
             </div>
           </div>
@@ -456,6 +457,9 @@
             <div class="col-sm-9">
               <input formControlName="GrafanaDashPanelID" id="GrafanaDashPanelID" [ngModel]="sampleComponentForm.value.GrafanaDashPanelID" />
               <control-messages [control]="sampleComponentForm.controls.GrafanaDashPanelID"></control-messages>
+              <a href="javaScript:void(0);" (click)="link(sampleComponentForm.value.GrafanaServer+'/dashboard/db/'+sampleComponentForm.value.GrafanaDashLabel+'?fullscreen&amp;panelId='+sampleComponentForm.value.GrafanaDashPanelID)" class="text-link">
+                Dashboard Link
+              </a>
             </div>
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.DeviceIDLabel">
@@ -470,7 +474,7 @@
             <label class="control-label col-sm-2" for="ProductTagRO">Product Tag</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to identify the device"></i>
             <div class="col-sm-9">
-              <input formControlName="ProductTagRO" id="ProductTagRO" disabled style="border:0px;" [ngModel]="sampleComponentForm.value.ProductTag" />
+              <input formControlName="ProductTagRO" id="ProductTagRO" readonly style="border:0px;" [ngModel]="sampleComponentForm.value.ProductTag" />
               <control-messages [control]="sampleComponentForm.controls.ProductTagRO"></control-messages>
             </div>
           </div>
@@ -493,11 +497,11 @@
         </div>
         <div class="well well-sm">
           <span class="editsection">Extra Settings</span>
-          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.controls.IDTag">
+          <div class="form-group" style="margin-top: 25px" *ngIf="sampleComponentForm.value.InfluxRP && sampleComponentForm.controls.IDTag">
             <label class="control-label col-sm-2" for="IDTag">UID Tag</label>
             <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Tag to be used as Unique ID tag when sending to HTTP Post endpoint"></i>
             <div class="col-sm-9">
-              <ss-multiselect-dropdown *ngIf="select_idtag && select_product.length > 0" [options]="select_idtag" formControlName="IDTag" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.IDTag"></ss-multiselect-dropdown>
+              <ss-multiselect-dropdown *ngIf="select_ifxts" [options]="select_ifxts" formControlName="IDTag" [settings]="single_select" [texts]="myTexts" [ngModel]="sampleComponentForm.value.IDTag"></ss-multiselect-dropdown>
               <control-messages [control]="sampleComponentForm.controls.IDTag"></control-messages>
             </div>
           </div>

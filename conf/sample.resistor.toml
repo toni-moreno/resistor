@@ -113,3 +113,5 @@
  cleanperiod = "3m"
  #Resistor URL. Kapacitor uses this URL to post alerts to Resistor
  #resistorurl = "http://resistorip:resistorport"
+ #Template for constructing a unique ID for a given alert. The ID will be: taskName + "|" + correlation_id_template
+ #correlationidtemplate="{{range $key, $value := .Tags}} {{ $key }}:{{ $value }}.{{end}}"

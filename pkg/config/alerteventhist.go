@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"strconv"
+	"time"
 )
 
 /***************************
@@ -101,10 +102,13 @@ func (dbc *DatabaseCfg) GetAlertEventHistArrayWithParams(filter string, page int
 
 	log.Debugf("Getting AlertEventHist data filtered with sqlquery: %s", sqlquery)
 
+	start := time.Now()
 	if err = dbc.x.SQL(sqlquery).Find(&alevts); err != nil {
 		log.Warnf("Fail to get AlertEventHist data filtered with sqlquery: %s. Error : %s", sqlquery, err)
 		return nil, err
 	}
+	elapsed := time.Since(start)
+	log.Debugf("TIMELOG: GetAlertEventHistArrayWithParams took %v", elapsed)
 	return alevts, nil
 }
 
