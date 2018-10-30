@@ -1,5 +1,27 @@
 # CHANGELOG.md
 
+## v 0.6.1  (30/10/2018)
+
+### New features.
+
+* New parameter 'correlationidtemplate' on [alerting] section of config file.
+  * Template for constructing a unique ID for a given alert. The ID will be: taskName + "|" + correlation_id_template
+  * Example: correlationidtemplate="{{range $key, $value := .Tags}} {{ $key }}:{{ $value }}.{{end}}"
+* Changes on Alert Definition component: 
+  * Added new link to the Dashboard URL.
+  * UID Tag field filled in with tags from measurement.
+  * Unsubscriptions done if another item from menu is clicked when a get response is pending.
+* Icon for unselect on single-select fields modified to trash-icon.
+
+### fixes
+
+* Changes to fix errors on Dashboard URL construction.
+* Changes to fix warnings with disabled fields on Alert Definition component.
+* Changes to fix error when column for multiselection is shown.
+
+### breaking changes
+
+
 ## v 0.6.0  (23/10/2018)
 
 ### New features.

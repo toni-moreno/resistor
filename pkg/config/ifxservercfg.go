@@ -124,7 +124,7 @@ func (dbc *DatabaseCfg) UpdateIfxServerCfg(id string, dev *IfxServerCfg) (int64,
 				session.Rollback()
 				return 0, fmt.Errorf("Error on Update InfluxConfig on update id(old)  %s with (new): %s, error: %s", id, dev.ID, err)
 			}*/
-		log.Infof("Updated Influx server Config to %s devices ", affecteddev)
+		log.Infof("Updated Influx server ID from %s to %s ", id, dev.ID)
 	}
 
 	affected, err = session.Where("id='" + id + "'").UseBool().AllCols().Update(dev)
@@ -137,7 +137,7 @@ func (dbc *DatabaseCfg) UpdateIfxServerCfg(id string, dev *IfxServerCfg) (int64,
 		return 0, err
 	}
 
-	log.Infof("Updated Influx Server  Successfully with id %s and data:%+v, affected", id, dev)
+	log.Infof("Updated Influx Server Successfully with id %s and data:%+v", id, dev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }

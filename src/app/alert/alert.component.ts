@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { FormArray, FormGroup, FormControl} from '@angular/forms';
 
@@ -14,10 +14,12 @@ import { IfxMeasurementService } from '../ifxmeasurement/ifxmeasurement.service'
 import { ValidationService } from '../common/custom-validation/validation.service'
 import { ExportServiceCfg } from '../common/dataservice/export.service'
 import { ExportFileModal } from '../common/dataservice/export-file-modal';
+import { BlockUIService } from '../common/blockui/blockui-service';
 import { WindowRef } from '../common/windowref';
 
 import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs';
 
 import { TableListComponent } from '../common/table-list.component';
 import { AlertComponentConfig, TableRole, OverrideRoleActions } from './alert.data';
@@ -38,6 +40,7 @@ export class AlertComponent implements OnInit {
   @ViewChild('viewModal') public viewModal: GenericModal;
   @ViewChild('viewModalDelete') public viewModalDelete: GenericModal;
   @ViewChild('listTableComponent') public listTableComponent: TableListComponent;
+  @ViewChild('blocker', { read: ViewContainerRef }) container: ViewContainerRef;
   @ViewChild('exportFileModal') public exportFileModal : ExportFileModal;
 
 
@@ -86,12 +89,14 @@ export class AlertComponent implements OnInit {
   private builder;
   private oldID : string;
 
+  public mySubscription: Subscription;
+
   ngOnInit() {
     this.editmode = 'list';
     this.reloadData();
   }
 
-  constructor(private winRef: WindowRef,public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public operationService: OperationService, public exportServiceCfg : ExportServiceCfg, builder: FormBuilder) {
+  constructor(private winRef: WindowRef,public alertService: AlertService,public productService :ProductService, public rangetimeService : RangeTimeService, public ifxDBService : IfxDBService, public ifxMeasurementService : IfxMeasurementService, public endpointService: EndpointService, public kapacitorService: KapacitorService, public operationService: OperationService, public exportServiceCfg : ExportServiceCfg, public blocker: BlockUIService, builder: FormBuilder) {
     this.nativeWindow = winRef.nativeWindow;
     this.builder = builder;
   }
@@ -233,17 +238,25 @@ export class AlertComponent implements OnInit {
 
 
   reloadData() {
-    // now it's a simple subscription to the observable
+    //this.blocker.start(this.container, "Loading data. Please wait...");
+    this.isRequesting = true;
     this.alertService.getAlertItem(null)
       .subscribe(
       data => {
+        //this.blocker.stop();
         this.isRequesting = false;
         this.componentList = data
         this.data = data;
         this.editmode = "list";
       },
-      err => console.error(err),
-      () => console.log('DONE')
+      err => {
+        //this.blocker.stop();
+        console.error(err);
+      },
+      () => {
+        //this.blocker.stop();
+        console.log('DONE');
+      }
       );
   }
 
@@ -320,7 +333,7 @@ export class AlertComponent implements OnInit {
     this.alertService.checkOnDeleteAlertItem(id)
       .subscribe(
         data => {
-        this.viewModalDelete.parseObject(data)
+          this.viewModalDelete.parseObject(data)
       },
       err => console.error(err),
       () => { }
@@ -365,7 +378,7 @@ export class AlertComponent implements OnInit {
 
   deleteSampleItem(id, recursive?) {
     if (!recursive) {
-    this.alertService.deleteAlertItem(id)
+      this.alertService.deleteAlertItem(id)
       .subscribe(data => { },
       err => console.error(err),
       () => { this.viewModalDelete.hide(); this.reloadData() }
@@ -470,9 +483,10 @@ export class AlertComponent implements OnInit {
   }
 
   getProductItem() {
-    this.productService.getProductItem(null)
+    this.mySubscription = this.productService.getProductItem(null)
       .subscribe(
       data => {
+        this.mySubscription = null;
         this.product_list = data;
         this.select_product = [];
         this.select_product = this.createMultiselectArray(data, 'ID','ID');
@@ -484,9 +498,10 @@ export class AlertComponent implements OnInit {
 
 
   getRangeTimeItem() {
-    this.rangetimeService.getRangeTimeItem(null)
+    this.mySubscription = this.rangetimeService.getRangeTimeItem(null)
       .subscribe(
       data => {
+        this.mySubscription = null;
         this.select_rangetime = [];
         this.select_rangetime = this.createMultiselectArray(data, 'ID','ID');
       },
@@ -496,9 +511,10 @@ export class AlertComponent implements OnInit {
   }
 
   getEndpointItem() {
-    this.endpointService.getEndpointItem(null)
+    this.mySubscription = this.endpointService.getEndpointItem(null)
       .subscribe(
       data => {
+        this.mySubscription = null;
         this.select_endpoint = [];
         this.select_endpoint = this.createMultiselectArray(data, 'ID','ID');
       },
@@ -507,9 +523,10 @@ export class AlertComponent implements OnInit {
       );
   }
   getKapacitorItem() {
-    this.kapacitorService.getKapacitorItem(null)
+    this.mySubscription = this.kapacitorService.getKapacitorItem(null)
       .subscribe(
       data => {
+        this.mySubscription = null;
         this.select_kapacitor = [];
         this.select_kapacitor = this.createMultiselectArray(data, 'ID','ID');
       },
@@ -519,9 +536,10 @@ export class AlertComponent implements OnInit {
   }
 
   getOperationItem() {
-    this.operationService.getOperationItem(null)
+    this.mySubscription = this.operationService.getOperationItem(null)
       .subscribe(
       data => {
+        this.mySubscription = null;
         this.select_operation = [];
         this.select_operation = this.createMultiselectArray(data, 'ID','ID');
       },
@@ -531,9 +549,10 @@ export class AlertComponent implements OnInit {
   }
 
   getIfxDBItem() {
-    this.ifxDBService.getIfxDBItem(null)
+    this.mySubscription = this.ifxDBService.getIfxDBItem(null)
       .subscribe(
       data => {
+        this.mySubscription = null;
         this.ifxdb_list = data;
         this.select_ifxdb = [];
         this.select_ifxdb = this.createMultiselectArray(data, 'ID','Name','IfxServer');
@@ -558,10 +577,13 @@ export class AlertComponent implements OnInit {
     if(this.picked_ifxdb) {
       this.select_ifxrp = this.createMultiselectArray(this.picked_ifxdb['Retention']);
       this.select_ifxfs = [];
-      this.ifxMeasurementService.getIfxMeasurementItemByDbIdMeasName(ifxdb_picked, this.picked_ifxms)
+      this.select_ifxts = [];
+      this.mySubscription = this.ifxMeasurementService.getIfxMeasurementItemByDbIdMeasName(ifxdb_picked, this.picked_ifxms)
       .subscribe(
         data => {
+          this.mySubscription = null;
           this.select_ifxfs = this.createMultiselectArray(data.Fields);
+          this.select_ifxts = this.createMultiselectArray(data.Tags);
         },
         err => console.error(err),
         () => console.log('DONE')
@@ -575,13 +597,16 @@ export class AlertComponent implements OnInit {
       this.sampleComponentForm.controls.InfluxDB.setValue(null);
       this.sampleComponentForm.controls.InfluxRP.setValue(null);
       this.sampleComponentForm.controls.Field.setValue(null);
+      this.sampleComponentForm.controls.IDTag.setValue(null);
+      this.select_ifxts = [];
     }
 
     if (ifxms_picked){
       this.picked_ifxms = ifxms_picked;
-      this.ifxDBService.getIfxDBCfgArrayByMeasName(ifxms_picked)
+      this.mySubscription = this.ifxDBService.getIfxDBCfgArrayByMeasName(ifxms_picked)
       .subscribe(
         data => {
+          this.mySubscription = null;
           console.log(data);
           this.ifxdb_list = data;
           this.select_ifxdb = [];
@@ -633,4 +658,7 @@ export class AlertComponent implements OnInit {
     return myarray;
   }
 
+  ngOnDestroy() {
+    if (this.mySubscription) this.mySubscription.unsubscribe();
+  }
 }

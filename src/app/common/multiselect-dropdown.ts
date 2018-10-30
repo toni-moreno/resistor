@@ -126,7 +126,7 @@ export class MultiSelectSearchEqualFilter {
                 </ul>
             </ul>
             <a *ngIf="settings.singleSelect === true" href="javascript:;" role="menuitem" tabindex="-1" (click)="clearSingleSelect()" style="vertical-align: bottom;">
-                <span style="width: 16px;" class="glyphicon glyphicon-remove text-danger" title="Clear"></span>
+                <span style="width: 16px;" class="glyphicon glyphicon-trash" title="Clear"></span>
             </a>
         </div>
     `

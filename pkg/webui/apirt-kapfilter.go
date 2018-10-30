@@ -59,8 +59,14 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 		log.Debugf("ALERT Serie: %+v", serie)
 	}
 
+	//Get TaskName
+	sTaskName := al.ID
+	idPartsArray := strings.Split(al.ID, "|")
+	if len(idPartsArray) > 0 {
+		sTaskName = idPartsArray[0]
+	}
 	//Get AlertCfg
-	alertcfg, err := agent.MainConfig.Database.GetAlertIDCfgByID(al.ID)
+	alertcfg, err := agent.MainConfig.Database.GetAlertIDCfgByID(sTaskName)
 	if err != nil {
 		log.Warningf("Error getting alert cfg with id: %s. Error: %s", al.ID, err)
 	}
@@ -252,6 +258,7 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correla
 	}
 
 	//calculated fields
+	taskAlertInfo.ID = alertcfg.ID
 	taskAlertInfo.ResistorAlertInfo.ID = alertcfg.ID
 	taskAlertInfo.ResistorAlertInfo.InfluxDBName = kapa.GetIfxDBNameByID(alertcfg.InfluxDB)
 	taskAlertInfo.Origin = "resistor"
@@ -361,49 +368,67 @@ func makeResistorAlertFields(alertkapa alert.Data) map[string]interface{} {
 }
 
 func makeDashboardURL(rat map[string]string, alertkapa alert.Data, alertcfg config.AlertIDCfg, firsteventtime time.Time, eventtime time.Time) string {
-	dashboardURL := ""
+	var uDashboardURL *url.URL
+	var err error
+	sDashboardURL := ""
+	log.Debugf("Entering makeDashboardURL.")
+
+	if len(alertcfg.GrafanaServer) > 0 {
+		sDashboardURL += alertcfg.GrafanaServer
+	} else {
+		log.Warningf("makeDashboardURL. GrafanaServer NOT informed. Empty URL will be assigned.")
+		return ""
+	}
+	sDashboardURL += "/dashboard/db/"
+	if len(alertcfg.GrafanaDashLabel) > 0 {
+		sDashboardURL += alertcfg.GrafanaDashLabel
+	} else {
+		log.Warningf("makeDashboardURL. GrafanaDashLabel NOT informed. Empty URL will be assigned.")
+		return ""
+	}
+
+	//Add time parameters
 	timefrom := strconv.FormatInt(firsteventtime.Add(-2*time.Hour).Unix()*1000, 10) // firsteventtime - 2h (in ms)
 	timeto := strconv.FormatInt(eventtime.Add(15*time.Minute).Unix()*1000, 10)      // eventtime + 15m (in ms)
-	if len(alertcfg.GrafanaServer) > 0 {
-		dashboardURL = dashboardURL + alertcfg.GrafanaServer
+	sDashboardURL += "?var-time_interval=$__auto_interval&from=" + timefrom + "&to=" + timeto
+	//Add panelId
+	if len(alertcfg.GrafanaDashPanelID) > 0 {
+		sDashboardURL += "&fullscreen&panelId=" + alertcfg.GrafanaDashPanelID
 	} else {
-		log.Debugf("makeDashboardURL. GrafanaServer NOT informed.")
+		log.Debugf("makeDashboardURL. GrafanaDashPanelID NOT informed.")
 	}
-	dashboardURL = dashboardURL + "/dashboard/db/"
-	if len(alertcfg.GrafanaDashLabel) > 0 {
-		dashboardURL = dashboardURL + alertcfg.GrafanaDashLabel
-	} else {
-		log.Debugf("makeDashboardURL. GrafanaDashLabel NOT informed.")
+	//Add all tags from kapacitor
+	for tagkey, tagvalue := range rat {
+		sDashboardURL += "&var-" + tagkey + "=" + tagvalue
 	}
-	dashboardURL = dashboardURL + "?refresh=5m&orgId=2&var-time_interval=$__auto_interval"
+	//Add special tags from resistor
 	if len(alertcfg.DeviceIDLabel) > 0 && len(alertcfg.ProductTag) > 0 {
-		dashboardURL = dashboardURL + "&var-" + alertcfg.DeviceIDLabel + "=" + rat[alertcfg.ProductTag]
+		//Don't add duplicated vars
+		_, exists := rat[alertcfg.DeviceIDLabel]
+		if !exists {
+			sDashboardURL += "&var-" + alertcfg.DeviceIDLabel + "=" + rat[alertcfg.ProductTag]
+		}
 	} else {
 		log.Debugf("makeDashboardURL. DeviceIDLabel or ProductTag NOT informed.")
 	}
 	if len(alertcfg.ExtraLabel) > 0 && len(alertcfg.ExtraTag) > 0 {
-		dashboardURL = dashboardURL + "&var-" + alertcfg.ExtraLabel + "=" + rat[alertcfg.ExtraTag]
+		//Don't add duplicated vars
+		_, exists := rat[alertcfg.ExtraLabel]
+		if !exists {
+			sDashboardURL += "&var-" + alertcfg.ExtraLabel + "=" + rat[alertcfg.ExtraTag]
+		}
 	} else {
 		log.Debugf("makeDashboardURL. ExtraLabel or ExtraTag NOT informed.")
 	}
-	if len(alertcfg.GrafanaDashPanelID) > 0 {
-		dashboardURL = dashboardURL + "&panelId=" + alertcfg.GrafanaDashPanelID
-	} else {
-		log.Debugf("makeDashboardURL. GrafanaDashPanelID NOT informed.")
+	//Encode URL
+	uDashboardURL, err = url.Parse(sDashboardURL)
+	if err != nil {
+		log.Warningf("makeDashboardURL. Error parsing Grafana URL. Empty URL will be assigned. Error: %s", err)
+		return ""
 	}
-	dashboardURL = dashboardURL + "&fullscreen"
-	if len(timefrom) > 0 {
-		dashboardURL = dashboardURL + "&from=" + timefrom
-	} else {
-		log.Debugf("makeDashboardURL. timefrom NOT informed.")
-	}
-	if len(timeto) > 0 {
-		dashboardURL = dashboardURL + "&to=" + timeto
-	} else {
-		log.Debugf("makeDashboardURL. timeto NOT informed.")
-	}
-	log.Debugf("makeDashboardURL. dashboardURL: %s", dashboardURL)
-	return dashboardURL
+	log.Debugf("makeDashboardURL. Encoded uDashboardURL: %s", uDashboardURL.String())
+
+	return uDashboardURL.String()
 }
 
 func sendData(taskAlertInfo TaskAlertInfo, al alert.Data, alertcfg config.AlertIDCfg, sortedtagsarray []string, endpoint config.EndpointCfg) error {

@@ -606,15 +606,24 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 	//Getting JSON vars from user input
 	vars := make(kapacitorClient.Vars)
 
-	vars["RESISTOR_IP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: getOwnIP()}
+	sOwnIP := getOwnIP()
+	vars["RESISTOR_IP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sOwnIP}
 	vars["RESISTOR_PORT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: port}
+	sHTTPPostURL := ""
 	sResistorURL := agent.MainConfig.Alerting.ResistorURL
 	if len(sResistorURL) > 0 {
-		sHTTPPostURL := sResistorURL + "/api/rt/kapfilter/alert/"
-		vars["http_post_url"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sHTTPPostURL}
+		sHTTPPostURL = sResistorURL + "/api/rt/kapfilter/alert/"
+	} else {
+		sHTTPPostURL = "http://" + sOwnIP + ":" + port + "/api/rt/kapfilter/alert/"
 	}
+	vars["http_post_url"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sHTTPPostURL}
 	//Core Settings
-	vars["ID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ID}
+	sID := dev.ID
+	sCorrelationIDTemplate := agent.MainConfig.Alerting.CorrelationIDTemplate
+	if len(sCorrelationIDTemplate) > 0 {
+		sID += "|" + sCorrelationIDTemplate
+	}
+	vars["ID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sID}
 	vars["ID_LINE"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.BaselineID}
 	vars["ID_PRODUCT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ProductID}
 	vars["ID_GROUP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.AlertGroup}
