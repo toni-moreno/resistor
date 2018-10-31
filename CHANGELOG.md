@@ -1,5 +1,18 @@
 # CHANGELOG.md
 
+## v 0.6.2  (31/10/2018)
+
+### New features.
+
+
+### fixes
+
+* Changes on Alert Events and Alert Events History components:
+  * AlertID column shows the ID of the Resistor Alert again, not the ID received from the Kapacitor AlertNode.
+
+### breaking changes
+
+
 ## v 0.6.1  (30/10/2018)
 
 ### New features.

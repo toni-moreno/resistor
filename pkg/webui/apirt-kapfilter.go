@@ -117,7 +117,7 @@ func makeAlertEvent(correlationID string, al alert.Data, alertcfg config.AlertID
 	alertevent := config.AlertEvent{}
 	alertevent.ID = 0
 	alertevent.CorrelationID = correlationID
-	alertevent.AlertID = al.ID
+	alertevent.AlertID = alertcfg.ID
 	alertevent.Message = al.Message
 	alertevent.Details = al.Details
 	if len(prevalevtarray) > 0 {
