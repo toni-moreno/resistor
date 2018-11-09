@@ -36,7 +36,7 @@ func GetAlertID(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetAlertIDCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get Alerts :%+s", err)
 		return
 	}
 	_ = kapa.GetKapaTasks(devcfgarray)
@@ -102,7 +102,7 @@ func UpdateAlertID(ctx *Context, dev config.AlertIDCfg) {
 				ctx.JSON(404, fmt.Sprintf("Alert succesfully updated, but with errors on deleting task %s from kapacitor servers: %s", id, sKapaSrvsNotOK))
 			}
 		}
-		//TODO: review if needed return device data
+		//TODO: review if needed return alert data
 		ctx.JSON(200, &dev)
 	}
 }

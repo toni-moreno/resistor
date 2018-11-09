@@ -1,5 +1,40 @@
 # CHANGELOG.md
 
+## v 0.6.3  (09/11/2018)
+
+### New features.
+
+* Changes on Templates component:
+  * The user is informed on frontend if an error occurs deploying templates.
+* Changes on Alerts Definition component:
+  * The user is informed on frontend if an error occurs deploying tasks.
+* Changes on Alert Events and Alert Events History components:
+  * The user need to be signed in again to get the list of alert events or the detail of an alert event.
+  * New information about Alert Events and Alert Events History accessible by curl.
+    * curl http://localhost:6090/api/rt/alertevent/list/
+    * curl http://localhost:6090/api/rt/alertevent/byid/numeric_id
+    * curl http://localhost:6090/api/rt/alerteventhist/list/
+    * curl http://localhost:6090/api/rt/alerteventhist/byid/numeric_id
+* Changes on alerting to Slack Endpoints.
+  * Fields of type Time are displayed in the local timezone of the person seeing the message.
+
+### fixes
+
+* Changes on Alerts Definition component:
+  * New variable ID_ALERT for Kapacitor tasks. Needed for resInjector UDF.
+  * Fixed error when an alert is updated and there isn't network connection.
+* Changes on Alert Events and Alert Events History components:
+  * FirstEventTime can not be empty.
+* Changes on alerting to Slack Endpoints.
+  * Fixed errors with malformed dashboard URL.
+* Changes on resInjector UDF:
+  * The UDF does not stop if ProductTag does not arrive in Point.
+
+### breaking changes
+
+* This version must be installed before the deployment of new version of templates.
+
+
 ## v 0.6.2  (31/10/2018)
 
 ### New features.

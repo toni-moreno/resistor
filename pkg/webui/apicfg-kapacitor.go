@@ -71,7 +71,7 @@ func AddKapacitor(ctx *Context, dev config.KapacitorCfg) {
 		if err == nil {
 			kapasrvsarray := []*config.KapacitorCfg{&dev}
 			for _, tplcfg := range tplcfgarray {
-				_, _, _ = kapa.SetKapaTemplate(*tplcfg, kapasrvsarray)
+				_, _, _, _ = kapa.SetKapaTemplate(*tplcfg, kapasrvsarray)
 			}
 		}
 		//TODO: review if needed return data  or affected

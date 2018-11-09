@@ -13,12 +13,15 @@ func NewAPIRtAlertEventHist(m *macaron.Macaron) error {
 
 	// Data sources
 	m.Group("/api/rt/alerteventhist", func() {
-		m.Get("/", GetAlertEventHist)
-		m.Get("/:id", GetAlertEventHistByID)
+		m.Get("/", reqSignedIn, GetAlertEventHist)
+		m.Get("/:id", reqSignedIn, GetAlertEventHistByID)
 		m.Delete("/:id", reqSignedIn, DeleteAlertEventHist)
 		m.Get("/checkondel/:id", reqSignedIn, GetAlertEventHistAffectOnDel)
-		m.Get("/withparams/:params", GetAlertEventHistWithParams)
+		m.Get("/withparams/:params", reqSignedIn, GetAlertEventHistWithParams)
 		m.Get("/groupbylevel/", GetAlertEventsHistByLevel)
+		m.Get("/list/", GetAlertEventHist)
+		m.Get("/byid/:id", GetAlertEventHistByID)
+		m.Get("/list/withparams/:params", GetAlertEventHistWithParams)
 	})
 
 	return nil

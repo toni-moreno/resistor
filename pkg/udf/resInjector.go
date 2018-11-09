@@ -20,6 +20,7 @@ import (
 	"github.com/go-xorm/xorm"
 	"github.com/influxdata/kapacitor/udf/agent"
 	"github.com/spf13/viper"
+	res_agent "github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
 )
 
@@ -138,8 +139,8 @@ func init() {
 	//fmt.Printf("After flags Default directories : \n   - Exec: %s\n   - Config: %s\n   -Logs: %s\n -Data: %s\n", appdir, confDir, logDir, dataDir)
 
 	if getversion {
-		t, _ := strconv.ParseInt(BuildStamp, 10, 64)
-		fmt.Printf("resinjector v%s (git: %s ) built at [%s]\n", Version, Commit, time.Unix(t, 0).Format("2006-01-02 15:04:05"))
+		t, _ := strconv.ParseInt(res_agent.BuildStamp, 10, 64)
+		fmt.Printf("resinjector v%s (git: %s ) built at [%s]\n", res_agent.Version, res_agent.Commit, time.Unix(t, 0).Format("2006-01-02 15:04:05"))
 		os.Exit(0)
 	}
 
@@ -402,6 +403,22 @@ func (*resInjectorHandler) BeginBatch(begin *agent.BeginBatch) error {
 	return errors.New("batching not supported")
 }
 
+// ApplyRulesByDevice Checks if DeviceId received from kapacitor matches some DeviceId from rules and calls ApplyRules
+func (m *resInjectorHandler) ApplyRulesByDevice(deviceid string, rulesmap map[string][]config.DeviceStatCfg, p *agent.Point, critok bool, warnok bool, infook bool) {
+	defer timeTrack(time.Now(), "ApplyRulesByDevice")
+	log.Debugf("ApplyRulesByDevice. Entering ApplyRulesByDevice with: deviceid: %s. AlertId: %s. ProductID: %s. %d rulesmap: %+v. point: %+v.", deviceid, m.alertId, m.productID, len(rulesmap), rulesmap, p)
+	for devkey, rulesarray := range rulesmap {
+		log.Debugf("ApplyRulesByDevice. Device Rules for devices with id like %s: %+v.", devkey, rulesarray)
+		devkeycomp := regexp.MustCompile(devkey)
+		if devkeycomp.MatchString(deviceid) {
+			log.Debugf("ApplyRulesByDevice. DeviceId %s received from kapacitor matches DeviceId %s from rules.", deviceid, devkey)
+			m.ApplyRules(deviceid, rulesarray, p, critok, warnok, infook)
+		} else {
+			log.Debugf("ApplyRulesByDevice. DeviceId %s received from kapacitor does not matches DeviceId %s from rules.", deviceid, devkey)
+		}
+	}
+}
+
 // ApplyRules Apply Rules from DB to received point
 // adding fields or tags to the point with the following data
 // 			mon_exc = integer
@@ -410,7 +427,7 @@ func (*resInjectorHandler) BeginBatch(begin *agent.BeginBatch) error {
 // 			check_info = true/false
 func (m *resInjectorHandler) ApplyRules(deviceid string, rules []config.DeviceStatCfg, p *agent.Point, critok bool, warnok bool, infook bool) {
 	defer timeTrack(time.Now(), "ApplyRules")
-	log.Debugf("Entering ApplyRules with: deviceid: %s. AlertId: %s. ProductID: %s. rules: %+v. point: %+v.", deviceid, m.alertId, m.productID, rules, p)
+	log.Debugf("Entering ApplyRules with: deviceid: %s. AlertId: %s. ProductID: %s. %d rules: %+v. point: %+v.", deviceid, m.alertId, m.productID, len(rules), rules, p)
 	for i, r := range rules {
 		log.Debugf("Rule number %d: %+v.", i, r)
 		ruleAlertID := regexp.MustCompile(r.AlertID)
@@ -597,7 +614,7 @@ func (m *resInjectorHandler) SetDefault(p *agent.Point) {
 func (m *resInjectorHandler) Point(p *agent.Point) error {
 	// Send back the point we just received
 	defer timeTrack(time.Now(), "Point")
-	log.Debugf("Receiving POINT with data: %+v", p)
+	log.Debugf("Receiving POINT from alertId %s with data: %+v", m.alertId, p)
 	critok, warnok, infook, err := m.CheckTime(p)
 	if err != nil {
 		return err
@@ -607,10 +624,13 @@ func (m *resInjectorHandler) Point(p *agent.Point) error {
 	var ok bool
 
 	if deviceid, ok = p.Tags[m.searchByTag]; !ok {
-		return fmt.Errorf("Tag %s doesn't exist in point", m.searchByTag)
+		log.Errorf("resInjector.Point. Tag %s does not exist in point. Point is not returned to Kapacitor then alert will not be sent.", m.searchByTag)
+		return nil
 	}
 	//check if exist on the db
 	mutex.RLock()
+	//All rules
+	//m.ApplyRulesByDevice(deviceid, DevDB, p, critok, warnok, infook)
 	//Generic rules first
 	if rules, ok := DevDB["*"]; ok {
 		m.ApplyRules(deviceid, rules, p, critok, warnok, infook)
@@ -681,13 +701,13 @@ func reloadDbData() error {
 	var err error
 	var devices []*config.DeviceStatCfg
 	if err = cfg.Database.x.Where("`active` = 1").OrderBy("`deviceid`, `alertid`, `orderid`").Find(&devices); err != nil {
-		log.Warnf("Getting devices from DB failed with error: %+v.", err)
+		log.Warnf("Getting devicestats from DB failed with error: %+v.", err)
 	}
 	DevDB = make(map[string][]config.DeviceStatCfg)
 	for _, dev := range devices {
 		DevDB[dev.DeviceID] = append(DevDB[dev.DeviceID], *dev)
 	}
-	log.Debugf("Getting devices from DB returns: %+v", DevDB)
+	log.Debugf("Getting devicestats from DB returns: %+v", DevDB)
 	return err
 }
 
