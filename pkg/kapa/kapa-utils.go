@@ -193,11 +193,13 @@ func GetKapaTemplate(dev *config.TemplateCfg, devcfgarray []*config.KapacitorCfg
 //     - the number of kapacitor servers where the template will be deployed with the last version
 //     - the number of kapacitor servers where the template is      deployed with the last version
 //     - the list   of kapacitor servers where the template is NOT  deployed with the last version
-func SetKapaTemplate(dev config.TemplateCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string) {
+//     - the error in case of error
+func SetKapaTemplate(dev config.TemplateCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string, error) {
 	log.Debugf("SetKapaTemplate. Trying to create or update template with id: %s", dev.ID)
 	iNumKapaServers := len(devcfgarray)
 	iNumLastDeployed := 0
 	sKapaSrvsNotOK := make([]string, 0)
+	var err error
 
 	taskType := kapacitorClient.StreamTask
 
@@ -209,25 +211,29 @@ func SetKapaTemplate(dev config.TemplateCfg, devcfgarray []*config.KapacitorCfg)
 	for i := 0; i < iNumKapaServers; i++ {
 		kapaServerCfg := devcfgarray[i]
 		log.Debugf("Kapacitor Server ID, URL: %+s, %s", kapaServerCfg.ID, kapaServerCfg.URL)
-		kapaClient, _, _, err := GetKapaClient(*kapaServerCfg)
+		var kapaClient *kapacitorClient.Client
+		kapaClient, _, _, err = GetKapaClient(*kapaServerCfg)
 		if err != nil {
+			err = fmt.Errorf("SetKapaTemplate. Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
 			log.Errorf("Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
 			sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 		} else {
 			l := kapaClient.TemplateLink(dev.ID)
-			t, err := kapaClient.Template(l, nil)
+			var t kapacitorClient.Template
+			t, err = kapaClient.Template(l, nil)
 			if err != nil {
-				log.Errorf("Error getting Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+				log.Debugf("Kapacitor template %s NOT found into kapacitor server %s. Info: %+s", dev.ID, kapaServerCfg.ID, err)
 			} else {
 				log.Debugf("Kapacitor template %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 			}
 			if t.ID == "" {
-				_, err := kapaClient.CreateTemplate(kapacitorClient.CreateTemplateOptions{
+				_, err = kapaClient.CreateTemplate(kapacitorClient.CreateTemplateOptions{
 					ID:         dev.ID,
 					Type:       taskType,
 					TICKscript: dev.TplData,
 				})
 				if err != nil {
+					err = fmt.Errorf("SetKapaTemplate. Error creating Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 					log.Errorf("Error creating Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {
@@ -235,12 +241,13 @@ func SetKapaTemplate(dev config.TemplateCfg, devcfgarray []*config.KapacitorCfg)
 					iNumLastDeployed++
 				}
 			} else {
-				_, err := kapaClient.UpdateTemplate(l, kapacitorClient.UpdateTemplateOptions{
+				_, err = kapaClient.UpdateTemplate(l, kapacitorClient.UpdateTemplateOptions{
 					ID:         dev.ID,
 					Type:       taskType,
 					TICKscript: dev.TplData,
 				})
 				if err != nil {
+					err = fmt.Errorf("SetKapaTemplate. Error updating Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 					log.Errorf("Error updating Kapacitor Template %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {
@@ -251,7 +258,7 @@ func SetKapaTemplate(dev config.TemplateCfg, devcfgarray []*config.KapacitorCfg)
 		}
 	}
 	log.Debugf("SetKapaTemplate. END.")
-	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK
+	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK, err
 }
 
 // DeleteKapaTemplate Deletes template from the Kapacitor Servers.
@@ -396,21 +403,25 @@ func GetKapaTask(dev *config.AlertIDCfg) (int, int, []string) {
 //     - the number of kapacitor servers where the task is      deployed with the last version
 //     - the list   of kapacitor servers where the task is NOT  deployed with the last version
 //     - the last Deployment Time of the task
-func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string, time.Time) {
+//     - the error in case of error
+func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int, int, []string, time.Time, error) {
 	log.Debugf("SetKapaTask. Trying to create or update task with id: %s and info: %+v into kapacitor servers: %+v", dev.ID, dev, devcfgarray)
 	iNumKapaServers := len(devcfgarray)
 	iNumLastDeployed := 0
 	sKapaSrvsNotOK := make([]string, 0)
 	var lastDeploymentTime time.Time
+	var err error
 
 	// Ensure the template used for the task has the last deployment into all kapacitor servers
 	sTemplateID := getTemplateID(dev)
 	devTpl, err := GetResTemplateCfgByID(sTemplateID)
 	if err != nil {
+		err = fmt.Errorf("SetKapaTask. Error getting template %s from resistor database. Error: %+s", sTemplateID, err)
 		log.Warningf("Error getting template %s from resistor database. Error: %+s", sTemplateID, err)
 		sKapaSrvsNotOK = getKapaCfgIDArray(devcfgarray)
 	} else {
 		if len(devTpl.ServersWOLastDeployment) > 0 {
+			err = fmt.Errorf("SetKapaTask. Template %s has not the last deployment for kapacitor servers %+v", sTemplateID, devTpl.ServersWOLastDeployment)
 			log.Warningf("Template %s has not the last deployment for kapacitor servers %+v.", sTemplateID, devTpl.ServersWOLastDeployment)
 			sKapaSrvsNotOK = getKapaCfgIDArray(devcfgarray)
 		} else {
@@ -423,7 +434,14 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			taskStatus := kapacitorClient.Disabled
 
 			//Getting JSON vars from user input
-			vars := setKapaTaskVars(dev)
+			var vars kapacitorClient.Vars
+			vars, err = setKapaTaskVars(dev)
+			if err != nil {
+				err = fmt.Errorf("SetKapaTask. Error setting Kapacitor Task Vars from user input: %s", err)
+				log.Warningf("SetKapaTask. Error setting Kapacitor Task Vars from user input: %s", err)
+				sKapaSrvsNotOK = getKapaCfgIDArray(devcfgarray)
+				return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK, lastDeploymentTime, err
+			}
 
 			// For each Kapacitor server
 			// Get Kapacitor Server Config by Kapacitor Server ID
@@ -433,15 +451,18 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 			for i := 0; i < len(devcfgarray); i++ {
 				kapaServerCfg := devcfgarray[i]
 				log.Debugf("Kapacitor Server ID: %+s, URL: %+s", kapaServerCfg.ID, kapaServerCfg.URL)
-				kapaClient, _, _, err := GetKapaClient(*kapaServerCfg)
+				var kapaClient *kapacitorClient.Client
+				kapaClient, _, _, err = GetKapaClient(*kapaServerCfg)
 				if err != nil {
+					err = fmt.Errorf("SetKapaTask. Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
 					log.Errorf("Error creating Kapacitor Go client for kapacitor server %s. Error: %+s", kapaServerCfg.ID, err)
 					sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 				} else {
 					l := kapaClient.TaskLink(dev.ID)
-					t, err := kapaClient.Task(l, nil)
+					var t kapacitorClient.Task
+					t, err = kapaClient.Task(l, nil)
 					if err != nil {
-						log.Debugf("Kapacitor Task %s NOT found into kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
+						log.Debugf("Kapacitor Task %s NOT found into kapacitor server %s: %s", dev.ID, kapaServerCfg.ID, err)
 					} else {
 						log.Debugf("Kapacitor task %s found into kapacitor server %s.", dev.ID, kapaServerCfg.ID)
 					}
@@ -456,6 +477,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							//TICKscript: dev.TplData,
 						})
 						if err != nil {
+							err = fmt.Errorf("SetKapaTask. Error creating Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 							log.Errorf("Error creating Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 							sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 						} else {
@@ -480,6 +502,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 									//TICKscript: dev.TplData,
 								})
 								if err != nil {
+									err = fmt.Errorf("SetKapaTask. Error enabling Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 									log.Errorf("Error enabling Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 									sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 								} else {
@@ -499,6 +522,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 							//TICKscript: dev.TplData,
 						})
 						if err != nil {
+							err = fmt.Errorf("SetKapaTask. Error updating Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 							log.Errorf("Error updating Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 							sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 						} else {
@@ -523,6 +547,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 									//TICKscript: dev.TplData,
 								})
 								if err != nil {
+									err = fmt.Errorf("SetKapaTask. Error enabling Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 									log.Errorf("Error enabling Kapacitor Task %s for kapacitor server %s. Error: %+s", dev.ID, kapaServerCfg.ID, err)
 									sKapaSrvsNotOK = append(sKapaSrvsNotOK, kapaServerCfg.ID)
 								} else {
@@ -538,7 +563,7 @@ func SetKapaTask(dev config.AlertIDCfg, devcfgarray []*config.KapacitorCfg) (int
 	}
 
 	log.Debugf("SetKapaTask. END.")
-	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK, lastDeploymentTime
+	return iNumKapaServers, iNumLastDeployed, sKapaSrvsNotOK, lastDeploymentTime, err
 }
 
 func getKapaCfgIDArray(devcfgarray []*config.KapacitorCfg) []string {
@@ -587,26 +612,31 @@ func translateTrendType(sTriggerType string, sTrendType string, sTrendSign strin
 	return sRet
 }
 
-func getOwnIP() string {
-	sRet := "7.116.100.107"
+func getOwnIP() (string, error) {
+	sRet := ""
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		log.Errorf("getOwnIP. Error dialing udp: %+v.", err)
+	} else {
+		defer conn.Close()
+		localAddr := conn.LocalAddr().(*net.UDPAddr)
+		log.Debugf("getOwnIP. localAddr: %+v.", localAddr)
+		sRet = localAddr.IP.String()
 	}
-	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	log.Debugf("getOwnIP. localAddr: %+v.", localAddr)
-	sRet = localAddr.IP.String()
 	log.Debugf("getOwnIP. %s", sRet)
-	return sRet
+	return sRet, err
 }
 
 // setKapaTaskVars Creates Vars for the Kapacitor task
-func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
+func setKapaTaskVars(dev config.AlertIDCfg) (kapacitorClient.Vars, error) {
 	//Getting JSON vars from user input
 	vars := make(kapacitorClient.Vars)
 
-	sOwnIP := getOwnIP()
+	sOwnIP, err := getOwnIP()
+	if err != nil {
+		log.Warningf("setKapaTaskVars. Returning empty vars.")
+		return vars, err
+	}
 	vars["RESISTOR_IP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sOwnIP}
 	vars["RESISTOR_PORT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: port}
 	sHTTPPostURL := ""
@@ -624,6 +654,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 		sID += "|" + sCorrelationIDTemplate
 	}
 	vars["ID"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: sID}
+	vars["ID_ALERT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ID}
 	vars["ID_LINE"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.BaselineID}
 	vars["ID_PRODUCT"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.ProductID}
 	vars["ID_GROUP"] = kapacitorClient.Var{Type: kapacitorClient.VarString, Value: dev.AlertGroup}
@@ -736,7 +767,7 @@ func setKapaTaskVars(dev config.AlertIDCfg) kapacitorClient.Vars {
 		vars["MOV_AVG_POINTS"] = kapacitorClient.Var{Type: kapacitorClient.VarInt, Value: ""}
 	*/
 
-	return vars
+	return vars, err
 }
 
 // GetIfxDBNameByID Gets influx db name by id
@@ -847,8 +878,12 @@ func DeployKapaTask(dev config.AlertIDCfg) ([]string, time.Time, error) {
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK, lastDeploymentTime = SetKapaTask(dev, kapaserversarray)
-		if len(sKapaSrvsNotOK) > 0 {
+		_, _, sKapaSrvsNotOK, lastDeploymentTime, err = SetKapaTask(dev, kapaserversarray)
+		if err != nil && len(sKapaSrvsNotOK) > 0 {
+			log.Warningf("Error deploying task %s. Not deployed for kapacitor server %s. Error: %s", dev.ID, dev.KapacitorID, err)
+		} else if err != nil {
+			log.Warningf("Error deploying task %s. Error: %s", dev.ID, err)
+		} else if len(sKapaSrvsNotOK) > 0 {
 			log.Warningf("Error deploying task %s. Not deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
 		} else {
 			log.Infof("Task %s deployed for kapacitor server %s.", dev.ID, dev.KapacitorID)
@@ -866,9 +901,13 @@ func DeployKapaTemplate(dev config.TemplateCfg) ([]string, error) {
 	if err != nil {
 		log.Warningf("Error getting kapacitor servers from array: %+v. Error: %+s.", dev.ServersWOLastDeployment, err)
 	} else {
-		_, _, sKapaSrvsNotOK = SetKapaTemplate(dev, kapaserversarray)
-		if len(sKapaSrvsNotOK) > 0 {
-			log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not updated for kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK)
+		_, _, sKapaSrvsNotOK, err = SetKapaTemplate(dev, kapaserversarray)
+		if err != nil && len(sKapaSrvsNotOK) > 0 {
+			log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not deployed for kapacitor servers: %+v. Error: %s", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK, err)
+		} else if err != nil {
+			log.Warningf("Error deploying template %s. Error: %s", dev.ID, err)
+		} else if len(sKapaSrvsNotOK) > 0 {
+			log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not deployed for kapacitor servers: %+v.", dev.ServersWOLastDeployment, sKapaSrvsNotOK)
 		} else {
 			log.Infof("Template %s succesfully deployed on kapacitor servers: %+v.", dev.ID, dev.ServersWOLastDeployment)
 		}

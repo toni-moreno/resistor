@@ -22,10 +22,10 @@ func (dbc *DatabaseCfg) GetOperationCfgByID(id string) (OperationCfg, error) {
 		return OperationCfg{}, err
 	}
 	if len(cfgarray) > 1 {
-		return OperationCfg{}, fmt.Errorf("Error %d results on get OperationCfg by id %s", len(cfgarray), id)
+		return OperationCfg{}, fmt.Errorf("Warning %d results on get OperationCfg by id %s", len(cfgarray), id)
 	}
 	if len(cfgarray) == 0 {
-		return OperationCfg{}, fmt.Errorf("Error no values have been returned with this id %s in the config table", id)
+		return OperationCfg{}, fmt.Errorf("Warning no values have been returned with this id %s in the config table", id)
 	}
 	return *cfgarray[0], nil
 }

@@ -67,18 +67,31 @@ func AddTemplate(ctx *Context, dev config.TemplateCfg) {
 	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
 	kapaserversarray, err := kapa.GetKapaServers("")
+	errmsg := ""
 	if err != nil {
+		errmsg += fmt.Sprintf("Error getting kapacitor servers: %+s", err)
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = kapa.SetKapaTemplate(dev, kapaserversarray)
+		_, _, sKapaSrvsNotOK, err = kapa.SetKapaTemplate(dev, kapaserversarray)
 	}
-	if len(sKapaSrvsNotOK) > 0 {
-		log.Warningf("Error on inserting for template %s. Not inserted for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
+	if err != nil && len(sKapaSrvsNotOK) > 0 {
+		errmsg += " " + fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not deployed for kapacitor servers: %+v. Error: %s", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK, err)
+		log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not deployed for kapacitor servers: %+v. Error: %s", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK, err)
+	} else if err != nil {
+		errmsg += " " + fmt.Sprintf("Error deploying template %s. Error: %s", dev.ID, err)
+		log.Warningf("Error deploying template %s. Error: %s", dev.ID, err)
+	} else if len(sKapaSrvsNotOK) > 0 {
+		errmsg += " " + fmt.Sprintf("Error deploying template %s. Not deployed for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
+		log.Warningf("Error deploying template %s. Not deployed for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
 	}
 	log.Printf("ADDING template %+v", dev)
 	affected, err := agent.MainConfig.Database.AddTemplateCfg(&dev)
-	if err != nil {
-		log.Warningf("Error on insert for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
+	if err != nil || len(errmsg) > 0 {
+		if err != nil {
+			errmsg += " " + fmt.Sprintf("Error on insert for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
+			log.Warningf("Error on insert for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		}
+		err = fmt.Errorf(errmsg)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data  or affected
@@ -91,22 +104,35 @@ func UpdateTemplate(ctx *Context, dev config.TemplateCfg) {
 	dev.Modified = time.Now().UTC()
 	sKapaSrvsNotOK := make([]string, 0)
 	kapaserversarray, err := kapa.GetKapaServers("")
+	errmsg := ""
 	if err != nil {
+		errmsg += fmt.Sprintf("Error getting kapacitor servers: %+s", err)
 		log.Warningf("Error getting kapacitor servers: %+s", err)
 	} else {
-		_, _, sKapaSrvsNotOK = kapa.SetKapaTemplate(dev, kapaserversarray)
+		_, _, sKapaSrvsNotOK, err = kapa.SetKapaTemplate(dev, kapaserversarray)
 	}
-	if len(sKapaSrvsNotOK) > 0 {
-		log.Warningf("Error on updating for template %s. Not updated for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
+	if err != nil && len(sKapaSrvsNotOK) > 0 {
+		errmsg += " " + fmt.Sprintf("Error deploying template %s on kapacitor servers: %+v. Not deployed for kapacitor servers: %+v. Error: %s", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK, err)
+		log.Warningf("Error deploying template %s on kapacitor servers: %+v. Not deployed for kapacitor servers: %+v. Error: %s", dev.ID, dev.ServersWOLastDeployment, sKapaSrvsNotOK, err)
+	} else if err != nil {
+		errmsg += " " + fmt.Sprintf("Error deploying template %s. Error: %s", dev.ID, err)
+		log.Warningf("Error deploying template %s. Error: %s", dev.ID, err)
+	} else if len(sKapaSrvsNotOK) > 0 {
+		errmsg += " " + fmt.Sprintf("Error deploying template %s. Not deployed for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
+		log.Warningf("Error deploying template %s. Not deployed for kapacitor servers: %+v.", dev.ID, sKapaSrvsNotOK)
 	}
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateTemplateCfg(id, &dev)
-	if err != nil {
-		log.Warningf("Error on update for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
+	if err != nil || len(errmsg) > 0 {
+		if err != nil {
+			errmsg += " " + fmt.Sprintf("Error on update for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
+			log.Warningf("Error on update for template %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		}
+		err = fmt.Errorf(errmsg)
 		ctx.JSON(404, err.Error())
 	} else {
-		//TODO: review if needed return device data
+		//TODO: review if needed return template data
 		ctx.JSON(200, &dev)
 	}
 }
@@ -171,7 +197,7 @@ func GetTemplateCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
 	dev, err := agent.MainConfig.Database.GetTemplateCfgByID(id)
 	if err != nil {
-		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
+		log.Warningf("Error getting template with id %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		kapaserversarray, err := kapa.GetKapaServers("")

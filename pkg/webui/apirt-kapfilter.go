@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -120,10 +121,8 @@ func makeAlertEvent(correlationID string, al alert.Data, alertcfg config.AlertID
 	alertevent.AlertID = alertcfg.ID
 	alertevent.Message = al.Message
 	alertevent.Details = al.Details
-	if len(prevalevtarray) > 0 {
-		if prevalevtarray[0].Level != "OK" {
-			alertevent.FirstEventTime = prevalevtarray[0].FirstEventTime
-		}
+	if len(prevalevtarray) > 0 && prevalevtarray[0].Level != "OK" {
+		alertevent.FirstEventTime = prevalevtarray[0].FirstEventTime
 	} else {
 		alertevent.FirstEventTime = al.Time
 	}
@@ -306,7 +305,7 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correla
 func getResistorAlertOperationURL(operationid string) string {
 	cfg, err := agent.MainConfig.Database.GetOperationCfgByID(operationid)
 	if err != nil {
-		log.Warningf("getResistorAlertOperationURL. Error getting OperationCfg By ID. Error: %s", err)
+		log.Warningf("getResistorAlertOperationURL. Getting OperationCfg By ID: %s", err)
 		return ""
 	}
 	return cfg.URL
@@ -388,9 +387,21 @@ func makeDashboardURL(rat map[string]string, alertkapa alert.Data, alertcfg conf
 	}
 
 	//Add time parameters
-	timefrom := strconv.FormatInt(firsteventtime.Add(-2*time.Hour).Unix()*1000, 10) // firsteventtime - 2h (in ms)
-	timeto := strconv.FormatInt(eventtime.Add(15*time.Minute).Unix()*1000, 10)      // eventtime + 15m (in ms)
-	sDashboardURL += "?var-time_interval=$__auto_interval&from=" + timefrom + "&to=" + timeto
+	timefrom := ""
+	if !firsteventtime.IsZero() {
+		timefrom = strconv.FormatInt(firsteventtime.Add(-2*time.Hour).Unix()*1000, 10) // firsteventtime - 2h (in ms)
+	}
+	timeto := ""
+	if !eventtime.IsZero() {
+		timeto = strconv.FormatInt(eventtime.Add(15*time.Minute).Unix()*1000, 10) // eventtime + 15m (in ms)
+	}
+	sDashboardURL += "?var-time_interval=$__auto_interval"
+	if len(timefrom) > 0 {
+		sDashboardURL += "&from=" + timefrom
+	}
+	if len(timeto) > 0 {
+		sDashboardURL += "&to=" + timeto
+	}
 	//Add panelId
 	if len(alertcfg.GrafanaDashPanelID) > 0 {
 		sDashboardURL += "&fullscreen&panelId=" + alertcfg.GrafanaDashPanelID
@@ -811,7 +822,9 @@ func (s *Service) preparePost(al TaskAlertInfo, channel, message, username, icon
 
 	fieldAttachInfo := attachfield{}
 	fieldAttachInfo.Title = al.ResistorAlertTriggered
-	fieldAttachInfo.Value = "<" + al.ResistorDashboardURL + "|DASHBOARD LINK>"
+	if len(al.ResistorDashboardURL) > 0 {
+		fieldAttachInfo.Value = "<" + al.ResistorDashboardURL + "|DASHBOARD LINK>"
+	}
 	fieldAttachInfo.Short = false
 	summaryAttachment.Fields = append(summaryAttachment.Fields, fieldAttachInfo)
 
@@ -848,7 +861,12 @@ func (s *Service) preparePost(al TaskAlertInfo, channel, message, username, icon
 	for fieldname, fieldvalue := range al.ResistorAlertFields {
 		fieldAttachField := attachfield{}
 		fieldAttachField.Title = fieldname
-		if fieldname == "value" {
+		if reflect.TypeOf(fieldvalue).String() == "time.Time" {
+			/*
+				<!date^1392734382^Posted {date_num} {time_secs}|Posted 2014-02-18 6:39:42 AM> will display as: Posted 2014-02-18 6:39:42 AM
+			*/
+			fieldAttachField.Value = fmt.Sprintf("<!date^%d^{date_num} {time_secs}|%v>", fieldvalue.(time.Time).Unix(), fieldvalue)
+		} else if fieldname == "value" {
 			fieldAttachField.Value = fmt.Sprintf("%.2f", fieldvalue)
 		} else {
 			fieldAttachField.Value = fmt.Sprintf("%v", fieldvalue)

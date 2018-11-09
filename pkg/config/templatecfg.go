@@ -15,7 +15,7 @@ import (
   -GetTemplateCfgAffectOnDel
 ***********************************/
 
-/*GetTemplateCfgByID get device data by id*/
+/*GetTemplateCfgByID get template data by id*/
 func (dbc *DatabaseCfg) GetTemplateCfgByID(id string) (TemplateCfg, error) {
 	cfgarray, err := dbc.GetTemplateCfgArray("id='" + id + "'")
 	if err != nil {
@@ -41,26 +41,26 @@ func (dbc *DatabaseCfg) GetTemplateCfgMap(filter string) (map[string]*TemplateCf
 	return cfgmap, err
 }
 
-/*GetTemplateCfgArray generate an array of devices with all its information */
+/*GetTemplateCfgArray generate an array of templates with all its information */
 func (dbc *DatabaseCfg) GetTemplateCfgArray(filter string) ([]*TemplateCfg, error) {
 	var err error
-	var devices []*TemplateCfg
-	//Get Only data for selected devices
+	var templates []*TemplateCfg
+	//Get Only data for selected templates
 	if len(filter) > 0 {
-		if err = dbc.x.Where(filter).Find(&devices); err != nil {
-			log.Warnf("Fail to get TemplateCfg  data filteter with %s : %v\n", filter, err)
+		if err = dbc.x.Where(filter).Find(&templates); err != nil {
+			log.Warnf("Fail to get TemplateCfg data filtered with %s : %v\n", filter, err)
 			return nil, err
 		}
 	} else {
-		if err = dbc.x.Find(&devices); err != nil {
-			log.Warnf("Fail to get influxcfg   data: %v\n", err)
+		if err = dbc.x.Find(&templates); err != nil {
+			log.Warnf("Fail to get TemplateCfg data: %v\n", err)
 			return nil, err
 		}
 	}
-	return devices, nil
+	return templates, nil
 }
 
-/*AddTemplateCfg for adding new devices*/
+/*AddTemplateCfg for adding new templates*/
 func (dbc *DatabaseCfg) AddTemplateCfg(dev *TemplateCfg) (int64, error) {
 	var err error
 	var affected int64
@@ -101,7 +101,7 @@ func (dbc *DatabaseCfg) DelTemplateCfg(id string) (int64, error) {
 		return 0, err
 	}
 
-	//log.Infof("Deleted Successfully Template with ID %s [ %d Devices Affected  ]", id, affecteddev)
+	//log.Infof("Deleted Successfully Template with ID %s [ %d templates Affected  ]", id, affecteddev)
 	log.Infof("Deleted Successfully Template with ID %s [ %d templates Affected  ]", id, affected)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
@@ -129,7 +129,7 @@ func (dbc *DatabaseCfg) UpdateTemplateCfg(id string, dev *TemplateCfg) (int64, e
 	return affected, nil
 }
 
-/*GetTemplateCfgAffectOnDel for deleting devices from ID*/
+/*GetTemplateCfgAffectOnDel for deleting templates from ID*/
 func (dbc *DatabaseCfg) GetTemplateCfgAffectOnDel(id string) ([]*DbObjAction, error) {
 	var devices []*AlertIDCfg
 	var obj []*DbObjAction
