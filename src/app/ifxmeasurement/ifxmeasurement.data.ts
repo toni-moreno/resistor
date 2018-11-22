@@ -2,6 +2,7 @@ export const IfxMeasurementComponentConfig: any =
   {
     'name' : 'Influx Measurements',
     'table-columns' : [
+      { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Measurement Name', 'name': 'Name' },
       { 'title': 'Tags', 'name': 'Tags' },
       { 'title': 'Fields', 'name': 'Fields' },

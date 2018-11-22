@@ -40,13 +40,13 @@ func (IfxServerCfg) TableName() string {
 
 // ItemComponent for ID's/Names
 type ItemComponent struct {
-	ID   int64
+	ID   string
 	Name string
 }
 
 // IfxDBCfg Influx Database definition
 type IfxDBCfg struct {
-	ID           int64            `xorm:"'id' pk autoincr"`
+	ID           string           `xorm:"'id' pk"`
 	Name         string           `xorm:"'name'  not null unique(ifxdb)" binding:"Required"`
 	IfxServer    string           `xorm:"'ifxserver'  not null unique(ifxdb)" binding:"Required"`
 	Retention    []string         `xorm:"retention" binding:"Required"`
@@ -61,7 +61,7 @@ func (IfxDBCfg) TableName() string {
 
 // IfxMeasurementCfg Measurement Definition
 type IfxMeasurementCfg struct {
-	ID          int64    `xorm:"'id'  pk autoincr " binding:"Required"`
+	ID          string   `xorm:"'id' pk" binding:"Required"`
 	Name        string   `xorm:"'name' not  null"`
 	Tags        []string `xorm:"tags text" binding:"Required"`
 	Fields      []string `xorm:"fields mediumtext" binding:"Required"`
@@ -75,8 +75,8 @@ func (IfxMeasurementCfg) TableName() string {
 
 // IfxDBMeasRel Relationship between Ifx DB's and Its measurements
 type IfxDBMeasRel struct {
-	IfxDBID     int64  `xorm:"ifxdbid" `
-	IfxMeasID   int64  `xorm:"ifxmeasid"`
+	IfxDBID     string `xorm:"ifxdbid" `
+	IfxMeasID   string `xorm:"ifxmeasid"`
 	IfxMeasName string `xorm:"ifxmeasname"`
 }
 
@@ -241,7 +241,7 @@ type AlertIDCfg struct {
 	NumAlertID  int    `xorm:"numalertid" binding:"Required"`
 	Description string `xorm:"description text"`
 	//Alert Origin data
-	InfluxDB           int64  `xorm:"influxdb" binding:"Required"`
+	InfluxDB           string `xorm:"influxdb" binding:"Required"`
 	InfluxRP           string `xorm:"influxrp" binding:"Required"`
 	InfluxMeasurement  string `xorm:"influxmeasurement" binding:"Required"`
 	TagDescription     string `xorm:"tagdescription"`

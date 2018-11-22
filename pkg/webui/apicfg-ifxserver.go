@@ -131,7 +131,7 @@ func getMeasurementTagsByKey(cli client.Client, db string, m string, tagkey stri
 
 // ImportIfxCatalog Imports Influx Catalog to the internal database
 func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
-	log.Warningf("Importing catalog for Server: %s", dev.ID)
+	log.Infof("Importing catalog for Server: %s", dev.ID)
 	cli, _, _, err := ping(&dev)
 	if err != nil {
 		log.Errorf("Error on Ping Influx Server %s: Err: %s", dev.ID, err)
@@ -146,26 +146,39 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 
 		var itemarray []*config.ItemComponent
 		for _, m := range meas {
-
+			//msmtid=ifxserver-dbname-msmtname
+			msmtid := dev.ID + "-" + db + "-" + m
 			tags := getMeasurementsTags(cli, db, m)
 			fields := getMeasurementsFields(cli, db, m)
-			mcfg := config.IfxMeasurementCfg{Name: m, Tags: tags, Fields: fields}
-			_, err := agent.MainConfig.Database.AddIfxMeasurementCfg(&mcfg)
-			if err != nil {
-				log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
-				ctx.JSON(404, err.Error())
-				return
-			}
-			log.Infof("Got DATABASE [%s] with retention policy [%s] MEASUREMENT %d/%s TAGS [%+v] FIELDS [%+v]", db, rps, mcfg.ID, m, tags, fields)
+			mcfg := config.IfxMeasurementCfg{ID: msmtid, Name: m, Tags: tags, Fields: fields}
+			log.Infof("ImportIfxCatalog. Got DATABASE [%s] with retention policy [%s] MEASUREMENT %s/%s TAGS [%+v] FIELDS [%+v]", db, rps, mcfg.ID, m, tags, fields)
 			itemarray = append(itemarray, &config.ItemComponent{ID: mcfg.ID, Name: m})
 		}
 
-		dbcfg := config.IfxDBCfg{Name: db, IfxServer: dev.ID, Retention: rps, Measurements: itemarray}
+		//dbid=ifxserver-dbname
+		dbid := dev.ID + "-" + db
+		log.Debugf("ImportIfxCatalog. AddOrUpdateIfxDBCfg with dbid: %s", dbid)
+		dbcfg := config.IfxDBCfg{ID: dbid, Name: db, IfxServer: dev.ID, Retention: rps, Measurements: itemarray}
 		_, err := agent.MainConfig.Database.AddOrUpdateIfxDBCfg(&dbcfg)
 		if err != nil {
-			log.Errorf("Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
+			log.Errorf("ImportIfxCatalog. Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
 			ctx.JSON(404, err.Error())
 			return
+		}
+		//Insert measurements
+		for _, m := range meas {
+			//msmtid=ifxserver-dbname-msmtname
+			msmtid := dev.ID + "-" + db + "-" + m
+			tags := getMeasurementsTags(cli, db, m)
+			fields := getMeasurementsFields(cli, db, m)
+			mcfg := config.IfxMeasurementCfg{ID: msmtid, Name: m, Tags: tags, Fields: fields}
+			log.Debugf("ImportIfxCatalog. AddOrUpdateIfxMeasurementCfg with msmtid: %s", msmtid)
+			_, err := agent.MainConfig.Database.AddOrUpdateIfxMeasurementCfg(&mcfg)
+			if err != nil {
+				log.Errorf("ImportIfxCatalog. Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
+				ctx.JSON(404, err.Error())
+				return
+			}
 		}
 	}
 
@@ -195,19 +208,19 @@ func GetIfxServer(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetIfxServerCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get IfxServer :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting IfxServer %+v", &devcfgarray)
 }
 
 // AddIfxServer Inserts Influx Server to the internal database and returns the result on context
 func AddIfxServer(ctx *Context, dev config.IfxServerCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING IfxServer %+v", dev)
 	affected, err := agent.MainConfig.Database.AddIfxServerCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for IfxServer %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data or affected
@@ -221,7 +234,7 @@ func UpdateIfxServer(ctx *Context, dev config.IfxServerCfg) {
 	log.Debugf("Trying to update: %+v", dev)
 	affected, err := agent.MainConfig.Database.UpdateIfxServerCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for IfxServer %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
