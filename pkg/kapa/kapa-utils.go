@@ -771,11 +771,11 @@ func setKapaTaskVars(dev config.AlertIDCfg) (kapacitorClient.Vars, error) {
 }
 
 // GetIfxDBNameByID Gets influx db name by id
-func GetIfxDBNameByID(id int64) string {
+func GetIfxDBNameByID(id string) string {
 	name := ""
 	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(id)
 	if err != nil {
-		log.Warningf("Error getting influx db name for id %d. Empty string will be returned. Error: %s", id, err)
+		log.Warningf("Error getting influx db name for id %s. Empty string will be returned. Error: %s", id, err)
 	} else {
 		name = dev.Name
 	}

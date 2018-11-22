@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"strconv"
 )
 
 /***************************
@@ -18,24 +17,24 @@ import (
 ***********************************/
 
 /*GetIfxDBCfgByID get device data by id*/
-func (dbc *DatabaseCfg) GetIfxDBCfgByID(id int64) (IfxDBCfg, error) {
-	cfgarray, err := dbc.GetIfxDBCfgArray("id='" + strconv.FormatInt(id, 10) + "'")
+func (dbc *DatabaseCfg) GetIfxDBCfgByID(id string) (IfxDBCfg, error) {
+	cfgarray, err := dbc.GetIfxDBCfgArray("id='" + id + "'")
 	if err != nil {
 		return IfxDBCfg{}, err
 	}
 	if len(cfgarray) > 1 {
-		return IfxDBCfg{}, fmt.Errorf("Error %d results on get IfxDBCfg by id %d", len(cfgarray), id)
+		return IfxDBCfg{}, fmt.Errorf("Error %d results on get IfxDBCfg by id %s", len(cfgarray), id)
 	}
 	if len(cfgarray) == 0 {
-		return IfxDBCfg{}, fmt.Errorf("Error no values have been returned with this id %d in the config table", id)
+		return IfxDBCfg{}, fmt.Errorf("Error no values have been returned with this id %s in the config table", id)
 	}
 	return *cfgarray[0], nil
 }
 
 /*GetIfxDBCfgMap  return data in map format*/
-func (dbc *DatabaseCfg) GetIfxDBCfgMap(filter string) (map[int64]*IfxDBCfg, error) {
+func (dbc *DatabaseCfg) GetIfxDBCfgMap(filter string) (map[string]*IfxDBCfg, error) {
 	cfgarray, err := dbc.GetIfxDBCfgArray(filter)
-	cfgmap := make(map[int64]*IfxDBCfg)
+	cfgmap := make(map[string]*IfxDBCfg)
 	for _, val := range cfgarray {
 		cfgmap[val.ID] = val
 		log.Debugf("%+v", *val)
@@ -50,7 +49,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 	//Get Only data for selected devices
 	if len(filter) > 0 {
 		if err = dbc.x.Where(filter).Find(&devices); err != nil {
-			log.Warnf("Fail to get IfxDBCfg  data filteter with %s : %v\n", filter, err)
+			log.Warnf("GetIfxDBCfgArray. Fail to get IfxDBCfg  data filteter with %s : %v\n", filter, err)
 			return nil, err
 		}
 	} else {
@@ -64,15 +63,15 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArray(filter string) ([]*IfxDBCfg, error) {
 
 		//Measurements for each DB
 		var dbmeas []*IfxDBMeasRel
-		if err = dbc.x.Where("ifxdbid =" + strconv.FormatInt(mVal.ID, 10)).Find(&dbmeas); err != nil {
-			log.Warnf("Fail to get MGroup Measurements relationship  data: %v\n", err)
+		if err = dbc.x.Where("ifxdbid = '" + mVal.ID + "'").Find(&dbmeas); err != nil {
+			log.Warnf("GetIfxDBCfgArray. Fail to get MGroup Measurements relationship  data: %v\n", err)
 		}
 
 		for _, m := range dbmeas {
 			mVal.Measurements = append(mVal.Measurements, &ItemComponent{ID: m.IfxMeasID, Name: m.IfxMeasName})
 		}
 
-		/*results, err := dbc.x.Query("select rel.ifxdbid as dbid , rel.ifxmeasid as measid , meas.name as measname  from  ifx_db_meas_rel as rel , ifx_measurement_cfg as meas  where rel.ifxmeasid  = meas.ID and rel.ifxmeasid = " + strconv.FormatInt(mVal.ID, 10))
+		/*results, err := dbc.x.Query("select rel.ifxdbid as dbid , rel.ifxmeasid as measid , meas.name as measname  from  ifx_db_meas_rel as rel , ifx_measurement_cfg as meas  where rel.ifxmeasid  = meas.ID and rel.ifxmeasid = " + mVal.ID)
 		if err != nil {
 			log.Warnf("Fail to Query DB to Measurement : %s", err)
 		}
@@ -101,7 +100,7 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArrayByMeasName(filter string) ([]*IfxDBCfg, 
 	sqlquery = sqlquery + " order by name, id"
 	//Get Only data for selected devices
 	if err = dbc.x.SQL(sqlquery).Find(&devices); err != nil {
-		log.Warnf("Fail to get IfxDBCfg data filtered with %s : %v\n", filter, err)
+		log.Warnf("GetIfxDBCfgArrayByMeasName. Fail to get IfxDBCfg data filtered with %s : %v\n", filter, err)
 		return nil, err
 	}
 
@@ -109,8 +108,8 @@ func (dbc *DatabaseCfg) GetIfxDBCfgArrayByMeasName(filter string) ([]*IfxDBCfg, 
 
 		//Measurements for each DB
 		var dbmeas []*IfxDBMeasRel
-		if err = dbc.x.Where("ifxdbid =" + strconv.FormatInt(mVal.ID, 10)).And("ifxmeasname = '" + filter + "'").Find(&dbmeas); err != nil {
-			log.Warnf("Fail to get MGroup Measurements relationship data: %v\n", err)
+		if err = dbc.x.Where("ifxdbid = '" + mVal.ID + "'").And("ifxmeasname = '" + filter + "'").Find(&dbmeas); err != nil {
+			log.Warnf("GetIfxDBCfgArrayByMeasName. Fail to get MGroup Measurements relationship data: %v\n", err)
 		}
 
 		for _, m := range dbmeas {
@@ -154,26 +153,26 @@ func (dbc *DatabaseCfg) AddIfxDBCfg(dev *IfxDBCfg) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new Influx DB backend Config Successfully with id %d ", dev.ID)
+	log.Infof("Added new Influx DB backend Config Successfully with id %s ", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }
 
 /*DelIfxDBCfg for deleting influx databases from ID*/
-func (dbc *DatabaseCfg) DelIfxDBCfg(id int64) (int64, error) {
+func (dbc *DatabaseCfg) DelIfxDBCfg(id string) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affecteddev, err = session.Where("ifxdbid =" + strconv.FormatInt(id, 10)).Delete(&IfxDBMeasRel{})
+	affecteddev, err = session.Where("ifxdbid = '" + id + "'").Delete(&IfxDBMeasRel{})
 	if err != nil {
 		session.Rollback()
-		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %d, error: %s", id, err)
+		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %s, error: %s", id, err)
 	}
 
-	affected, err = session.Where("id='" + strconv.FormatInt(id, 10) + "'").Delete(&IfxDBCfg{})
+	affected, err = session.Where("id='" + id + "'").Delete(&IfxDBCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, err
@@ -211,7 +210,7 @@ func (dbc *DatabaseCfg) AddOrUpdateIfxDBCfg(dev *IfxDBCfg) (int64, error) {
 }
 
 /*UpdateIfxDBCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) {
+func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid string, new *IfxDBCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 
@@ -228,17 +227,17 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) 
 
 	//first check if id < 1 => search for the current ID for the unique IfxServer.Name
 
-	affected, err = session.Where("id='" + strconv.FormatInt(old.ID, 10) + "'").UseBool().AllCols().Update(new)
+	affected, err = session.Where("id='" + old.ID + "'").UseBool().AllCols().Update(new)
 	if err != nil {
 		session.Rollback()
 		return 0, err
 	}
 
 	//Delete current relations
-	affecteddev, err = session.Where("ifxdbid =" + strconv.FormatInt(old.ID, 10)).Delete(&IfxDBMeasRel{})
+	affecteddev, err = session.Where("ifxdbid = '" + old.ID + "'").Delete(&IfxDBMeasRel{})
 	if err != nil {
 		session.Rollback()
-		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %d, error: %s", old.ID, err)
+		return 0, fmt.Errorf("Error on Delete Metric with id on delete IfxDBCfg with id: %s, error: %s", old.ID, err)
 	}
 	//Delete old measurements new ones has been initialized witn  new ID's
 	for _, meas := range old.Measurements {
@@ -252,6 +251,7 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) 
 			IfxMeasID:   meas.ID,
 			IfxMeasName: meas.Name,
 		}
+		log.Debugf("UpdateIfxDBCfg. Inserting into IfxDBMeasRel:%+v", mstruct)
 		_, err = session.Insert(&mstruct)
 		if err != nil {
 			session.Rollback()
@@ -264,16 +264,16 @@ func (dbc *DatabaseCfg) UpdateIfxDBCfg(nid int64, new *IfxDBCfg) (int64, error) 
 		return 0, err
 	}
 
-	log.Infof("Updated Influx DB Config Successfully with id %d and data:%+v, affected", old.ID, new)
+	log.Infof("Updated Influx DB Config Successfully with id %s and data:%+v, affected", old.ID, new)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
 
 /*GetIfxDBCfgAffectOnDel for deleting devices from ID*/
-func (dbc *DatabaseCfg) GetIfxDBCfgAffectOnDel(id int64) ([]*DbObjAction, error) {
+func (dbc *DatabaseCfg) GetIfxDBCfgAffectOnDel(id string) ([]*DbObjAction, error) {
 	var devices []*AlertIDCfg
 	var obj []*DbObjAction
-	if err := dbc.x.Where("kapacitorid='" + strconv.FormatInt(id, 10) + "'").Find(&devices); err != nil {
+	if err := dbc.x.Where("kapacitorid='" + id + "'").Find(&devices); err != nil {
 		log.Warnf("Error on Get Outout db id %d for devices , error: %s", id, err)
 		return nil, err
 	}

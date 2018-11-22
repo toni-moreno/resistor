@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -22,24 +21,24 @@ import (
 ***********************************/
 
 /*GetIfxMeasurementCfgByID get device data by id*/
-func (dbc *DatabaseCfg) GetIfxMeasurementCfgByID(id int64) (IfxMeasurementCfg, error) {
-	cfgarray, err := dbc.GetIfxMeasurementCfgArray("id='" + strconv.FormatInt(id, 10) + "'")
+func (dbc *DatabaseCfg) GetIfxMeasurementCfgByID(id string) (IfxMeasurementCfg, error) {
+	cfgarray, err := dbc.GetIfxMeasurementCfgArray("id='" + id + "'")
 	if err != nil {
 		return IfxMeasurementCfg{}, err
 	}
 	if len(cfgarray) > 1 {
-		return IfxMeasurementCfg{}, fmt.Errorf("Error %d results on get IfxMeasurementCfg by id %d", len(cfgarray), id)
+		return IfxMeasurementCfg{}, fmt.Errorf("Error %d results on get IfxMeasurementCfg by id %s", len(cfgarray), id)
 	}
 	if len(cfgarray) == 0 {
-		return IfxMeasurementCfg{}, fmt.Errorf("Error no values have been returned with this id %d in the influx config table", id)
+		return IfxMeasurementCfg{}, fmt.Errorf("Error no values have been returned with this id %s in the influx config table", id)
 	}
 	return *cfgarray[0], nil
 }
 
 /*GetIfxMeasurementCfgMap  return data in map format*/
-func (dbc *DatabaseCfg) GetIfxMeasurementCfgMap(filter string) (map[int64]*IfxMeasurementCfg, error) {
+func (dbc *DatabaseCfg) GetIfxMeasurementCfgMap(filter string) (map[string]*IfxMeasurementCfg, error) {
 	cfgarray, err := dbc.GetIfxMeasurementCfgArray(filter)
-	cfgmap := make(map[int64]*IfxMeasurementCfg)
+	cfgmap := make(map[string]*IfxMeasurementCfg)
 	for _, val := range cfgarray {
 		cfgmap[val.ID] = val
 		log.Debugf("%+v", *val)
@@ -124,6 +123,28 @@ func (dbc *DatabaseCfg) GetIfxMeasurementTagsArray(filter string) ([]string, err
 	return tags, nil
 }
 
+// AddOrUpdateIfxMeasurementCfg this method inserts data if not previously exists or updates it if already exists
+func (dbc *DatabaseCfg) AddOrUpdateIfxMeasurementCfg(dev *IfxMeasurementCfg) (int64, error) {
+	log.Debugf("AddOrUpdateIfxMeasurementCfg. ADD OR UPDATE %+v", dev)
+	//check if exist
+	m, err := dbc.GetIfxMeasurementCfgArray("id = '" + dev.ID + "'")
+	if err != nil {
+		return 0, err
+	}
+	switch len(m) {
+	case 1:
+		log.Debugf("Updating IfxMeasurementCfg %+v", m)
+		return dbc.UpdateIfxMeasurementCfg(m[0].ID, dev)
+	case 0:
+		log.Debugf("Adding new IfxMeasurementCfg %+v", dev)
+		return dbc.AddIfxMeasurementCfg(dev)
+	default:
+		log.Errorf("There is some error when searching for IfxMeasurement %+v , found %d", dev, len(m))
+		return 0, fmt.Errorf("There is some error when searching for IfxMeasurement %+v , found %d", dev, len(m))
+	}
+
+}
+
 /*AddIfxMeasurementCfg for adding new devices*/
 func (dbc *DatabaseCfg) AddIfxMeasurementCfg(dev *IfxMeasurementCfg) (int64, error) {
 	var err error
@@ -142,20 +163,20 @@ func (dbc *DatabaseCfg) AddIfxMeasurementCfg(dev *IfxMeasurementCfg) (int64, err
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Added new InfluxMeasurement Successfully with id %d ", dev.ID)
+	log.Infof("Added new InfluxMeasurement Successfully with id %s ", dev.ID)
 	dbc.addChanges(affected)
 	return affected, nil
 }
 
 /*DelIfxMeasurementCfg for deleting influx databases from ID*/
-func (dbc *DatabaseCfg) DelIfxMeasurementCfg(id int64) (int64, error) {
+func (dbc *DatabaseCfg) DelIfxMeasurementCfg(id string) (int64, error) {
 	var affected int64
 	var err error
 
 	session := dbc.x.NewSession()
 	defer session.Close()
 
-	affected, err = session.Where("id='" + strconv.FormatInt(id, 10) + "'").Delete(&IfxMeasurementCfg{})
+	affected, err = session.Where("id='" + id + "'").Delete(&IfxMeasurementCfg{})
 	if err != nil {
 		session.Rollback()
 		return 0, err
@@ -165,13 +186,13 @@ func (dbc *DatabaseCfg) DelIfxMeasurementCfg(id int64) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Infof("Deleted Successfully influx measurements with ID %d [ %d Devices Affected  ]", id, affected)
+	log.Infof("Deleted Successfully influx measurements with ID %s [ %d Devices Affected  ]", id, affected)
 	dbc.addChanges(affected)
 	return affected, nil
 }
 
-/*UpdateIfxMeasurementCfg for adding new influxdb*/
-func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id int64, dev *IfxMeasurementCfg) (int64, error) {
+/*UpdateIfxMeasurementCfg for adding new IfxMeasurementCfg*/
+func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id string, dev *IfxMeasurementCfg) (int64, error) {
 	var affecteddev, affected int64
 	var err error
 	session := dbc.x.NewSession()
@@ -186,7 +207,7 @@ func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id int64, dev *IfxMeasurementCfg
 		log.Infof("Updated Influx Config to %s devices ", affecteddev)
 	}
 
-	affected, err = session.Where("id='" + strconv.FormatInt(id, 10) + "'").UseBool().AllCols().Update(dev)
+	affected, err = session.Where("id='" + id + "'").UseBool().AllCols().Update(dev)
 	if err != nil {
 		session.Rollback()
 		return 0, err
@@ -196,16 +217,16 @@ func (dbc *DatabaseCfg) UpdateIfxMeasurementCfg(id int64, dev *IfxMeasurementCfg
 		return 0, err
 	}
 
-	log.Infof("Updated Influx Measurement Successfully with id %d and data:%+v, affected", id, dev)
+	log.Infof("Updated Influx Measurement Successfully with id %s and data:%+v, affected", id, dev)
 	dbc.addChanges(affected + affecteddev)
 	return affected, nil
 }
 
 /*GetIfxMeasurementCfgAffectOnDel for deleting devices from ID*/
-func (dbc *DatabaseCfg) GetIfxMeasurementCfgAffectOnDel(id int64) ([]*DbObjAction, error) {
+func (dbc *DatabaseCfg) GetIfxMeasurementCfgAffectOnDel(id string) ([]*DbObjAction, error) {
 	var devices []*AlertIDCfg
 	var obj []*DbObjAction
-	if err := dbc.x.Where("kapacitorid='" + strconv.FormatInt(id, 10) + "'").Find(&devices); err != nil {
+	if err := dbc.x.Where("kapacitorid='" + id + "'").Find(&devices); err != nil {
 		log.Warnf("Error on Get Outout db id %d for devices , error: %s", id, err)
 		return nil, err
 	}

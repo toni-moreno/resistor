@@ -1,8 +1,6 @@
 package webui
 
 import (
-	"strconv"
-
 	"github.com/go-macaron/binding"
 	"github.com/toni-moreno/resistor/pkg/agent"
 	"github.com/toni-moreno/resistor/pkg/config"
@@ -28,24 +26,24 @@ func NewAPICfgIfxDB(m *macaron.Macaron) error {
 	return nil
 }
 
-// GetIfxDB Return snmpdevice list to frontend
+// GetIfxDB Return influxdb list to frontend
 func GetIfxDB(ctx *Context) {
 	devcfgarray, err := agent.MainConfig.Database.GetIfxDBCfgArray("")
 	if err != nil {
 		ctx.JSON(404, err.Error())
-		log.Errorf("Error on get Devices :%+s", err)
+		log.Errorf("Error on get IfxDB :%+s", err)
 		return
 	}
 	ctx.JSON(200, &devcfgarray)
-	log.Debugf("Getting DEVICEs %+v", &devcfgarray)
+	log.Debugf("Getting IfxDB %+v", &devcfgarray)
 }
 
-// AddIfxDB Insert new snmpdevice to de internal BBDD --pending--
+// AddIfxDB Insert new influxdb to the internal BBDD --pending--
 func AddIfxDB(ctx *Context, dev config.IfxDBCfg) {
-	log.Printf("ADDING DEVICE %+v", dev)
+	log.Printf("ADDING IfxDB %+v", dev)
 	affected, err := agent.MainConfig.Database.AddIfxDBCfg(&dev)
 	if err != nil {
-		log.Warningf("Error on insert for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on insert for IfxDB %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return data  or affected
@@ -57,10 +55,10 @@ func AddIfxDB(ctx *Context, dev config.IfxDBCfg) {
 func UpdateIfxDB(ctx *Context, dev config.IfxDBCfg) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to update: %+v", dev)
-	nid, err := strconv.ParseInt(id, 10, 64)
-	affected, err := agent.MainConfig.Database.UpdateIfxDBCfg(nid, &dev)
+	//nid, err := strconv.ParseInt(id, 10, 64)
+	affected, err := agent.MainConfig.Database.UpdateIfxDBCfg(id, &dev)
 	if err != nil {
-		log.Warningf("Error on update for device %s  , affected : %+v , error: %s", dev.ID, affected, err)
+		log.Warningf("Error on update for IfxDB %s  , affected : %+v , error: %s", dev.ID, affected, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		//TODO: review if needed return device data
@@ -72,8 +70,8 @@ func UpdateIfxDB(ctx *Context, dev config.IfxDBCfg) {
 func DeleteIfxDB(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete: %+v", id)
-	nid, err := strconv.ParseInt(id, 10, 64)
-	affected, err := agent.MainConfig.Database.DelIfxDBCfg(nid)
+	//nid, err := strconv.ParseInt(id, 10, 64)
+	affected, err := agent.MainConfig.Database.DelIfxDBCfg(id)
 	if err != nil {
 		log.Warningf("Error on delete1 for device %s  , affected : %+v , error: %s", id, affected, err)
 		ctx.JSON(404, err.Error())
@@ -85,8 +83,8 @@ func DeleteIfxDB(ctx *Context) {
 //GetIfxDBCfgByID --pending--
 func GetIfxDBCfgByID(ctx *Context) {
 	id := ctx.Params(":id")
-	nid, err := strconv.ParseInt(id, 10, 64)
-	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(nid)
+	//nid, err := strconv.ParseInt(id, 10, 64)
+	dev, err := agent.MainConfig.Database.GetIfxDBCfgByID(id)
 	if err != nil {
 		log.Warningf("Error on get Device  for device %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
@@ -110,10 +108,10 @@ func GetIfxDBCfgArrayByMeasName(ctx *Context) {
 //GetIfxDBAffectOnDel --pending--
 func GetIfxDBAffectOnDel(ctx *Context) {
 	id := ctx.Params(":id")
-	nid, err := strconv.ParseInt(id, 10, 64)
-	obarray, err := agent.MainConfig.Database.GetIfxDBCfgAffectOnDel(nid)
+	//nid, err := strconv.ParseInt(id, 10, 64)
+	obarray, err := agent.MainConfig.Database.GetIfxDBCfgAffectOnDel(id)
 	if err != nil {
-		log.Warningf("Error on get object array for SNMP metrics %s  , error: %s", id, err)
+		log.Warningf("Error on get object array for influxdbs %s  , error: %s", id, err)
 		ctx.JSON(404, err.Error())
 	} else {
 		ctx.JSON(200, &obarray)
