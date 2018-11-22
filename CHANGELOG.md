@@ -1,5 +1,60 @@
 # CHANGELOG.md
 
+## v 0.6.4  (22/11/2018)
+
+### New features.
+
+* Changes to use TEXT IDs for InfluxDB catalog tables.
+
+### fixes
+
+
+### breaking changes
+
+* -- Execute the following steps in order to mantain your data:
+
+  * -- 1 -- stop resistor
+  * -- 2 -- dump your database
+  * -- 3 -- rename modified tables to backup temp tables
+    * ALTER TABLE ifx_db_cfg RENAME TO temp_ifx_db_cfg;
+    * ALTER TABLE ifx_measurement_cfg RENAME TO temp_ifx_measurement_cfg;
+    * ALTER TABLE ifx_db_meas_rel RENAME TO temp_ifx_db_meas_rel;
+    * ALTER TABLE alert_id_cfg RENAME TO temp_alert_id_cfg;
+  * -- 4 -- add new id columns
+    * ALTER TABLE temp_ifx_db_cfg ADD COLUMN id_new TEXT;
+    * ALTER TABLE temp_ifx_measurement_cfg ADD COLUMN id_new TEXT;
+    * ALTER TABLE temp_ifx_db_meas_rel ADD COLUMN ifxdbid_new TEXT;
+    * ALTER TABLE temp_ifx_db_meas_rel ADD COLUMN ifxmeasid_new TEXT;
+    * ALTER TABLE temp_alert_id_cfg ADD COLUMN influxdb_new TEXT;
+
+  * -- 5 -- set value on new id columns
+    * set sql_mode=PIPES_AS_CONCAT; -- Only for MySQL
+    * UPDATE temp_ifx_db_cfg SET id_new = ifxserver || '-' || name;
+    * UPDATE temp_ifx_measurement_cfg SET id_new = (SELECT ifxserver || '-' || temp_ifx_db_cfg.name || '-' || temp_ifx_measurement_cfg.name FROM temp_ifx_db_cfg, temp_ifx_db_meas_rel WHERE temp_ifx_db_cfg.id = ifxdbid AND temp_ifx_measurement_cfg.id = temp_ifx_db_meas_rel.ifxmeasid);
+    * UPDATE temp_ifx_db_meas_rel SET ifxdbid_new = (SELECT id_new FROM temp_ifx_db_cfg WHERE temp_ifx_db_cfg.id = ifxdbid);
+    * UPDATE temp_ifx_db_meas_rel SET ifxmeasid_new = (SELECT id_new FROM temp_ifx_measurement_cfg WHERE temp_ifx_measurement_cfg.id = ifxmeasid);
+    * UPDATE temp_alert_id_cfg SET influxdb_new = (SELECT id_new FROM temp_ifx_db_cfg WHERE temp_ifx_db_cfg.id = influxdb);
+  * -- 6 -- DROP INDEXES;
+    * DROP INDEX UQE_ifx_db_cfg_ifxdb ON temp_ifx_db_cfg; -- Only for MySQL
+    * DROP INDEX UQE_alert_id_cfg_id ON temp_alert_id_cfg; -- Only for MySQL
+    * DROP INDEX UQE_ifx_db_cfg_ifxdb; -- Only for SQLite
+    * DROP INDEX UQE_alert_id_cfg_id; -- Only for SQLite
+  * -- 7 -- start resistor
+  * -- 8 -- modified tables will be created again
+  * -- 9 -- stop resistor
+  * -- 10 -- copy backup content to modified tables
+    * INSERT INTO ifx_db_cfg (id, name, ifxserver, retention, description) SELECT id_new, name, ifxserver, retention, description FROM temp_ifx_db_cfg;
+    * INSERT INTO ifx_measurement_cfg (id, name, tags, fields, description) SELECT id_new, name, tags, fields, description FROM temp_ifx_measurement_cfg;
+    * INSERT INTO ifx_db_meas_rel (ifxdbid, ifxmeasid, ifxmeasname) SELECT ifxdbid_new, ifxmeasid_new, ifxmeasname FROM temp_ifx_db_meas_rel;
+    * INSERT INTO alert_id_cfg (id, active, baselineid, productid, alertgroup, numalertid, description, influxdb, influxrp, influxmeasurement, tagdescription, influxfilter, triggertype, intervalcheck, alertfrequency, alertnotify, operationid, field, iscustomexpression, fielddesc, extradata, statfunc, critdirection, shift, trendtype, trendsign, fieldtype, rate, fieldresolution, th_crit_def, th_crit_ex1, th_crit_ex2, th_crit_rangetime_id, th_warn_def, th_warn_ex1, th_warn_ex2, th_warn_rangetime_id, th_info_def, th_info_ex1, th_info_ex2, th_info_rangetime_id, grafana_server, grafana_dash_label, grafana_panel_id, producttag, deviceid_label, extra_tag, extra_label, alert_extra_text, kapacitorid, modified, servers_wo_last_deployment, last_deployment_time) SELECT id, active, baselineid, productid, alertgroup, numalertid, description, influxdb_new, influxrp, influxmeasurement, tagdescription, influxfilter, triggertype, intervalcheck, alertfrequency, alertnotify, operationid, field, iscustomexpression, fielddesc, extradata, statfunc, critdirection, shift, trendtype, trendsign, fieldtype, rate, fieldresolution, th_crit_def, th_crit_ex1, th_crit_ex2, th_crit_rangetime_id, th_warn_def, th_warn_ex1, th_warn_ex2, th_warn_rangetime_id, th_info_def, th_info_ex1, th_info_ex2, th_info_rangetime_id, grafana_server, grafana_dash_label, grafana_panel_id, producttag, deviceid_label, extra_tag, extra_label, alert_extra_text, kapacitorid, modified, servers_wo_last_deployment, last_deployment_time FROM temp_alert_id_cfg;
+  * -- 11 -- DROP TEMP TABLES
+    * DROP TABLE temp_ifx_db_cfg;
+    * DROP TABLE temp_ifx_measurement_cfg;
+    * DROP TABLE temp_ifx_db_meas_rel;
+    * DROP TABLE temp_alert_id_cfg;
+  * -- 12 -- start resistor
+
+
 ## v 0.6.3  (09/11/2018)
 
 ### New features.
