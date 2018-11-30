@@ -10,6 +10,7 @@ export const ProductComponentConfig: any =
       { 'title': 'Product Tag', 'name': 'ProductTag' },
       { 'title': 'CommonTags', 'name': 'CommonTags' },
       { 'title': 'ExtraTags', 'name': 'ExtraTags' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'productcfg'
   };

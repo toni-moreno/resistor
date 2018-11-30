@@ -60,7 +60,7 @@ export class RangeTimeComponent implements OnInit {
       ID: [this.sampleComponentForm ? this.sampleComponentForm.value.ID : '', Validators.required],
       MaxHour: [this.sampleComponentForm ? this.sampleComponentForm.value.MaxHour : 23, Validators.compose([Validators.required, ValidationService.hourValidator])],
       MinHour: [this.sampleComponentForm ? this.sampleComponentForm.value.MinHour : 0, Validators.compose([Validators.required, ValidationService.hourValidator])],
-      WeekDays: [this.sampleComponentForm ? this.sampleComponentForm.value.WeekDays : '01234567', Validators.required],
+      WeekDays: [this.sampleComponentForm ? this.sampleComponentForm.value.WeekDays : '0123456', Validators.compose([Validators.required, ValidationService.weekdaysValidator])],
       Description: [this.sampleComponentForm ? this.sampleComponentForm.value.Description : '']
     });
   }

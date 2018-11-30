@@ -3,9 +3,10 @@ export const RangeTimeComponentConfig: any =
     'name' : 'Range Time',
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
-      { 'title': 'MaxHour', 'name': 'MaxHour' },
       { 'title': 'MinHour', 'name': 'MinHour' },
+      { 'title': 'MaxHour', 'name': 'MaxHour' },
       { 'title': 'WeekDays', 'name': 'WeekDays' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
   ],
   'slug' : 'rangetimecfg'
   };

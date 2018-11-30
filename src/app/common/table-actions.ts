@@ -40,10 +40,10 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
       </div>
       <div *ngIf="selectorSelected" style="float:left; width: auto; border-left: 1px solid #1B809E; padding: 0px 10px 0px 10px;">
       <span>Set new value:</span>
-        <select *ngIf="selectorSelected.type === 'boolean'" class="select-pages" style="width:auto" [(ngModel)]="propertySelected">
+        <select *ngIf="selectorSelected.type === 'boolean' || selectorSelected.type === 'selector'" class="select-pages" style="width:auto" [(ngModel)]="propertySelected">
           <option *ngFor="let option of selectorSelected.options" [ngValue]="option" (ngModelChange)="changeProperty($event)">{{option}}</option>
         </select>
-        <ss-multiselect-dropdown *ngIf="selectorSelected.type === 'multiselector'" [options]="selectorSelected.options" [texts]="myTexts" [settings]="mySettingsInflux" [(ngModel)]="propertySelected"></ss-multiselect-dropdown>
+        <ss-multiselect-dropdown *ngIf="selectorSelected.type === 'multiselector'" [options]="selectorSelected.options" [texts]="myTexts" [settings]="selectorSelected.settings" [(ngModel)]="propertySelected"></ss-multiselect-dropdown>
         <div [formGroup]="selectorSelected.options" *ngIf="selectorSelected.type === 'input'" style="border:none; display:inline">
               <input formControlName="formControl" id="formControl" [(ngModel)]="propertySelected" style="width:auto"/>
               <control-messages style="display:block; margin-top:5px" [control]="selectorSelected.options.controls.formControl" ></control-messages>

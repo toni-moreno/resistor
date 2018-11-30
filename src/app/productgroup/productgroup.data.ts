@@ -4,6 +4,7 @@ export const ProductGroupComponentConfig: any =
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Products', 'name': 'Products' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'productgroupcfg'
   };

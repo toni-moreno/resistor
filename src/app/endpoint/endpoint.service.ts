@@ -37,6 +37,26 @@ export class EndpointService {
         .map( (responseData) => {
             return responseData.json();
         })
+        .map((endpoints) => {
+            console.log("MAP SERVICE",endpoints);
+            let result = [];
+            if (endpoints) {
+                _.forEach(endpoints,function(value,key){
+                    console.log("FOREACH LOOP",value,value.ID);
+                    if(filter_s && filter_s.length > 0 ) {
+                        console.log("maching: "+value.ID+ "filter: "+filter_s);
+                        var re = new RegExp(filter_s, 'gi');
+                        if (value.ID.match(re)){
+                            result.push(value);
+                        }
+                        console.log(value.ID.match(re));
+                    } else {
+                        result.push(value);
+                    }
+                });
+            }
+            return result;
+        });
     }
 
     getEndpointItemById(id : string) {

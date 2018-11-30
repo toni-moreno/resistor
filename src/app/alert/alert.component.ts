@@ -21,6 +21,7 @@ import { GenericModal } from '../common/custom-modal/generic-modal';
 import { Observable } from 'rxjs/Rx';
 import { Subscription } from 'rxjs';
 
+import { AvailableTableActions } from '../common/table-available-actions';
 import { TableListComponent } from '../common/table-list.component';
 import { AlertComponentConfig, TableRole, OverrideRoleActions } from './alert.data';
 
@@ -52,6 +53,7 @@ export class AlertComponent implements OnInit {
   public counterErrors: any = [];
   public defaultConfig : any = AlertComponentConfig;
   public tableRole : any = TableRole;
+  public tableAvailableActions : any;
   public overrideRoleActions: any = OverrideRoleActions;
   public selectedArray : any = [];
 
@@ -277,6 +279,9 @@ export class AlertComponent implements OnInit {
       case 'remove':
         this.removeItem(action.event);
       break;
+      case 'editenabled':
+        this.enableEdit();
+      break;
       case 'tableaction':
         this.applyAction(action.event, action.data);
       break;
@@ -290,20 +295,28 @@ export class AlertComponent implements OnInit {
   applyAction(action : any, data? : Array<any>) : void {
     this.selectedArray = data || [];
     switch(action.action) {
-       case "RemoveAllSelected": {
-          this.removeAllSelectedItems(this.selectedArray);
-          break;
-       }
-       case "ChangeProperty": {
-          this.updateAllSelectedItems(this.selectedArray,action.field,action.value)
-          break;
-       }
-       case "AppendProperty": {
-         this.updateAllSelectedItems(this.selectedArray,action.field,action.value,true);
-       }
-       default: {
-          break;
-       }
+      case "RemoveAllSelected": {
+        this.removeAllSelectedItems(this.selectedArray);
+        break;
+      }
+      case "ChangeProperty": {
+        this.updateAllSelectedItems(this.selectedArray,action.field,action.value);
+        break;
+      }
+      case "AppendProperty": {
+        this.updateAllSelectedItems(this.selectedArray,action.field,action.value,true);
+      }
+      case "DeployAllSelected": {
+        // Until we change the checking of Kapacitor servers with last deployment of tasks,
+        // the deployment of Kapacitor tasks implies the modification of Resistor alerts.
+        // In order the time of modifications for Kapacitor and Resistor differ less than 10 seconds.
+        // Then we call update with a 'NonExistentField'.
+        this.updateAllSelectedItems(this.selectedArray,'NonExistentField','');
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
 
@@ -646,6 +659,17 @@ export class AlertComponent implements OnInit {
       this.select_ifxms = this.createMultiselectArray(this.picked_product['Measurements']);
       this.select_idtag = this.createMultiselectArray(this.picked_product['CommonTags']);
     }
+  }
+
+  enableEdit() {
+    Observable.forkJoin([this.endpointService.getEndpointItem(null),this.kapacitorService.getKapacitorItem(null),this.operationService.getOperationItem(null)])
+              .subscribe(
+                data => {
+                  this.tableAvailableActions = new AvailableTableActions('alert-component',[this.createMultiselectArray(data[0],'ID','ID'),this.createMultiselectArray(data[1],'ID','ID'),this.createMultiselectArray(data[2],'ID','ID')]).availableOptions;
+                },
+                err => console.log(err),
+                () => console.log()
+              );
   }
 
   createMultiselectArray(tempArray, ID?, Name?, extraData?) : any {

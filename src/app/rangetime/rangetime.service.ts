@@ -11,6 +11,9 @@ export class RangeTimeService {
     }
 
     jsonParser(key,value) {
+        if ( key == 'MinHour' || key == 'MaxHour' ) {
+            return parseInt(value);
+        }
         return value;
     }
 

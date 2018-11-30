@@ -117,95 +117,222 @@ func (e *ExportData) Export(ObjType string, id string, recursive bool, level int
 	log.Debugf("Entering Export with ObjType: %s, id: %s, recursive: %t, level: %d", ObjType, id, recursive, level)
 	switch ObjType {
 	case "rangetimecfg":
-		//contains sensible data
-		v, err := dbc.GetRangeTimeCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetRangeTimeCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "rangetimecfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetRangeTimeCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "rangetimecfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "rangetimecfg", ObjectID: id, ObjectCfg: v})
 	case "ifxservercfg":
-		//contains sensible data
-		v, err := dbc.GetIfxServerCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetIfxServerCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "ifxservercfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetIfxServerCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "ifxservercfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "ifxservercfg", ObjectID: id, ObjectCfg: v})
 	case "kapacitorcfg":
-		v, err := dbc.GetKapacitorCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetKapacitorCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "kapacitorcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetKapacitorCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "kapacitorcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "kapacitorcfg", ObjectID: id, ObjectCfg: v})
 	case "operationcfg":
-		v, err := dbc.GetOperationCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetOperationCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "operationcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetOperationCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "operationcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "operationcfg", ObjectID: id, ObjectCfg: v})
 	case "productcfg":
-		v, err := dbc.GetProductCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetProductCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "productcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetProductCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "productcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "productcfg", ObjectID: id, ObjectCfg: v})
 	case "productgroupcfg":
-		//contains sensible data
-		v, err := dbc.GetProductGroupCfgByID(id)
-		if err != nil {
-			return err
-		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "productgroupcfg", ObjectID: id, ObjectCfg: v})
-		if !recursive {
-			break
-		}
-		for _, val := range v.Products {
-			e.Export("productcfg", val, recursive, level+1)
+		if len(id) > 0 {
+			v, err := dbc.GetProductGroupCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "productgroupcfg", ObjectID: id, ObjectCfg: v})
+			if !recursive {
+				break
+			}
+			for _, val := range v.Products {
+				e.Export("productcfg", val, recursive, level+1)
+			}
+		} else {
+			varr, err := dbc.GetProductGroupCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "productgroupcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
 	case "endpointcfg":
-		v, err := dbc.GetEndpointCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetEndpointCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "endpointcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetEndpointCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "endpointcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "endpointcfg", ObjectID: id, ObjectCfg: v})
 	case "alertcfg":
-		//contains sensible data
-		v, err := dbc.GetAlertIDCfgByID(id)
-		if err != nil {
-			return err
-		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
-		if !recursive {
-			break
-		}
-		for _, val := range v.Endpoint {
-			e.Export("endpointcfg", val, recursive, level+1)
-		}
-		e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
-		e.Export("operationcfg", v.OperationID, recursive, level+1)
-		e.Export("productcfg", v.ProductID, recursive, level+1)
+		if len(id) > 0 {
+			v, err := dbc.GetAlertIDCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: id, ObjectCfg: v})
+			if !recursive {
+				break
+			}
+			for _, val := range v.Endpoint {
+				e.Export("endpointcfg", val, recursive, level+1)
+			}
+			e.Export("kapacitorcfg", v.KapacitorID, recursive, level+1)
+			e.Export("operationcfg", v.OperationID, recursive, level+1)
+			e.Export("productcfg", v.ProductID, recursive, level+1)
 
-		if v.TriggerType != "DEADMAN" {
-			e.Export("rangetimecfg", v.ThCritRangeTimeID, recursive, level+1)
-			e.Export("rangetimecfg", v.ThWarnRangeTimeID, recursive, level+1)
-			e.Export("rangetimecfg", v.ThInfoRangeTimeID, recursive, level+1)
+			if v.TriggerType != "DEADMAN" {
+				e.Export("rangetimecfg", v.ThCritRangeTimeID, recursive, level+1)
+				e.Export("rangetimecfg", v.ThWarnRangeTimeID, recursive, level+1)
+				e.Export("rangetimecfg", v.ThInfoRangeTimeID, recursive, level+1)
+			}
+		} else {
+			varr, err := dbc.GetAlertIDCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "alertcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-
 	case "templatecfg":
-		v, err := dbc.GetTemplateCfgByID(id)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			v, err := dbc.GetTemplateCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "templatecfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetTemplateCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "templatecfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "templatecfg", ObjectID: id, ObjectCfg: v})
 	case "devicestatcfg":
-		idInt64, err := strconv.ParseInt(id, 10, 64)
-		if err != nil {
-			return err
+		if len(id) > 0 {
+			idInt64, err := strconv.ParseInt(id, 10, 64)
+			if err != nil {
+				return err
+			}
+			v, err := dbc.GetDeviceStatCfgByID(idInt64)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "devicestatcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetDeviceStatCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "devicestatcfg", ObjectID: fmt.Sprintf("%v", v.ID), ObjectCfg: v})
+			}
 		}
-		v, err := dbc.GetDeviceStatCfgByID(idInt64)
-		if err != nil {
-			return err
+	case "ifxdbcfg":
+		if len(id) > 0 {
+			v, err := dbc.GetIfxDBCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "ifxdbcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetIfxDBCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "ifxdbcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
 		}
-		e.PrependObject(&ExportObject{ObjectTypeID: "devicestatcfg", ObjectID: id, ObjectCfg: v})
+	case "ifxmeasurementcfg":
+		if len(id) > 0 {
+			v, err := dbc.GetIfxMeasurementCfgByID(id)
+			if err != nil {
+				return err
+			}
+			e.PrependObject(&ExportObject{ObjectTypeID: "ifxmeasurementcfg", ObjectID: id, ObjectCfg: v})
+		} else {
+			varr, err := dbc.GetIfxMeasurementCfgArray("")
+			if err != nil {
+				return err
+			}
+			for _, v := range varr {
+				e.PrependObject(&ExportObject{ObjectTypeID: "ifxmeasurementcfg", ObjectID: v.ID, ObjectCfg: v})
+			}
+		}
 	default:
 		return fmt.Errorf("Unknown type object type %s ", ObjType)
 	}

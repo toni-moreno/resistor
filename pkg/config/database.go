@@ -78,52 +78,52 @@ func (dbc *DatabaseCfg) InitDB() {
 
 	// Sync tables
 	if err = dbc.x.Sync(new(IfxServerCfg)); err != nil {
-		log.Fatalf("Fail to sync database InfluxServerCfg: %v\n", err)
+		log.Fatalf("Fail to sync table InfluxServerCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(IfxDBCfg)); err != nil {
-		log.Fatalf("Fail to sync database InfluxDatabase Cfg: %v\n", err)
+		log.Fatalf("Fail to sync table IfxDBCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(IfxMeasurementCfg)); err != nil {
-		log.Fatalf("Fail to sync database InfluxServerCfg: %v\n", err)
+		log.Fatalf("Fail to sync table IfxMeasurementCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(IfxDBMeasRel)); err != nil {
-		log.Fatalf("Fail to sync database InfluxServerCfg: %v\n", err)
+		log.Fatalf("Fail to sync table IfxDBMeasRel: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(DeviceStatCfg)); err != nil {
-		log.Fatalf("Fail to sync database DeviceStatCfg: %v\n", err)
+		log.Fatalf("Fail to sync table DeviceStatCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(TemplateCfg)); err != nil {
-		log.Fatalf("Fail to sync database Template Alert Cfg: %v\n", err)
+		log.Fatalf("Fail to sync table TemplateCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(ProductCfg)); err != nil {
-		log.Fatalf("Fail to sync database ProductCfg: %v\n", err)
+		log.Fatalf("Fail to sync table ProductCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(ProductGroupCfg)); err != nil {
-		log.Fatalf("Fail to sync database ProductGroupCfg: %v\n", err)
+		log.Fatalf("Fail to sync table ProductGroupCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(KapacitorCfg)); err != nil {
-		log.Fatalf("Fail to sync database KapacitorCfg: %v\n", err)
+		log.Fatalf("Fail to sync table KapacitorCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(OperationCfg)); err != nil {
-		log.Fatalf("Fail to sync database OperationCfg: %v\n", err)
+		log.Fatalf("Fail to sync table OperationCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(RangeTimeCfg)); err != nil {
-		log.Fatalf("Fail to sync database RangeTimeCfg: %v\n", err)
+		log.Fatalf("Fail to sync table RangeTimeCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(EndpointCfg)); err != nil {
-		log.Fatalf("Fail to sync database Endpoints: %v\n", err)
+		log.Fatalf("Fail to sync table EndpointCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(AlertEndpointRel)); err != nil {
-		log.Fatalf("Fail to sync database Alert and Endpoint Relationship: %v\n", err)
+		log.Fatalf("Fail to sync table Alert and Endpoint Relationship: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(AlertIDCfg)); err != nil {
-		log.Fatalf("Fail to sync database AlertIDCfg: %v\n", err)
+		log.Fatalf("Fail to sync table AlertIDCfg: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(AlertEventHist)); err != nil {
-		log.Fatalf("Fail to sync database AlertEventHist: %v\n", err)
+		log.Fatalf("Fail to sync table AlertEventHist: %v\n", err)
 	}
 	if err = dbc.x.Sync(new(AlertEvent)); err != nil {
-		log.Fatalf("Fail to sync database AlertEvent: %v\n", err)
+		log.Fatalf("Fail to sync table AlertEvent: %v\n", err)
 	}
 }
 

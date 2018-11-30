@@ -916,6 +916,7 @@ func DeployKapaTemplate(dev config.TemplateCfg) ([]string, error) {
 }
 
 // GetTemplateIDParts Gets TemplateID parts from TemplateID
+// NOT USED since version 0.6.5
 // example: from: "TREND_2EX_AC_ATP_GAUGE_FMOVAVG" --> result: "TREND", "AC", "absolute", "positive", "GAUGE", "MOVAVG"
 // TriggerType + CritDirection + TrendTypeTranslated + FieldType + StatFunc
 func GetTemplateIDParts(sTemplateID string) (string, string, string, string, string, string) {

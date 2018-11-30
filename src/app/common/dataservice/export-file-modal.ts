@@ -72,7 +72,7 @@ import { Subscription } from 'rxjs';
                   </div>
                   </div>
                   <div class="col-md-5">
-                  <div *ngIf="finalArray.length !== 0">
+                  <div *ngIf="finalArray != null && finalArray.length !== 0">
                     <div class="panel-heading"> 3. Items ready to export: <span class="badge">{{finalArray.length}}</span>
                     <div class="text-right">
                       <label class="label label-danger" (click)="finalArray = []">Clear All</label>
@@ -145,7 +145,8 @@ import { Subscription } from 'rxjs';
               <div class="modal-footer" *ngIf="showValidation === true">
                <button type="button" class="btn btn-default" (click)="childModal.hide()">Close</button>
                <button *ngIf="exportResult === false && prepareExport === true" type="button" class="btn btn-primary" (click)="exportBulkItem()">{{textValidation ? textValidation : Save}}</button>
-               <button *ngIf="prepareExport === false" type="button" class="btn btn-primary" [disabled]="finalArray.length === 0" (click)="showExportForm()">Continue</button>
+               <button *ngIf="prepareExport === false" type="button" class="btn btn-primary" [disabled]="finalArray == null || finalArray.length === 0" (click)="showExportForm()">Continue</button>
+               <button *ngIf="prepareExport === false" type="button" class="btn btn-primary" (click)="showExportForm()">Bulk Export</button>
              </div>
             </div>
           </div>

@@ -9,7 +9,7 @@
     </test-modal>
     <export-file-modal #exportFileModal [showValidation]="true" [exportType]="defaultConfig['slug']" [textValidation]="'Export'" titleName='Exporting:'></export-file-modal>
     <table-list #listTableComponent [typeComponent]="'alert-component'" [data]="data" [columns]="defaultConfig['table-columns']" [counterItems]="counterItems" [counterErrors]="counterErrors" [selectedArray]="selectedArray" [isRequesting]="isRequesting" [tableRole]="tableRole"
-        [roleActions]="overrideRoleActions" (customClicked)="customActions($event)"></table-list>
+        [roleActions]="overrideRoleActions" overrideEditEnabled="true" [tableAvailableActions]="tableAvailableActions" (customClicked)="customActions($event)"></table-list>
   </ng-template>
   <ng-template ngSwitchDefault>
     <form [formGroup]="sampleComponentForm" class="form-horizontal" (ngSubmit)="editmode == 'create' ? saveSampleItem() : updateSampleItem()">
@@ -257,7 +257,7 @@
           </div>
           <div class="form-group" *ngIf="sampleComponentForm.controls.TrendSign">
             <label class="control-label col-sm-2" for="TrendSign">Trend Sign</label>
-            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if the difference between values is positive or negative."></i>
+            <i placement="top" style="float: left" class="info control-label glyphicon glyphicon-info-sign" tooltipAnimation="true" tooltip="Indicates if the difference between values is positive or negative. If negative is selected, threshold fields must have negative values."></i>
             <div class="col-sm-9">
               <select formControlName="TrendSign" id="TrendSign" [ngModel]="sampleComponentForm.value.TrendSign">
                 <option value="positive" selected="selected">Positive</option>

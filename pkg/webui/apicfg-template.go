@@ -154,9 +154,14 @@ func DeployTemplate(ctx *Context, dev config.TemplateCfg) {
 func DeleteTemplate(ctx *Context) {
 	id := ctx.Params(":id")
 	log.Debugf("Trying to delete template with id: %s.", id)
+	tpl, err := agent.MainConfig.Database.GetTemplateCfgByID(id)
+	if err != nil {
+		log.Warningf("Error getting template %s. Error: %s", id, err)
+		ctx.JSON(404, err.Error())
+		return
+	}
 	//ensure this template is not used by any resistor alert
-	sTriggerType, sCritDirection, sTrendType, sTrendSign, sFieldType, sStatFunc := kapa.GetTemplateIDParts(id)
-	idalertsarray, err := GetAlertIDCfgByTemplate(sTriggerType, sCritDirection, sTrendType, sTrendSign, sFieldType, sStatFunc)
+	idalertsarray, err := GetAlertIDCfgByTemplate(tpl.TriggerType, tpl.CritDirection, tpl.TrendType, tpl.TrendSign, tpl.FieldType, tpl.StatFunc)
 	if err != nil {
 		log.Warningf("Error getting alerts related to this template %s. Error: %s", id, err)
 		ctx.JSON(404, err.Error())

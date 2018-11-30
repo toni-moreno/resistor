@@ -158,20 +158,28 @@ export class TemplateComponent implements OnInit {
   applyAction(action : any, data? : Array<any>) : void {
     this.selectedArray = data || [];
     switch(action.action) {
-       case "RemoveAllSelected": {
-          this.removeAllSelectedItems(this.selectedArray);
-          break;
-       }
-       case "ChangeProperty": {
-          this.updateAllSelectedItems(this.selectedArray,action.field,action.value)
-          break;
-       }
-       case "AppendProperty": {
-         this.updateAllSelectedItems(this.selectedArray,action.field,action.value,true);
-       }
-       default: {
-          break;
-       }
+      case "RemoveAllSelected": {
+        this.removeAllSelectedItems(this.selectedArray);
+        break;
+      }
+      case "ChangeProperty": {
+        this.updateAllSelectedItems(this.selectedArray,action.field,action.value)
+        break;
+      }
+      case "AppendProperty": {
+        this.updateAllSelectedItems(this.selectedArray,action.field,action.value,true);
+      }
+      case "DeployAllSelected": {
+        // Until we change the checking of Kapacitor servers with last deployment of templates,
+        // the deployment of Kapacitor templates implies the modification of Resistor templates.
+        // In order the time of modifications for Kapacitor and Resistor differ less than 10 seconds.
+        // Then we call update with a 'NonExistentField'.
+        this.updateAllSelectedItems(this.selectedArray,'NonExistentField','');
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
 

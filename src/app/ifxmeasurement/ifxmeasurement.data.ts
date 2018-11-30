@@ -6,6 +6,7 @@ export const IfxMeasurementComponentConfig: any =
       { 'title': 'Measurement Name', 'name': 'Name' },
       { 'title': 'Tags', 'name': 'Tags' },
       { 'title': 'Fields', 'name': 'Fields' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'ifxmeasurementcfg'
   };
