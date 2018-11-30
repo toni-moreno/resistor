@@ -3,7 +3,8 @@ export const OperationComponentConfig: any =
     'name' : 'Operations',
     'table-columns' : [
       { 'title': 'ID', 'name': 'ID' },
-      { 'title': 'URL', 'name': 'URL' }
+      { 'title': 'URL', 'name': 'URL' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'operationcfg'
   };

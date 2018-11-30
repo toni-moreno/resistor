@@ -13,6 +13,7 @@ export const EndpointComponentConfig: any =
       { 'title': 'Port', 'name': 'Port' },
       { 'title': 'From', 'name': 'From' },
       { 'title': 'To', 'name': 'To' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'endpointcfg'
   };

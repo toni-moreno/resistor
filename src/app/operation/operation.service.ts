@@ -31,6 +31,26 @@ export class OperationService {
         .map( (responseData) => {
             return responseData.json();
         })
+        .map((operations) => {
+            console.log("MAP SERVICE",operations);
+            let result = [];
+            if (operations) {
+                _.forEach(operations,function(value,key){
+                    console.log("FOREACH LOOP",value,value.ID);
+                    if(filter_s && filter_s.length > 0 ) {
+                        console.log("maching: "+value.ID+ "filter: "+filter_s);
+                        var re = new RegExp(filter_s, 'gi');
+                        if (value.ID.match(re)){
+                            result.push(value);
+                        }
+                        console.log(value.ID.match(re));
+                    } else {
+                        result.push(value);
+                    }
+                });
+            }
+            return result;
+        });
     }
 
     getOperationItemById(id : string) {

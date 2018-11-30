@@ -6,6 +6,7 @@ export const IfxDBComponentConfig: any =
       { 'title': 'DB Name', 'name': 'Name' },
       { 'title': 'Retention', 'name': 'Retention' },
       { 'title': 'Measurements', 'name': 'Measurements', 'transform':"parseMeasurements", 'extraField': "Name" },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'ifxdbcfg'
   };

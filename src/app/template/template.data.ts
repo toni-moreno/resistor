@@ -9,6 +9,7 @@ export const TemplateComponentConfig: any =
       { 'title': 'TrendSign', 'name': 'TrendSign' },
       { 'title': 'FieldType', 'name': 'FieldType' },
       { 'title': 'StatFunc', 'name': 'StatFunc' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'templatecfg'
   };

@@ -47,8 +47,19 @@ func GetAlertID(ctx *Context) {
 // AddAlertID Inserts new alert into the internal DB and into the kapacitor servers
 func AddAlertID(ctx *Context, dev config.AlertIDCfg) {
 	dev.Modified = time.Now().UTC()
-	sKapaSrvsNotOK, lastDeploymentTime, kapaerr := kapa.DeployKapaTask(dev)
 	errmsg := ""
+	oldalert, err := agent.MainConfig.Database.GetAlertIDCfgByID(dev.ID)
+	if err != nil || len(oldalert.ID) > 0 {
+		if err != nil {
+			errmsg = fmt.Sprintf("%v", err)
+		} else {
+			errmsg = fmt.Sprintf("An alert with ID %s already exists. Check the value of NumAlertId field: %v.", dev.ID, dev.NumAlertID)
+		}
+		ctx.JSON(404, errmsg)
+		log.Errorf("Error checking if an alert with ID %s already exists: %s", dev.ID, errmsg)
+		return
+	}
+	sKapaSrvsNotOK, lastDeploymentTime, kapaerr := kapa.DeployKapaTask(dev)
 	if kapaerr != nil {
 		errmsg = errmsg + " " + kapaerr.Error()
 	}

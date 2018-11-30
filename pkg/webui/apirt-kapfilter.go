@@ -470,8 +470,9 @@ func sendDataToEmail(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 	// Send 1 email for each To address
 	for _, itemto := range endpoint.To {
 		config.To = []string{itemto}
-		msg := al.Message + " - Triggered by: " + al.ResistorAlertTriggered
-		err = res_smtp.SendEmail(config, msg, al.Details)
+		subject := al.Message + " - Triggered by: " + al.ResistorAlertTriggered
+		body := makeBodyForEmail(al)
+		err = res_smtp.SendEmail(config, subject, body)
 		if err != nil {
 			log.Warningf("sendDataToEmail. Error sending email to %s: %s", config.To, err)
 		} else {
@@ -479,6 +480,34 @@ func sendDataToEmail(al TaskAlertInfo, endpoint config.EndpointCfg) error {
 		}
 	}
 	return err
+}
+
+func makeBodyForEmail(al TaskAlertInfo) string {
+	body := ""
+	body += "<h2>Alert</h2>"
+	body += al.Details
+	body += "<br>"
+	body += "<li>Device: " + al.ResistorIDTagName + ": " + al.ResistorIDTagValue + " </li>"
+	body += "<li><a href=\"" + al.ResistorDashboardURL + "\">Check URL</a></li>"
+	body += "<li>Operation ID: " + al.ResistorOperationID + " | <a href=\"" + al.ResistorOperationURL + "\">URL</a> </li>"
+	body += "<br>"
+	body += "<hr>"
+	body += "<h2>Alert definition</h2>"
+	body += "<li>Product: " + al.ResistorAlertInfo.ProductGroup + " | " + al.ResistorAlertInfo.ProductID + "</li>"
+	body += "<li>Triggered: " + al.ResistorAlertTriggered + "</li>"
+	body += "<li>Field type: " + al.ResistorAlertInfo.FieldType + "</li>"
+	body += "<li>Trigger type: " + al.ResistorAlertInfo.TriggerType + "</li>"
+	body += "<li>Field: " + al.ResistorAlertInfo.Field + "</li>"
+	body += "<li>Critical direction: " + al.ResistorAlertInfo.CritDirection + "</li>"
+	body += "<li>Time evaluation window: " + al.ResistorAlertInfo.IntervalCheck + "</li>"
+	body += "<li>Function: " + al.ResistorAlertInfo.StatFunc + "</li>"
+	body += "<li>Thresholds:</li>"
+	body += "<ul>"
+	body += "  <li>Info: <span style=\"color: blue\">" + fmt.Sprintf("%.2f", al.ResistorAlertInfo.ThInfo) + "</span> </li>"
+	body += "  <li>Warning: <span style=\"color: orange\">" + fmt.Sprintf("%.2f", al.ResistorAlertInfo.ThWarn) + "</span> </li>"
+	body += "  <li>Critical: <span style=\"color: red\">" + fmt.Sprintf("%.2f", al.ResistorAlertInfo.ThCrit) + "</span> </li>"
+	body += "</ul>"
+	return body
 }
 
 func getResSMTPConfig(endpoint config.EndpointCfg) res_smtp.Config {

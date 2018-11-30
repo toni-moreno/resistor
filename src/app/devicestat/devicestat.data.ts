@@ -13,6 +13,7 @@ export const DeviceStatComponentConfig: any =
       { 'title': 'FilterTagKey', 'name': 'FilterTagKey','tooltip':'Name of the tag used for filtering' },
       { 'title': 'FilterTagValue', 'name': 'FilterTagValue','tooltip':'Value of the tag used for filtering. Regular expressions accepted.' },
       { 'title': 'Description', 'name': 'Description','tooltip':'Description of the Device Stat' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'devicestatcfg'
   };

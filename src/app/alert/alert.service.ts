@@ -17,6 +17,9 @@ export class AlertService {
         if ( (key == 'ExtraData' || key == 'AlertNotify')  && (value == null || value.length == 0) ) {
             return 0;
         }
+        if ( key == 'AlertNotify' ) {
+            return parseInt(value);
+        }
         if ( key == 'Endpoint' ) {
             return String(value).split(',');
         }

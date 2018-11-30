@@ -6,17 +6,18 @@ import "time"
 
 // DeviceStatCfg current stats by device
 type DeviceStatCfg struct {
-	ID             int64  `xorm:"'id' pk autoincr"`
-	OrderID        int64  `xorm:"orderid"`
-	DeviceID       string `xorm:"deviceid" binding:"Required"`
-	AlertID        string `xorm:"alertid" binding:"Required"`
-	ProductID      string `xorm:"productid" binding:"Required"`
-	ExceptionID    int64  `xorm:"exceptionid"`
-	Active         bool   `xorm:"active"`
-	BaseLine       string `xorm:"baseline"`
-	FilterTagKey   string `xorm:"filterTagKey"`
-	FilterTagValue string `xorm:"filterTagValue"`
-	Description    string `xorm:"description text"`
+	ID             int64     `xorm:"'id' pk autoincr"`
+	OrderID        int64     `xorm:"orderid"`
+	DeviceID       string    `xorm:"deviceid" binding:"Required"`
+	AlertID        string    `xorm:"alertid" binding:"Required"`
+	ProductID      string    `xorm:"productid" binding:"Required"`
+	ExceptionID    int64     `xorm:"exceptionid"`
+	Active         bool      `xorm:"active"`
+	BaseLine       string    `xorm:"baseline"`
+	FilterTagKey   string    `xorm:"filterTagKey"`
+	FilterTagValue string    `xorm:"filterTagValue"`
+	Description    string    `xorm:"description text"`
+	Imported       time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -26,11 +27,12 @@ func (DeviceStatCfg) TableName() string {
 
 // IfxServerCfg Influx server  config
 type IfxServerCfg struct {
-	ID          string `xorm:"'id' unique" binding:"Required"`
-	URL         string `xorm:"URL" binding:"Required"`
-	AdminUser   string `xorm:"adminuser"`
-	AdminPasswd string `xorm:"adminpasswod"`
-	Description string `xorm:"description text"`
+	ID          string    `xorm:"'id' unique" binding:"Required"`
+	URL         string    `xorm:"URL" binding:"Required"`
+	AdminUser   string    `xorm:"adminuser"`
+	AdminPasswd string    `xorm:"adminpasswod"`
+	Description string    `xorm:"description text"`
+	Imported    time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -52,6 +54,7 @@ type IfxDBCfg struct {
 	Retention    []string         `xorm:"retention" binding:"Required"`
 	Description  string           `xorm:"description text"`
 	Measurements []*ItemComponent `xorm:"-"`
+	Imported     time.Time        `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -61,11 +64,12 @@ func (IfxDBCfg) TableName() string {
 
 // IfxMeasurementCfg Measurement Definition
 type IfxMeasurementCfg struct {
-	ID          string   `xorm:"'id' pk" binding:"Required"`
-	Name        string   `xorm:"'name' not  null"`
-	Tags        []string `xorm:"tags text" binding:"Required"`
-	Fields      []string `xorm:"fields mediumtext" binding:"Required"`
-	Description string   `xorm:"description text"`
+	ID          string    `xorm:"'id' pk" binding:"Required"`
+	Name        string    `xorm:"'name' not  null"`
+	Tags        []string  `xorm:"tags text" binding:"Required"`
+	Fields      []string  `xorm:"fields mediumtext" binding:"Required"`
+	Description string    `xorm:"description text"`
+	Imported    time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -87,15 +91,16 @@ func (IfxDBMeasRel) TableName() string {
 
 // ProductCfg Product Catalog Config type
 type ProductCfg struct {
-	ID               string   `xorm:"'id' unique" binding:"Required"`
-	ProductTag       string   `xorm:"producttag" binding:"Required"`
-	CommonTags       []string `xorm:"commontags"`
-	ExtraTags        []string `xorm:"extratags"`
-	BaseLines        []string `xorm:"baselines"`
-	Measurements     []string `xorm:"measurements"`
-	AlertGroups      []string `xorm:"alertgroups"`
-	FieldResolutions []string `xorm:"fieldresolutions"`
-	Description      string   `xorm:"description text"`
+	ID               string    `xorm:"'id' unique" binding:"Required"`
+	ProductTag       string    `xorm:"producttag" binding:"Required"`
+	CommonTags       []string  `xorm:"commontags"`
+	ExtraTags        []string  `xorm:"extratags"`
+	BaseLines        []string  `xorm:"baselines"`
+	Measurements     []string  `xorm:"measurements"`
+	AlertGroups      []string  `xorm:"alertgroups"`
+	FieldResolutions []string  `xorm:"fieldresolutions"`
+	Description      string    `xorm:"description text"`
+	Imported         time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -105,9 +110,10 @@ func (ProductCfg) TableName() string {
 
 // ProductGroupCfg Product Group Catalog Config type
 type ProductGroupCfg struct {
-	ID          string   `xorm:"'id' unique" binding:"Required"`
-	Products    []string `xorm:"products"`
-	Description string   `xorm:"description text"`
+	ID          string    `xorm:"'id' unique" binding:"Required"`
+	Products    []string  `xorm:"products"`
+	Description string    `xorm:"description text"`
+	Imported    time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -117,9 +123,10 @@ func (ProductGroupCfg) TableName() string {
 
 // KapacitorCfg Kapacitor URL's config type
 type KapacitorCfg struct {
-	ID          string `xorm:"'id' unique" binding:"Required"`
-	URL         string `xorm:"URL" binding:"Required"`
-	Description string `xorm:"description text"`
+	ID          string    `xorm:"'id' unique" binding:"Required"`
+	URL         string    `xorm:"URL" binding:"Required"`
+	Description string    `xorm:"description text"`
+	Imported    time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -129,9 +136,10 @@ func (KapacitorCfg) TableName() string {
 
 // OperationCfg Operation instructions
 type OperationCfg struct {
-	ID          string `xorm:"'id' unique" binding:"Required"`
-	URL         string `xorm:"URL" binding:"Required"`
-	Description string `xorm:"description text"`
+	ID          string    `xorm:"'id' unique" binding:"Required"`
+	URL         string    `xorm:"URL" binding:"Required"`
+	Description string    `xorm:"description text"`
+	Imported    time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -141,11 +149,12 @@ func (OperationCfg) TableName() string {
 
 // RangeTimeCfg Range or periods Times definition config type
 type RangeTimeCfg struct {
-	ID          string `xorm:"'id' unique" binding:"Required"`
-	MaxHour     int    `xorm:"'max_hour' default 23"`
-	MinHour     int    `xorm:"'min_hour' default 0"`
-	WeekDays    string `xorm:"'weekdays' default '0123456'"`
-	Description string `xorm:"description text"`
+	ID          string    `xorm:"'id' unique" binding:"Required"`
+	MaxHour     int       `xorm:"'max_hour' default 23"`
+	MinHour     int       `xorm:"'min_hour' default 0"`
+	WeekDays    string    `xorm:"'weekdays' default '0123456'"`
+	Description string    `xorm:"description text"`
+	Imported    time.Time `xorm:"imported"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -167,7 +176,7 @@ func (RangeTimeCfg) TableName() string {
 // Stddev,
 // Sum
 
-// TemplateCfg Templating data strucr
+// TemplateCfg Templating data structure
 type TemplateCfg struct {
 	ID                      string    `xorm:"'id' unique" binding:"Required"`
 	TriggerType             string    `xorm:"triggertype" binding:"Required;In(DEADMAN,THRESHOLD,TREND)"` //deadman
@@ -179,6 +188,7 @@ type TemplateCfg struct {
 	TplData                 string    `xorm:"tpldata mediumtext"`
 	Description             string    `xorm:"description text"`
 	Modified                time.Time `xorm:"modified"`
+	Imported                time.Time `xorm:"imported"`
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 }
 
@@ -189,29 +199,30 @@ func (TemplateCfg) TableName() string {
 
 // EndpointCfg Alert Destination HTTP based backends config
 type EndpointCfg struct {
-	ID                 string   `xorm:"'id' unique" binding:"Required"`
-	Type               string   `xorm:"type"`
-	Description        string   `xorm:"description text"`
-	URL                string   `xorm:"url"`
-	Headers            []string `xorm:"headers"`
-	BasicAuthUsername  string   `xorm:"basicauthusername"`
-	BasicAuthPassword  string   `xorm:"basicauthpassword"`
-	LogFile            string   `xorm:"logfile"`
-	LogLevel           string   `xorm:"loglevel"`
-	Enabled            bool     `xorm:"enabled"`
-	Channel            string   `xorm:"channel"`
-	SlackUsername      string   `xorm:"slackusername"`
-	IconEmoji          string   `xorm:"iconemoji"`
-	SslCa              string   `xorm:"sslca"`
-	SslCert            string   `xorm:"sslcert"`
-	SslKey             string   `xorm:"sslkey"`
-	InsecureSkipVerify bool     `xorm:"insecureskipverify"`
-	Host               string   `xorm:"host"`
-	Port               int      `xorm:"port"`
-	Username           string   `xorm:"username"`
-	Password           string   `xorm:"password"`
-	From               string   `xorm:"from"`
-	To                 []string `xorm:"to"`
+	ID                 string    `xorm:"'id' unique" binding:"Required"`
+	Type               string    `xorm:"type"`
+	Description        string    `xorm:"description text"`
+	Imported           time.Time `xorm:"imported"`
+	URL                string    `xorm:"url"`
+	Headers            []string  `xorm:"headers"`
+	BasicAuthUsername  string    `xorm:"basicauthusername"`
+	BasicAuthPassword  string    `xorm:"basicauthpassword"`
+	LogFile            string    `xorm:"logfile"`
+	LogLevel           string    `xorm:"loglevel"`
+	Enabled            bool      `xorm:"enabled"`
+	Channel            string    `xorm:"channel"`
+	SlackUsername      string    `xorm:"slackusername"`
+	IconEmoji          string    `xorm:"iconemoji"`
+	SslCa              string    `xorm:"sslca"`
+	SslCert            string    `xorm:"sslcert"`
+	SslKey             string    `xorm:"sslkey"`
+	InsecureSkipVerify bool      `xorm:"insecureskipverify"`
+	Host               string    `xorm:"host"`
+	Port               int       `xorm:"port"`
+	Username           string    `xorm:"username"`
+	Password           string    `xorm:"password"`
+	From               string    `xorm:"from"`
+	To                 []string  `xorm:"to"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -299,6 +310,7 @@ type AlertIDCfg struct {
 	Modified                time.Time `xorm:"modified"`
 	ServersWOLastDeployment []string  `xorm:"servers_wo_last_deployment"`
 	LastDeploymentTime      time.Time `xorm:"last_deployment_time"`
+	Imported                time.Time `xorm:"imported"`
 }
 
 //AlertIDCfgJSON structure with data info in json

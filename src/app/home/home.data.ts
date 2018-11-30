@@ -49,12 +49,6 @@ export const HomeComponentConfig: any =
         {'title': 'Agent status', 'selector' : 'runtime', 'data': null}
       ]
     },
-    {'groupName' : 'Influx Catalog', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
-    [
-      {'title': 'Influx Databases', 'selector' : 'ifdb-component', 'type': 'component', 'data': IfxDBComponent},
-      {'title': 'Influx Measurements', 'selector' : 'ifmeasurement-component', 'type': 'component', 'data': IfxMeasurementComponent}
-    ]
-    },
     {'groupName' : 'External Server Config', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
     [
       {'title': 'Influx DB Servers ', 'selector' : 'ifxserver-component', 'type': 'component', 'data': IfxServerComponent},
@@ -62,6 +56,12 @@ export const HomeComponentConfig: any =
       {'title': 'Alerting Endpoints', 'selector' : 'endpoint-component', 'type': 'component', 'data': EndpointComponent},
     ]
     }, 
+    {'groupName' : 'Influx Catalog', 'icon': 'glyphicon glyphicon-play', 'expanded': true, 'items':
+    [
+      {'title': 'Influx Databases', 'selector' : 'ifdb-component', 'type': 'component', 'data': IfxDBComponent},
+      {'title': 'Influx Measurements', 'selector' : 'ifmeasurement-component', 'type': 'component', 'data': IfxMeasurementComponent}
+    ]
+    },
     {'groupName' : 'Configuration', 'icon': 'glyphicon glyphicon-cog', 'expanded': true, 'items':
       [
         {'title': 'Operation', 'selector' : 'operation-component', 'type': 'component', 'data': OperationComponent},

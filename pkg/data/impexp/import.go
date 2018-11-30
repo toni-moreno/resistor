@@ -207,6 +207,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 		suffix = "_" + strconv.FormatInt(timestamp, 10)
 	}
 	log.Debugf("suffix: %s", suffix)
+	tNowUTC := time.Now().UTC()
 	for i := 0; i < len(e.Objects); i++ {
 		o := e.Objects[i]
 		o.Error = "" //reset error if exists
@@ -226,6 +227,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing rangetimecfg : %+v", o.ObjectCfg)
 			data := config.RangeTimeCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetRangeTimeCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -248,6 +250,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing ifxservercfg : %+v", o.ObjectCfg)
 			data := config.IfxServerCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetIfxServerCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -266,10 +269,57 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			if err != nil {
 				return err
 			}
+		case "ifxdbcfg":
+			log.Debugf("Importing ifxdbcfg : %+v", o.ObjectCfg)
+			data := config.IfxDBCfg{}
+			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
+			var err error
+			_, err = dbc.GetIfxDBCfgByID(o.ObjectID)
+			if err == nil { //value exist already in the database
+				if overwrite == true {
+					_, err2 := dbc.UpdateIfxDBCfg(o.ObjectID, &data)
+					if err2 != nil {
+						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
+					}
+					break
+				}
+			}
+			if autorename == true {
+				data.ID = data.ID + suffix
+			}
+			_, err = dbc.AddIfxDBCfg(&data)
+			if err != nil {
+				return err
+			}
+		case "ifxmeasurementcfg":
+			log.Debugf("Importing ifxmeasurementcfg : %+v", o.ObjectCfg)
+			data := config.IfxMeasurementCfg{}
+			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
+			var err error
+			_, err = dbc.GetIfxMeasurementCfgByID(o.ObjectID)
+			if err == nil { //value exist already in the database
+				if overwrite == true {
+					_, err2 := dbc.UpdateIfxMeasurementCfg(o.ObjectID, &data)
+					if err2 != nil {
+						return fmt.Errorf("Error on overwrite object [%s] %s : %s", o.ObjectTypeID, o.ObjectID, err2)
+					}
+					break
+				}
+			}
+			if autorename == true {
+				data.ID = data.ID + suffix
+			}
+			_, err = dbc.AddIfxMeasurementCfg(&data)
+			if err != nil {
+				return err
+			}
 		case "kapacitorcfg":
 			log.Debugf("Importing kapacitorcfg : %+v", o.ObjectCfg)
 			data := config.KapacitorCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetKapacitorCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -292,6 +342,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing operationcfg : %+v", o.ObjectCfg)
 			data := config.OperationCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetOperationCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -314,6 +365,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing productcfg : %+v", o.ObjectCfg)
 			data := config.ProductCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetProductCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -336,6 +388,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing productgroupcfg : %+v", o.ObjectCfg)
 			data := config.ProductGroupCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetProductGroupCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -358,6 +411,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing endpointcfg : %+v", o.ObjectCfg)
 			data := config.EndpointCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetEndpointCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -380,6 +434,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing alertcfg : %+v", o.ObjectCfg)
 			data := config.AlertIDCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetAlertIDCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -408,6 +463,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing devicestatcfg : %+v", o.ObjectCfg)
 			data := config.DeviceStatCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			idInt64, err := strconv.ParseInt(o.ObjectID, 10, 64)
 			if err != nil {
@@ -435,6 +491,7 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			log.Debugf("Importing templatecfg : %+v", o.ObjectCfg)
 			data := config.TemplateCfg{}
 			json.Unmarshal(raw, &data)
+			data.Imported = tNowUTC
 			var err error
 			_, err = dbc.GetTemplateCfgByID(o.ObjectID)
 			if err == nil { //value exist already in the database
@@ -451,7 +508,6 @@ func (e *ExportData) Import(overwrite bool, autorename bool) error {
 			if autorename == true {
 				data.ID = data.ID + suffix
 			}
-			data.Modified = time.Now().UTC()
 			kapa.DeployKapaTemplate(data)
 			_, err = dbc.AddTemplateCfg(&data)
 			if err != nil {

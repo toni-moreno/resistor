@@ -159,22 +159,38 @@ func ExportObjectToFile(ctx *Context, info impexp.ExportInfo) {
 
 // BulkExportObjectToFile bulk export to file
 func BulkExportObjectToFile(ctx *Context, data impexp.ExportData) {
-	log.Debugf("DATA %#+v", data)
+	log.Debugf("BulkExportObjectToFile. DATA %#+v", data)
 	exp := impexp.NewExport(data.Info)
-	for _, obj := range data.Objects {
-		var recursive bool
-		if obj.Options != nil {
-			recursive = obj.Options.Recursive
-		} else {
-			recursive = true
+	if len(data.Objects) > 0 {
+		for _, obj := range data.Objects {
+			var recursive bool
+			if obj.Options != nil {
+				recursive = obj.Options.Recursive
+			} else {
+				recursive = true
+			}
+			err := exp.Export(obj.ObjectTypeID, obj.ObjectID, recursive, 0)
+			if err != nil {
+				log.Errorf("Error on create Export Data  for object  %s: %s with: %s", obj.ObjectTypeID, obj.ObjectID, err)
+				ctx.JSON(404, err.Error())
+				return
+			}
+			log.Infof("Object type  %s| with ID: %s | exported Successfully with recursive=%t", obj.ObjectTypeID, obj.ObjectID, recursive)
 		}
-		err := exp.Export(obj.ObjectTypeID, obj.ObjectID, recursive, 0)
-		if err != nil {
-			log.Errorf("Error on create Export Data  for object  %s: %s with: %s", obj.ObjectTypeID, obj.ObjectID, err)
-			ctx.JSON(404, err.Error())
-			return
+	} else {
+		// Get ObjectTypeID and ObjectID for all the objects to export from Resistor DB
+		// and call exp.Export with recursive=false and level=0
+		recursive := false
+		objtypes := []string{"alertcfg", "devicestatcfg", "endpointcfg", "ifxdbcfg", "ifxmeasurementcfg", "ifxservercfg", "kapacitorcfg", "operationcfg", "productcfg", "productgroupcfg", "rangetimecfg", "templatecfg"}
+		for _, objtype := range objtypes {
+			err := exp.Export(objtype, "", recursive, 0)
+			if err != nil {
+				log.Errorf("Error on create Export Data for objecttype %s with: %s", objtype, err)
+				ctx.JSON(404, err.Error())
+				return
+			}
+			log.Infof("Object type %s exported Successfully with recursive=%t", objtype, recursive)
 		}
-		log.Infof("Object type  %s| with ID: %s | exported Successfully %t", obj.ObjectTypeID, obj.ObjectID, recursive)
 	}
 
 	generateFile(ctx, exp)

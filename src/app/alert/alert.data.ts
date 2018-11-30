@@ -51,7 +51,8 @@ export const AlertComponentConfig: any =
       { 'title': 'AlertExtraText', 'name': 'AlertExtraText' },
       { 'title': 'KapacitorID', 'name': 'KapacitorID' },
       { 'title': 'LastDeploymentTime', 'name':'LastDeploymentTime', 'transform':'datetime' },
-      { 'title': 'Endpoint', 'name': 'Endpoint' }
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
+      { 'title': 'Endpoint', 'name': 'Endpoint' },
     ],
     'slug' : 'alertcfg'
   };

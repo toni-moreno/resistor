@@ -553,13 +553,29 @@ func (m *resInjectorHandler) CheckTime(p *agent.Point) (bool, bool, bool, error)
 
 	log.Debugf("Point WeekDay: %s Hour: %d", wd, h)
 
-	critok := (h >= m.critHmin) && (h <= m.critHmax) && strings.Contains(m.critWeekDay, wd)
-	warnok := (h >= m.warnHmin) && (h <= m.warnHmax) && strings.Contains(m.warnWeekDay, wd)
-	infook := (h >= m.infoHmin) && (h <= m.infoHmax) && strings.Contains(m.infoWeekDay, wd)
+	critok := matchRangeTime(h, m.critHmin, m.critHmax, m.critWeekDay, wd)
+	warnok := matchRangeTime(h, m.warnHmin, m.warnHmax, m.warnWeekDay, wd)
+	infook := matchRangeTime(h, m.infoHmin, m.infoHmax, m.infoWeekDay, wd)
 
 	log.Debugf("Point TimeCheck CRIT: %t  WARN: %t INFO: %t", critok, warnok, infook)
 
 	return critok, warnok, infook, nil
+}
+
+func matchRangeTime(h int, hmin int, hmax int, wkdays string, wd string) bool {
+	b := false
+	if strings.Contains(wkdays, wd) {
+		if hmin < hmax {
+			// min and max hours are in the same day
+			// current hour is between min and max hours
+			b = (h >= hmin) && (h <= hmax)
+		} else {
+			// min and max hours are in different days
+			// current hour is between min and max hours
+			b = (h >= hmin) || (h <= hmax)
+		}
+	}
+	return b
 }
 
 //SetDefault Sets default values on mon_exc, check_crit, check_warn and check_info

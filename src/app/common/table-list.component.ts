@@ -101,7 +101,7 @@ export class TableListComponent implements OnInit, OnChanges {
   @Input() counterInfos: any = 0;
   @Input() selectedArray: any = [];
   @Input() isRequesting: boolean = false;
-
+  @Input() overrideEditEnabled : boolean = false;
   @Input() tableRole : any = 'fulledit';
   @Input() roleActions : any = [
     {'name':'export', 'type':'icon', 'icon' : 'glyphicon glyphicon-download-alt text-info', 'tooltip': 'Export item'},
@@ -109,7 +109,7 @@ export class TableListComponent implements OnInit, OnChanges {
     {'name':'edit', 'type':'icon', 'icon' : 'glyphicon glyphicon-edit text-warning', 'tooltip': 'Edit item'},
     {'name':'remove', 'type':'icon', 'icon' : 'glyphicon glyphicon glyphicon-remove text-danger', 'tooltip': 'Remove item'}
   ]
-
+  @Input() public tableAvailableActions: any;
   @Input() sanitizeCell: Function;
   @Output() public customClicked: EventEmitter<any> = new EventEmitter();
 
@@ -125,7 +125,6 @@ export class TableListComponent implements OnInit, OnChanges {
   public firstPageShown: number = 1;
   public lastPageShown: number = 1;
   public length: number = 0;
-  public tableAvailableActions: any;
   public myFilterValue: any;
   public sortColumn = '';
   public sortDir = '';
@@ -163,7 +162,10 @@ export class TableListComponent implements OnInit, OnChanges {
   enableEdit() {
     this.editEnabled = !this.editEnabled;
     let obsArray = [];
-    this.tableAvailableActions = new AvailableTableActions(this.typeComponent).availableOptions;
+    if (this.editEnabled === true) {
+      if (this.overrideEditEnabled) this.customClick('editenabled',this.editEnabled);
+      else this.tableAvailableActions = new AvailableTableActions(this.typeComponent).availableOptions;
+    }
   }
 
   public changePage(page: any, data: Array<any> = this.data): Array<any> {

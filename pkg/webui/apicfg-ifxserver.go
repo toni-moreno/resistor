@@ -139,6 +139,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 		return
 	}
 
+	tNowUTC := time.Now().UTC()
 	dbs := getInfluxDBs(cli)
 	for _, db := range dbs {
 		rps := getDBRetention(cli, db)
@@ -158,7 +159,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 		//dbid=ifxserver-dbname
 		dbid := dev.ID + "-" + db
 		log.Debugf("ImportIfxCatalog. AddOrUpdateIfxDBCfg with dbid: %s", dbid)
-		dbcfg := config.IfxDBCfg{ID: dbid, Name: db, IfxServer: dev.ID, Retention: rps, Measurements: itemarray}
+		dbcfg := config.IfxDBCfg{ID: dbid, Name: db, IfxServer: dev.ID, Retention: rps, Measurements: itemarray, Imported: tNowUTC}
 		_, err := agent.MainConfig.Database.AddOrUpdateIfxDBCfg(&dbcfg)
 		if err != nil {
 			log.Errorf("ImportIfxCatalog. Error on Importing Influx DBs: %s Err: %s", dev.ID, err)
@@ -171,7 +172,7 @@ func ImportIfxCatalog(ctx *Context, dev config.IfxServerCfg) {
 			msmtid := dev.ID + "-" + db + "-" + m
 			tags := getMeasurementsTags(cli, db, m)
 			fields := getMeasurementsFields(cli, db, m)
-			mcfg := config.IfxMeasurementCfg{ID: msmtid, Name: m, Tags: tags, Fields: fields}
+			mcfg := config.IfxMeasurementCfg{ID: msmtid, Name: m, Tags: tags, Fields: fields, Imported: tNowUTC}
 			log.Debugf("ImportIfxCatalog. AddOrUpdateIfxMeasurementCfg with msmtid: %s", msmtid)
 			_, err := agent.MainConfig.Database.AddOrUpdateIfxMeasurementCfg(&mcfg)
 			if err != nil {

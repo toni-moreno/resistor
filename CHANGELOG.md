@@ -1,5 +1,27 @@
 # CHANGELOG.md
 
+## v 0.6.5  (30/11/2018)
+
+### New features.
+
+* New bulk actions added for lists on several components.
+* Added new button on Export Data to do a Bulk Export.
+  * This export also includes the export of InfluxDB catalog.
+* Tables from InfluxDB catalog can be imported from a JSON file.
+* Imported datetime added in all tables which can be imported.
+* The message shown to the user when trying to create a duplicated alert has been modified.
+* Added more information into the body for email endpoint.
+* Tooltip for Trend Sign on Alert Definition modified.
+* New validator for WeekDays field on Range Time component.
+* Order on left menu modified to put Influx Catalog under External Server Config.
+
+### fixes
+
+* Fix in resinjector UDF to use Range Times with start and end times in different days.
+
+### breaking changes
+
+
 ## v 0.6.4  (22/11/2018)
 
 ### New features.

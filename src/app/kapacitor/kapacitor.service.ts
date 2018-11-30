@@ -31,6 +31,26 @@ export class KapacitorService {
         .map( (responseData) => {
             return responseData.json();
         })
+        .map((kapacitors) => {
+            console.log("MAP SERVICE",kapacitors);
+            let result = [];
+            if (kapacitors) {
+                _.forEach(kapacitors,function(value,key){
+                    console.log("FOREACH LOOP",value,value.ID);
+                    if(filter_s && filter_s.length > 0 ) {
+                        console.log("maching: "+value.ID+ "filter: "+filter_s);
+                        var re = new RegExp(filter_s, 'gi');
+                        if (value.ID.match(re)){
+                            result.push(value);
+                        }
+                        console.log(value.ID.match(re));
+                    } else {
+                        result.push(value);
+                    }
+                });
+            }
+            return result;
+        });
     }
 
     getKapacitorItemById(id : string) {

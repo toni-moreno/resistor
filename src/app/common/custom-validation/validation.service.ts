@@ -16,6 +16,7 @@ export class ValidationService {
             'invalidUIntegerNotZero': 'Invalid Number . Must be a Unsigned (positive) Integer not Zero',
             'invalidUIntegerAndLessOne': 'Invalid Number . Must be a Unsigned (positive) Integer or -1',
             'invalidHour': 'Invalid hour. Must be between 0 and 23', 
+            'invalidWeekdays': 'Invalid Weekdays. Must be a string of numbers between 0 (Sunday) and 6 (Saturday).',
             'invalidDuration': 'Invalid duration. A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". ', 
         };
 
@@ -99,7 +100,7 @@ export class ValidationService {
 
     static hourValidator(control) {
         if (control.value){
-            if (control.value > 0 && control.value < 24) {
+            if (control.value >= 0 && control.value < 24) {
                 return null;
             } else {
                 return { 'invalidHour': true };
@@ -173,6 +174,16 @@ export class ValidationService {
                 return null;
             } else {
                 return { 'invalidDuration': true };
+            }
+        }
+    }
+
+    static weekdaysValidator(control) {
+        if (control.value){
+            if (control.value.toString().match(/^[0-6]+$/)) {
+                return null;
+            } else {
+                return { 'invalidWeekdays': true };
             }
         }
     }

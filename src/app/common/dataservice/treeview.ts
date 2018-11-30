@@ -58,6 +58,8 @@ export class TreeView {
     "alertcfg": 'danger',
     "devicestatcfg": 'info',
     "ifxservercfg": 'success',
+    "ifxdbcfg": 'warning',
+    "ifxmeasurementcfg": 'info',
     "kapacitorcfg": 'primary',
     "endpointcfg": 'default',
     "productcfg": 'warning',

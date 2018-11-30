@@ -5,7 +5,8 @@ export const IfxServerComponentConfig: any =
       { 'title': 'ID', 'name': 'ID' },
       { 'title': 'Connection URL', 'name': 'URL' },
       { 'title': 'Admin User', 'name': 'AdminUser' },
-      { 'title': 'Description', 'name': 'Description' }
+      { 'title': 'Description', 'name': 'Description' },
+      { 'title': 'Imported', 'name': 'Imported','transform':'datetime' },
     ],
     'slug' : 'ifxservercfg'
   };
