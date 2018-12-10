@@ -1,5 +1,19 @@
 # CHANGELOG.md
 
+## v 0.6.6  (10/12/2018)
+
+### New features.
+
+* New parameter 'maxrows' on [alerting] section of config file.
+  * Maximum number of rows to show on lists for alert_avent or alert_event_hist
+  * Example: maxrows = 2000
+
+### fixes
+
+
+### breaking changes
+
+
 ## v 0.6.5  (30/11/2018)
 
 ### New features.

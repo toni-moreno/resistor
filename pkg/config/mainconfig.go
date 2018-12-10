@@ -65,6 +65,7 @@ type EndpointsCfg struct {
 //AlertingCfg alerting config options
 type AlertingCfg struct {
 	CleanPeriod           string `toml:"cleanperiod"`
+	MaxRows               int64  `toml:"maxrows"`
 	ResistorURL           string `toml:"resistorurl"`
 	CorrelationIDTemplate string `toml:"correlationidtemplate"`
 }

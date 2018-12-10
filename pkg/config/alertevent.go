@@ -67,9 +67,9 @@ func (dbc *DatabaseCfg) GetAlertEventsByLevelArray(filter string) ([]*AlertEvent
 	return alevtsummarray, nil
 }
 
-/*GetAlertEventArrayWithParams generate an array of alert events with all its information */
-func (dbc *DatabaseCfg) GetAlertEventArrayWithParams(filter string, page int64, itemsPerPage int64, maxSize int64, sortColumn string, sortDir string) ([]*AlertEvent, error) {
-	log.Debugf("Getting AlertEvent data filtered with filter: %s, page: %d, itemsPerPage: %d, maxSize: %d, sortColumn: %s, sortDir: %s", filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
+/*GetAlertEventArrayWithParams generate an array of alert events with all their information */
+func (dbc *DatabaseCfg) GetAlertEventArrayWithParams(filter string, maxrows int64, page int64, itemsPerPage int64, maxSize int64, sortColumn string, sortDir string) ([]*AlertEvent, error) {
+	log.Debugf("Getting AlertEvent data filtered with filter: %s, maxrows: %d, page: %d, itemsPerPage: %d, maxSize: %d, sortColumn: %s, sortDir: %s", filter, maxrows, page, itemsPerPage, maxSize, sortColumn, sortDir)
 	var err error
 	var alevts []*AlertEvent
 	/*
@@ -90,9 +90,11 @@ func (dbc *DatabaseCfg) GetAlertEventArrayWithParams(filter string, page int64, 
 	if len(sortDir) > 0 {
 		sqlquery = sqlquery + " " + sortDir
 	}
-	if itemsPerPage > 0 && maxSize > 0 {
-		limit := itemsPerPage * maxSize
-		sqlquery = sqlquery + " LIMIT " + strconv.FormatInt(limit, 10)
+	if maxrows > 0 {
+		sqlquery = sqlquery + " LIMIT " + strconv.FormatInt(maxrows, 10)
+	} else if itemsPerPage > 0 && maxSize > 0 {
+		maxrows = itemsPerPage * maxSize
+		sqlquery = sqlquery + " LIMIT " + strconv.FormatInt(maxrows, 10)
 	}
 	if itemsPerPage > 0 && maxSize > 0 && page > 0 {
 		offset := itemsPerPage * maxSize * ((page - 1) / maxSize)
