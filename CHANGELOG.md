@@ -1,5 +1,22 @@
 # CHANGELOG.md
 
+## v 0.6.7  (19/12/2018)
+
+### New features.
+
+* New field 'resistor-dashboardurl' on tables alert_event and alert_event_hist.
+  * This field shows the ResistorDashboardURL for Alert Events
+* Width of modal window set to 900px
+
+### fixes
+
+* from and to parameters for DashboardURL of Alert Events modified.
+  * from="eventTime - 2h"
+  * to="eventTime + 1h"
+
+### breaking changes
+
+
 ## v 0.6.6  (10/12/2018)
 
 ### New features.
