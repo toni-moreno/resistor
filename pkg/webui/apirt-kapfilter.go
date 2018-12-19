@@ -76,7 +76,7 @@ func RTAlertHandler(ctx *Context, al alert.Data) {
 	//Save current alert event and move previous alert event
 	alertevent := saveAlertEvent(correlationID, al, alertcfg, sortedtagsarray)
 	//makeTaskAlertInfo
-	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, correlationID, alertevent.FirstEventTime, alertevent.EventTime)
+	taskAlertInfo, err := makeTaskAlertInfo(al, alertcfg, correlationID, alertevent.ResistorDashboardURL, alertevent.FirstEventTime, alertevent.EventTime)
 	if err != nil {
 		log.Warningf("RTAlertHandler. Error making taskAlertInfo. Error: %s", err)
 	}
@@ -142,6 +142,7 @@ func makeAlertEvent(correlationID string, al alert.Data, alertcfg config.AlertID
 			alertevent.MonExc = fmt.Sprintf("%v", valuesarray[colidx])
 		}
 	}
+	alertevent.ResistorDashboardURL = makeDashboardURL(al.Data.Series[0].Tags, al, alertcfg, alertevent.FirstEventTime, alertevent.EventTime)
 	return alertevent
 }
 
@@ -226,7 +227,7 @@ func addAlertEvent(dev config.AlertEvent) error {
 	return err
 }
 
-func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correlationID string, firsteventtime time.Time, eventtime time.Time) (TaskAlertInfo, error) {
+func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correlationID string, resistorDashboardURL string, firsteventtime time.Time, eventtime time.Time) (TaskAlertInfo, error) {
 	var taskAlertInfo = TaskAlertInfo{}
 	var err error
 
@@ -289,7 +290,7 @@ func makeTaskAlertInfo(alertkapa alert.Data, alertcfg config.AlertIDCfg, correla
 	taskAlertInfo.ResistorAlertInfo.ProductGroup = getResistorAlertProdGrp(alertcfg.ProductID)
 	taskAlertInfo.ResistorOperationID = alertcfg.OperationID
 	taskAlertInfo.ResistorOperationURL = getResistorAlertOperationURL(alertcfg.OperationID)
-	taskAlertInfo.ResistorDashboardURL = makeDashboardURL(taskAlertInfo.ResistorAlertTags, alertkapa, alertcfg, firsteventtime, eventtime)
+	taskAlertInfo.ResistorDashboardURL = resistorDashboardURL
 
 	//log json
 	jsonArByt, err = json.Marshal(taskAlertInfo)
@@ -388,12 +389,12 @@ func makeDashboardURL(rat map[string]string, alertkapa alert.Data, alertcfg conf
 
 	//Add time parameters
 	timefrom := ""
-	if !firsteventtime.IsZero() {
-		timefrom = strconv.FormatInt(firsteventtime.Add(-2*time.Hour).Unix()*1000, 10) // firsteventtime - 2h (in ms)
+	if !eventtime.IsZero() {
+		timefrom = strconv.FormatInt(eventtime.Add(-2*time.Hour).Unix()*1000, 10) // eventtime - 2h (in ms)
 	}
 	timeto := ""
 	if !eventtime.IsZero() {
-		timeto = strconv.FormatInt(eventtime.Add(15*time.Minute).Unix()*1000, 10) // eventtime + 15m (in ms)
+		timeto = strconv.FormatInt(eventtime.Add(1*time.Hour).Unix()*1000, 10) // eventtime + 1h (in ms)
 	}
 	sDashboardURL += "?var-time_interval=$__auto_interval"
 	if len(timefrom) > 0 {

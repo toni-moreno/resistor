@@ -358,22 +358,23 @@ func (AlertIDCfg) TableName() string {
 // AlertEventHist is a structure that contains relevant data about an alert event.
 // The structure is intended to be JSON encoded, providing a consistent data format.
 type AlertEventHist struct {
-	ID              int64         `xorm:"'id' pk"`
-	CorrelationID   string        `xorm:"correlationid"`
-	AlertID         string        `xorm:"alertid"`
-	ProductID       string        `xorm:"productid"`
-	ProductTagValue string        `xorm:"producttagvalue"`
-	Field           string        `xorm:"field"`
-	Message         string        `xorm:"message"`
-	Details         string        `xorm:"details text"`
-	FirstEventTime  time.Time     `xorm:"firsteventtime"`
-	EventTime       time.Time     `xorm:"eventtime"`
-	Duration        time.Duration `xorm:"duration"`
-	Level           string        `xorm:"level"`
-	PreviousLevel   string        `xorm:"previousLevel"`
-	Tags            []string      `xorm:"tags"`
-	Value           float64       `xorm:"value"`
-	MonExc          string        `xorm:"mon_exc"`
+	ID                   int64         `xorm:"'id' pk"`
+	CorrelationID        string        `xorm:"correlationid"`
+	AlertID              string        `xorm:"alertid"`
+	ProductID            string        `xorm:"productid"`
+	ProductTagValue      string        `xorm:"producttagvalue"`
+	Field                string        `xorm:"field"`
+	Message              string        `xorm:"message"`
+	Details              string        `xorm:"details text"`
+	ResistorDashboardURL string        `xorm:"resistor-dashboardurl text"`
+	FirstEventTime       time.Time     `xorm:"firsteventtime"`
+	EventTime            time.Time     `xorm:"eventtime"`
+	Duration             time.Duration `xorm:"duration"`
+	Level                string        `xorm:"level"`
+	PreviousLevel        string        `xorm:"previousLevel"`
+	Tags                 []string      `xorm:"tags"`
+	Value                float64       `xorm:"value"`
+	MonExc               string        `xorm:"mon_exc"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
@@ -384,22 +385,23 @@ func (AlertEventHist) TableName() string {
 // AlertEvent is a structure that contains relevant data about an alert event.
 // The structure is intended to be JSON encoded, providing a consistent data format.
 type AlertEvent struct {
-	ID              int64         `xorm:"'id' pk autoincr"`
-	CorrelationID   string        `xorm:"correlationid"`
-	AlertID         string        `xorm:"alertid"`
-	ProductID       string        `xorm:"productid"`
-	ProductTagValue string        `xorm:"producttagvalue"`
-	Field           string        `xorm:"field"`
-	Message         string        `xorm:"message"`
-	Details         string        `xorm:"details text"`
-	FirstEventTime  time.Time     `xorm:"firsteventtime"`
-	EventTime       time.Time     `xorm:"eventtime"`
-	Duration        time.Duration `xorm:"duration"`
-	Level           string        `xorm:"level"`
-	PreviousLevel   string        `xorm:"previousLevel"`
-	Tags            []string      `xorm:"tags"`
-	Value           float64       `xorm:"value"`
-	MonExc          string        `xorm:"mon_exc"`
+	ID                   int64         `xorm:"'id' pk autoincr"`
+	CorrelationID        string        `xorm:"correlationid"`
+	AlertID              string        `xorm:"alertid"`
+	ProductID            string        `xorm:"productid"`
+	ProductTagValue      string        `xorm:"producttagvalue"`
+	Field                string        `xorm:"field"`
+	Message              string        `xorm:"message"`
+	Details              string        `xorm:"details text"`
+	ResistorDashboardURL string        `xorm:"resistor-dashboardurl text"`
+	FirstEventTime       time.Time     `xorm:"firsteventtime"`
+	EventTime            time.Time     `xorm:"eventtime"`
+	Duration             time.Duration `xorm:"duration"`
+	Level                string        `xorm:"level"`
+	PreviousLevel        string        `xorm:"previousLevel"`
+	Tags                 []string      `xorm:"tags"`
+	Value                float64       `xorm:"value"`
+	MonExc               string        `xorm:"mon_exc"`
 }
 
 // TableName go-xorm way to set the Table name to something different to "alert_h_t_t_p_out_rel"
