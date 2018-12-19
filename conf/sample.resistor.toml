@@ -111,6 +111,8 @@
 [alerting]
  #Period used to move alert events with status OK from alert_avent to alert_event_hist
  cleanperiod = "3m"
+ #Maximum number of rows to show on lists for alert_avent or alert_event_hist
+ maxrows = 2000
  #Resistor URL. Kapacitor uses this URL to post alerts to Resistor
  #resistorurl = "http://resistorip:resistorport"
  #Template for constructing a unique ID for a given alert. The ID will be: taskName + "|" + correlation_id_template

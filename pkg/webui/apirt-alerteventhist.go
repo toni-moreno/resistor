@@ -53,7 +53,8 @@ func GetAlertEventHistWithParams(ctx *Context) {
 			sortDir = paramkvarray[1]
 		}
 	}
-	alevtarray, err := agent.MainConfig.Database.GetAlertEventHistArrayWithParams(filter, page, itemsPerPage, maxSize, sortColumn, sortDir)
+	maxrows := agent.MainConfig.Alerting.MaxRows
+	alevtarray, err := agent.MainConfig.Database.GetAlertEventHistArrayWithParams(filter, maxrows, page, itemsPerPage, maxSize, sortColumn, sortDir)
 	if err != nil {
 		ctx.JSON(404, err.Error())
 		log.Errorf("Error getting AlertEventHist:%+s", err)
