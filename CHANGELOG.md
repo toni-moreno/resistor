@@ -1,5 +1,16 @@
 # CHANGELOG.md
 
+## v 0.6.8 (09/01/2019)
+
+### New features.
+
+### fixes
+
+* Fixed error when creating a new alert.
+
+### breaking changes
+
+
 ## v 0.6.7  (19/12/2018)
 
 ### New features.
