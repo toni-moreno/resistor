@@ -168,6 +168,7 @@ type linuxPackageOptions struct {
 	etcDefaultFilePath     string
 	initdScriptFilePath    string
 	systemdServiceFilePath string
+	useTemplates           bool
 
 	postinstSrc    string
 	initdScriptSrc string
@@ -192,13 +193,14 @@ func createDebPackages() {
 		etcDefaultFilePath:     "/etc/default/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",
 		systemdServiceFilePath: "/usr/lib/systemd/system/resistor.service",
+		useTemplates:           true,
 
 		postinstSrc:    "packaging/deb/control/postinst",
 		initdScriptSrc: "packaging/deb/init.d/resistor",
 		defaultFileSrc: "packaging/deb/default/resistor",
 		systemdFileSrc: "packaging/deb/systemd/resistor.service",
 
-		depends: []string{"adduser"},
+		depends: []string{"adduser", "curl", "python"},
 	})
 
 	createFpmPackage(linuxPackageOptions{
@@ -215,6 +217,7 @@ func createDebPackages() {
 		etcDefaultFilePath:     "/etc/default/resinjector",
 		initdScriptFilePath:    "/etc/init.d/resinjector",
 		systemdServiceFilePath: "/usr/lib/systemd/system/resinjector.service",
+		useTemplates:           false,
 
 		postinstSrc:    "packaging/deb/control/postinst-resinjector",
 		initdScriptSrc: "packaging/deb/init.d/resinjector",
@@ -240,13 +243,14 @@ func createRpmPackages() {
 		etcDefaultFilePath:     "/etc/sysconfig/resistor",
 		initdScriptFilePath:    "/etc/init.d/resistor",
 		systemdServiceFilePath: "/usr/lib/systemd/system/resistor.service",
+		useTemplates:           true,
 
 		postinstSrc:    "packaging/rpm/control/postinst",
 		initdScriptSrc: "packaging/rpm/init.d/resistor",
 		defaultFileSrc: "packaging/rpm/sysconfig/resistor",
 		systemdFileSrc: "packaging/rpm/systemd/resistor.service",
 
-		depends: []string{"initscripts"},
+		depends: []string{"initscripts", "curl", "python"},
 	})
 
 	createFpmPackage(linuxPackageOptions{
@@ -263,6 +267,7 @@ func createRpmPackages() {
 		etcDefaultFilePath:     "/etc/sysconfig/resinjector",
 		initdScriptFilePath:    "/etc/init.d/resinjector",
 		systemdServiceFilePath: "/usr/lib/systemd/system/resinjector.service",
+		useTemplates:           false,
 
 		postinstSrc:    "packaging/rpm/control/postinst-resinjector",
 		initdScriptSrc: "packaging/rpm/init.d/resinjector",
@@ -293,6 +298,7 @@ func createMinTar() {
 	runPrint("cp", "bin/resinjector", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("cp", "bin/resinjector.md5", filepath.Join(packageRoot, "/opt/resistor/bin"))
 	runPrint("cp", "-a", filepath.Join(workingDir, "public")+"/.", filepath.Join(packageRoot, "/opt/resistor/public"))
+	runPrint("cp", "-a", filepath.Join(workingDir, "templates")+"/.", filepath.Join(packageRoot, "/opt/resistor/templates"))
 	tarname := fmt.Sprintf("dist/resistor-%s-%s_%s_%s.tar.gz", version, getGitSha(), runtime.GOOS, runtime.GOARCH)
 	runPrint("tar", "zcvf", tarname, "-C", packageRoot, ".")
 	runPrint("rm", "-rf", packageRoot)
@@ -303,6 +309,7 @@ func createFpmPackage(options linuxPackageOptions) {
 
 	// create directories
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, options.homeDir))
+	runPrint("mkdir", "-p", filepath.Join(packageRoot, options.homeDir+"/templates"))
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, options.configDir))
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, "/etc/init.d"))
 	runPrint("mkdir", "-p", filepath.Join(packageRoot, options.etcDefaultPath))
@@ -320,6 +327,9 @@ func createFpmPackage(options linuxPackageOptions) {
 	// copy release files
 	if len(options.homeDir) > 0 {
 		runPrint("cp", "-a", filepath.Join(workingDir+"/public"), filepath.Join(packageRoot, options.homeDir))
+	}
+	if options.useTemplates {
+		runPrint("cp", "-a", filepath.Join(workingDir+"/templates"), filepath.Join(packageRoot, options.homeDir+"/templates"))
 	}
 	// remove bin path
 	runPrint("rm", "-rf", filepath.Join(packageRoot, options.homeDir, "bin"))
@@ -453,6 +463,7 @@ func rmr(paths ...string) {
 func clean() {
 	//	rmr("bin", "Godeps/_workspace/pkg", "Godeps/_workspace/bin")
 	rmr("public")
+	rmr("templates/generated_tpls")
 	//rmr("tmp")
 	rmr(filepath.Join(os.Getenv("GOPATH"), fmt.Sprintf("pkg/%s_%s/github.com/toni-moreno/resistor", goos, goarch)))
 }

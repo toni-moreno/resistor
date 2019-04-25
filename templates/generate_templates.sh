@@ -13,13 +13,13 @@ WORK_DIR=${RESIST_HOME:-$PWD}
 
 
 
-OUTPUT_DIR="${WORK_DIR}/generated_tpls"
-OUTPUT_DIR_TH="${WORK_DIR}/generated_tpls/th"
-OUTPUT_DIR_AT="${WORK_DIR}/generated_tpls/at"
-OUTPUT_DIR_RT="${WORK_DIR}/generated_tpls/rt"
-OUTPUT_DIR_DEADMAN="${WORK_DIR}/generated_tpls/deadman"
+OUTPUT_DIR="${WORK_DIR}/templates/generated_tpls"
+OUTPUT_DIR_TH="${WORK_DIR}/templates/generated_tpls/th"
+OUTPUT_DIR_AT="${WORK_DIR}/templates/generated_tpls/at"
+OUTPUT_DIR_RT="${WORK_DIR}/templates/generated_tpls/rt"
+OUTPUT_DIR_DEADMAN="${WORK_DIR}/templates/generated_tpls/deadman"
 
-. ${WORK_DIR}/available_vars.tpl
+. ${WORK_DIR}/templates/available_vars.tpl
 
 COOKFILE=$(mktemp)
 TPL_JSON_FILE=$(mktemp)
@@ -199,7 +199,7 @@ do
 					-e "s|@DERIVNODE@|$derivnode|g" \
 					-e "s|@WINDOW@|$window|g" \
 					-e "s|@FUNCTION@|$function|g" \
-					-e "s|@DIRECTION@|$direction|g" ${WORK_DIR}/tpl/kapacitor_TH_template.tpl > $TPL_OUTPUT
+					-e "s|@DIRECTION@|$direction|g" ${WORK_DIR}/templates/tpl/kapacitor_TH_template.tpl > $TPL_OUTPUT
 			http_out=`put_to_resistor ${TPL_ID} ${TYPE} ${DIRECTION} ${ttype} ${FUNCTION} ${SUBTYPE} ${TPL_OUTPUT} ""`
 			printf "\t\t|-[%s][%s][%s][%s]\tGenerated %s [HTTP %s]\n" "$ttype" "$FUNCTION" "$TYPE" "$SUBTYPE" "$TPL_OUTPUT" "$http_out"
 		done
@@ -239,7 +239,7 @@ do
 						-e "s|@DERIVNODE@|$derivnode|g" \
 						-e "s|@FUNCTION@|$function|g" \
 						-e "s|@TREND_TYPE@|$trend_type|g" \
-						-e "s|@DIRECTION@|$direction|g" ${WORK_DIR}/tpl/kapacitor_TXX_AC_template.tpl > ${TPL_OUTPUT}
+						-e "s|@DIRECTION@|$direction|g" ${WORK_DIR}/templates/tpl/kapacitor_TXX_AC_template.tpl > ${TPL_OUTPUT}
 				http_out=`put_to_resistor ${TPL_ID} ${TYPE} ${DIRECTION} ${ttype} ${FUNCTION} ${SUBTYPE} ${TPL_OUTPUT}  ${VALUE_TYPE} ""`
 				printf "\t\t|-[%s][%s][%s][%s]\t\tGenerated %s [HTTP %s]\n" "$ttype" "$FUNCTION" "$TYPE" "$SUBTYPE" "$TPL_OUTPUT" "$http_out"
 			done
@@ -268,7 +268,7 @@ do
 						-e "s|@FUNCTION@|$function|g" \
 						-e "s|@TREND_TYPE@|$trend_type|g" \
 						-e "s|@DIRECTION0@|$direction0|g" \
-						-e "s|@DIRECTION@|$direction|g" ${WORK_DIR}/tpl/kapacitor_TXX_DC_template.tpl > ${TPL_OUTPUT}
+						-e "s|@DIRECTION@|$direction|g" ${WORK_DIR}/templates/tpl/kapacitor_TXX_DC_template.tpl > ${TPL_OUTPUT}
 				http_out=`put_to_resistor ${TPL_ID} ${TYPE} ${DIRECTION} ${ttype} ${FUNCTION} ${SUBTYPE} ${TPL_OUTPUT} ""`
 				printf "\t\t|-[%s][%s][%s][%s]\t\tGenerated %s [HTTP %s]\n" "$ttype" "$FUNCTION" "$TYPE" "$SUBTYPE" "$TPL_OUTPUT" "$http_out"
 			done
@@ -282,7 +282,7 @@ OUTPUT_TPL_DIR=$OUTPUT_DIR_DEADMAN
 
 TPL_OUTPUT=${OUTPUT_TPL_DIR}/DEADMAN.tpl
 
-cat ${WORK_DIR}/tpl/kapacitor_DEADMAN_template.tpl > ${TPL_OUTPUT}
+cat ${WORK_DIR}/templates/tpl/kapacitor_DEADMAN_template.tpl > ${TPL_OUTPUT}
 http_out=`put_to_resistor "DEADMAN" "DEADMAN" ${TPL_OUTPUT} ""`
 
 

@@ -79,6 +79,17 @@ cp conf/sample.resinjector.toml conf/resinjector.toml
 ./bin/resinjector
 ```
 
+### Setup templates.
+
+Resistor alert config are related to the kapacitor templates, So resistor has these enbedded templates, you can generate and also upload to the resistor engine thougth its HTTP API with the generate_templates.sh script, you can setup   
+
+```bash
+export RESISTOR_URL="http://localhost:6090"
+export RESISTOR_USER="mysuperadmin_user"
+export RESISTOR_PASS="mysuperadmin_pass"
+./templates/generate_templates.sh
+```
+
 ## First Setup Guide 
 
 Now you wil be able to configure metrics/measuremnets and devices from the builting web server at  http://localhost:6090 or http://localhost:4200 if working in development mode (npm start)
